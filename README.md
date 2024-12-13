@@ -47,8 +47,9 @@
 
 #### Monolithic Architecture 시스템 요구사항 표
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/d8a6d0a9-a97a-4a3f-ace2-5e439e8ba1ae" width="600">
+  <img src="https://github.com/user-attachments/assets/18590ddf-ecc4-43ef-a4c1-de530589f85b" width="600">
 </div>
+
 
 ---
 
