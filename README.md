@@ -245,6 +245,6 @@ kubectl apply -f C:\Users\KETI\Desktop\yolo_again\service.yaml
 ## 7. Contact
 한국전자기술연구원 모빌리티 플랫폼연구센터
 - **장수현 (Soohyun Jang)** 책임연구원 / [shjang@keti.re.kr](mailto:shjang@keti.re.kr)
-
+- **장준혁 (JunHyuk Jang)** 선임연구원 / [junjang9327@keti.re.kr](mailto:junjang9327@keti.re.kr)
 ## 8. Acknowledgement
 This work was supported by Institute for Information & communications Technology Promotion(IITP) grant funded by the Korea government(MSIP) (No.RS-2024-00397615, Development of an automotive software platform for Software-Defined-Vehicle (SDV) integrated with an AI framework required for intelligent vehicles)
