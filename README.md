@@ -1,5 +1,4 @@
 # SDV_AIFW
-HW-aware SDV AI framework
 
 ## 개요
 
@@ -27,12 +26,81 @@ HW-aware SDV AI framework
 - **개발자 요구사항을 반영한 IDE 환경 및 편의성 기능을 포함하여 효율적인 개발 지원을 목표로 함**  
 
 - **온디바이스 기종에 따라 AI 가속기를 활용할 수 있는 hardware-aware 최적화 기능을 제공할 계획임**
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/f5883457-7995-46a8-9dcd-1ce0778c2a0f" width="500">
+</div>
 
-## 모
+## Monolithic & Microservice Architecture
+
 <details>
-  <summary>Monolithic & Microservice</summary>
+  <summary>Monolithic & Microservice 요구사항</summary>
+
+### **Monolithic Architecture 요구사항**
+- 컴퓨팅 자원이 풍부하지 않은 온디바이스 환경 내 AI 프레임워크 구축을 위해 구조적으로 간단한 Monolithic Architecture가 필요함.
+- 온디바이스 환경은 차량 탑승자만 사용하기에 single user에 적합하며, Monolithic Architecture로 온디바이스용 AI 프레임워크를 개발할 예정임.
+- Monolithic Architecture 기반 쿠버네티스를 구축하기 위한 요구사항은 아래와 같음:
+
+#### Monolithic Architecture 구성 예시
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/c478a5ab-4475-4648-b4a6-574a0c749060" width="500">
+</div>
+
+#### Monolithic Architecture 시스템 요구사항 표
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/d8a6d0a9-a97a-4a3f-ace2-5e439e8ba1ae" width="500">
+</div>
+
+---
+
+### **Microservice Architecture 요구사항**
+- 컴퓨팅 자원이 풍부한 온프레미스 환경 내 AI 프레임워크 구축을 위해 scalability가 크고 기능 도구 관리가 용이한 Microservice Architecture가 필요함.
+- Multiple user 지원 및 서비스 운영에 장점이 있는 Microservice Architecture로 온프레미스용 AI 프레임워크를 개발할 예정임.
+- Microservice Architecture 기반 쿠버네티스를 구축하기 위한 요구사항은 아래와 같음:
+
+#### Microservice Architecture 구성 예시
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/46b402ca-fe5e-4353-92d1-25da2a0c2951" width="500">
+</div>
+
+#### Microservice Architecture 시스템 요구사항 표
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/a8e0eedb-7202-4065-8e3e-883f795f0d71" width="500">
+</div>
+
+#### 네트워크 요구사항 표
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/7799b665-0d37-4581-a206-43e427349171" width="500">
+</div>
+
+---
+
+### **MA/MSA 요구사항 비교**
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/4738cd28-7c52-40fc-bd8d-983dd7f56901" width="500">
+
+  
+</div>
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/1817537d-14da-4444-b92e-731368418847" width="500">
+</div>
+
+</details>
+
+<details>
+  <summary>쿠버네티스 환경 구축</summary>
   - ****
   - Show what is needed for on device/on premise environment
+  
+  ![image](https://github.com/user-attachments/assets/98042625-ddce-4cf4-934d-11d5075e026f)
+
+  MA 쿠버네티스 상세 구조도
+  <img width="1191" alt="image" src="https://github.com/user-attachments/assets/c7af82f1-540c-4b9b-92b6-3b04e54a9b92" />
+
+  MSA 쿠버네티스 상세 구조도
+  <img width="1191" alt="image" src="https://github.com/user-attachments/assets/2c926532-dafc-47ba-af3c-ae328f9ef8b8" />
+
+
 </details>
 
 ## 온디바이스 개발 환경
@@ -71,37 +139,95 @@ HW-aware SDV AI framework
       </div>
     </details>
 
+## 도커 이미지 가져오고 명령 실행
 
+![image](https://github.com/user-attachments/assets/c81174a1-4f99-4604-9dd9-3f4b6aa62c47)
 
-<details>
-  <summary>Docker 설치 방법</summary>
-  - kuberentes function explaination
-</details>
+---
 
-<details>
-  <summary>CUDA Requirements</summary>
-  - kuberentes function explaination
-</details>
+## 1. Docker 이미지 빌드 및 푸시
 
-## 설치
+**Docker 이미지 빌드**  
+Dockerfile을 기반으로 Docker 이미지를 생성합니다:
+```bash
+docker build -t junh27/yolo_app:latest C:\Users\KETI\Desktop\yolo_again
+```
+Docker Hub에 이미지 푸시
+Docker Hub에 이미지를 업로드합니다:
 
-  - 실행 명령어 추가
-  - requirements.txt 표 추가
+```bash
+  docker push junh27/yolo_app:latest
+```
 
-## Functions
-<details>
-  <summary>Training</summary>
-  - YOLOv5 is used for object detection and identifying bounding boxes.
-</details>
+## 2. Minikube 시작
 
-<details>
-  <summary>Inference</summary>
-  - StrongSORT is used for object tracking across multiple frames.
-</details>
+### Minikube 클러스터 시작
+Minikube 클러스터를 시작합니다:
+  ```bash
+  minikube start
+```
 
-<details>
-  <summary>Optimization</summary>
-  - OSNet is used for object classification and re-identification.
-</details>
+### Minikube Docker 환경 설정
+Minikube의 Docker 환경에서 이미지를 활용할 수 있도록 설정합니다:
+  ```bash
+  eval $(minikube docker-env)
+```
+## 3. Deployment 생성
+### deployment.yaml 파일 적용
+Kubernetes Deployment를 생성합니다:
+```bash
+  kubectl apply -f C:\Users\KETI\Desktop\yolo_again\deployment.yaml
+```
+
+### Deployment 상태 확인
+Pod가 제대로 생성되었는지 확인합니다:
+```bash
+  kubectl get deployments
+  kubectl get pods
+```
+## 4. Service 생성
+### service.yaml 파일 적용
+Kubernetes Service를 생성합니다:
+```bash
+kubectl apply -f C:\Users\KETI\Desktop\yolo_again\service.yaml
+```
+### Service 상태 확인
+서비스가 제대로 생성되었는지 확인합니다:
+```bash
+kubectl get services
+```
+### 서비스 노드포트 확인
+생성된 노드포트를 확인합니다:
+```bash
+kubectl describe service yolo-app
+```
+## 5. 애플리케이션 접근
+### Minikube 서비스 URL 확인
+애플리케이션 URL을 가져옵니다:
+```bash
+minikube service yolo-app --url
+```
+브라우저 또는 API 클라이언트로 접속
+출력된 URL을 복사하여 브라우저나 API 클라이언트에서 접속합니다.
+
+## 6. 추가 명령어
+Pod 로그 확인:
+```bash
+kubectl logs <pod-name> (Pod 이름은 kubectl get pods 명령어로 확인 가능)
+```
+Pod 삭제 및 재배포:
+```bash
+kubectl delete -f C:\Users\KETI\Desktop\yolo_again\deployment.yaml
+kubectl apply -f C:\Users\KETI\Desktop\yolo_again\deployment.yaml
+```
+Service 삭제 및 재생성:
+```bash
+kubectl delete -f C:\Users\KETI\Desktop\yolo_again\service.yaml
+kubectl apply -f C:\Users\KETI\Desktop\yolo_again\service.yaml
+```
+
+![image](https://github.com/user-attachments/assets/9951b3c7-2cd4-454b-80e6-f06fc43a74fa)
+
+![Screenshot from 2024-10-10 09-37-23](https://github.com/user-attachments/assets/17a1d9b9-84c0-4653-8ff3-4aff7f2196a6)
 
 ## Contact
