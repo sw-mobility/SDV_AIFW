@@ -16,7 +16,7 @@
 
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/3127675f-4a1f-4e8d-b778-94e1f4f3740a" width="500">
+  <img src="https://github.com/user-attachments/assets/3127675f-4a1f-4e8d-b778-94e1f4f3740a" width="600">
 </div>
 
 ## 프로젝트 목표
@@ -27,7 +27,7 @@
 
 - **온디바이스 기종에 따라 AI 가속기를 활용할 수 있는 hardware-aware 최적화 기능을 제공할 계획임**
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/f5883457-7995-46a8-9dcd-1ce0778c2a0f" width="500">
+  <img src="https://github.com/user-attachments/assets/f5883457-7995-46a8-9dcd-1ce0778c2a0f" width="600">
 </div>
 
 ## Monolithic & Microservice Architecture
@@ -42,12 +42,12 @@
 
 #### Monolithic Architecture 구성 예시
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/c478a5ab-4475-4648-b4a6-574a0c749060" width="500">
+  <img src="https://github.com/user-attachments/assets/c478a5ab-4475-4648-b4a6-574a0c749060" width="600">
 </div>
 
 #### Monolithic Architecture 시스템 요구사항 표
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/d8a6d0a9-a97a-4a3f-ace2-5e439e8ba1ae" width="500">
+  <img src="https://github.com/user-attachments/assets/d8a6d0a9-a97a-4a3f-ace2-5e439e8ba1ae" width="600">
 </div>
 
 ---
@@ -59,49 +59,54 @@
 
 #### Microservice Architecture 구성 예시
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/46b402ca-fe5e-4353-92d1-25da2a0c2951" width="500">
+  <img src="https://github.com/user-attachments/assets/46b402ca-fe5e-4353-92d1-25da2a0c2951" width="600">
 </div>
 
 #### Microservice Architecture 시스템 요구사항 표
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/a8e0eedb-7202-4065-8e3e-883f795f0d71" width="500">
+  <img src="https://github.com/user-attachments/assets/a8e0eedb-7202-4065-8e3e-883f795f0d71" width="600">
 </div>
 
 #### 네트워크 요구사항 표
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/7799b665-0d37-4581-a206-43e427349171" width="500">
+  <img src="https://github.com/user-attachments/assets/7799b665-0d37-4581-a206-43e427349171" width="600">
 </div>
 
 ---
 
 ### **MA/MSA 요구사항 비교**
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/4738cd28-7c52-40fc-bd8d-983dd7f56901" width="500">
+  <img src="https://github.com/user-attachments/assets/4738cd28-7c52-40fc-bd8d-983dd7f56901" width="600">
 
   
 </div>
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/1817537d-14da-4444-b92e-731368418847" width="500">
+  <img src="https://github.com/user-attachments/assets/1817537d-14da-4444-b92e-731368418847" width="600">
 </div>
 
 </details>
 
 <details>
   <summary>쿠버네티스 환경 구축</summary>
-  - ****
-  - Show what is needed for on device/on premise environment
-  
-  ![image](https://github.com/user-attachments/assets/98042625-ddce-4cf4-934d-11d5075e026f)
+  쿠버네티스 환경에서는 중앙 제어(Control Panel)가 API 서버, 스케줄러, 컨트롤 매니저 등을 통해 워커 노드에 있는 Pod와 컨테이너를 관리하여 효율적인 애플리케이션 배포 및 실행을 지원합니다.
+  <div align="center">
+    <img src="https://github.com/user-attachments/assets/98042625-ddce-4cf4-934d-11d5075e026f" alt="Kubernetes Environment" width="600">
+  </div>
 
-  MA 쿠버네티스 상세 구조도
-  <img width="1191" alt="image" src="https://github.com/user-attachments/assets/c7af82f1-540c-4b9b-92b6-3b04e54a9b92" />
+  ### MA 쿠버네티스 상세 구조도
+  Monolithic Architecture에서는 모든 기능이 하나의 Pod 내부에 통합되어 관리되며, 외부 DB와 연결되어 Training, Inference, Optimization 기능을 단일 컨테이너에서 수행합니다.
+  <div align="center">
+    <img src="https://github.com/user-attachments/assets/c7af82f1-540c-4b9b-92b6-3b04e54a9b92" alt="MA Kubernetes Detailed Diagram" width="600">
+  </div>
 
-  MSA 쿠버네티스 상세 구조도
-  <img width="1191" alt="image" src="https://github.com/user-attachments/assets/2c926532-dafc-47ba-af3c-ae328f9ef8b8" />
-
-
+  ### MSA 쿠버네티스 상세 구조도
+  Monolithic Architecture에서는 모든 기능이 하나의 Pod 내부에 통합되어 관리되며, 외부 DB와 연결되어 Training, Inference, Optimization 기능을 단일 컨테이너에서 수행합니다.
+  <div align="center">
+    <img src="https://github.com/user-attachments/assets/2c926532-dafc-47ba-af3c-ae328f9ef8b8" alt="MSA Kubernetes Detailed Diagram" width="600">
+  </div>
 </details>
+
 
 ## 온디바이스 개발 환경
 - ML 지원 AI 프레임워크는 다양한 기능 도구를 활용한 AI 서비스를 제공할 예정임.  
@@ -111,7 +116,7 @@
       <summary>System Requirements</summary>
       - 시스템 요구사항은 기능도구들에게 공통으로 요구되며 요구사항은 아래와 같음
       <div align="center">
-        <img src="https://github.com/user-attachments/assets/ce1c7508-8ffe-442d-9ecd-28cb53967099" width="500">
+        <img src="https://github.com/user-attachments/assets/ce1c7508-8ffe-442d-9ecd-28cb53967099" width="600">
       </div>
     </details>
     
@@ -119,7 +124,7 @@
       <summary>Training Requirements</summary>
       - Training 기능도구는 인공지능 모델을 학습하는 기능도구로써 인공지능 모델 학습에 필요한 요구사항은 아래와 같음
       <div align="center">
-        <img src="https://github.com/user-attachments/assets/73713270-5d59-4e6e-af31-47683b6060c5" width="500">
+        <img src="https://github.com/user-attachments/assets/73713270-5d59-4e6e-af31-47683b6060c5" width="600">
       </div>
     </details>
     
@@ -127,7 +132,7 @@
       <summary>Inference Requirements</summary>
       - Inference 기능도구는 인공지능 모델을 추론하는 기능도구로써 추론 정보를 AI 서비스에 활용할수있도록 분석 및 시각화 패키지가 요구됨. 인공지능 모델 추론에 필요한 요구사항은 아래와 같음
       <div align="center">
-        <img src="https://github.com/user-attachments/assets/b1df4a8e-a227-4872-80d4-183d676bb27e" width="500">
+        <img src="https://github.com/user-attachments/assets/b1df4a8e-a227-4872-80d4-183d676bb27e" width="600">
       </div>
     </details>
     
@@ -135,7 +140,7 @@
       <summary>Optimization Requirements</summary>
       - Optimization 기능도구는 인공지능 모델을 최적화하는 기능도구로써 hardware-aware 하게 온디바이스 요구사항에 맞추어 인공지능을 최적화를 실시함. 인공지능 모델 최적화에 필요한 요구사항은 아래와 같음
       <div align="center">
-        <img src="https://github.com/user-attachments/assets/4948ef47-b2ef-43cf-a3e1-2464007a59d5" width="500">
+        <img src="https://github.com/user-attachments/assets/4948ef47-b2ef-43cf-a3e1-2464007a59d5" width="600">
       </div>
     </details>
 
@@ -231,3 +236,5 @@ kubectl apply -f C:\Users\KETI\Desktop\yolo_again\service.yaml
 ![Screenshot from 2024-10-10 09-37-23](https://github.com/user-attachments/assets/17a1d9b9-84c0-4653-8ff3-4aff7f2196a6)
 
 ## Contact
+한국전자기술연구원 모빌리티 플랫폼연구센터
+- **장수현 (Soohyun Jang)** 책임연구원 / [shjang@keti.re.kr](mailto:shjang@keti.re.kr)
