@@ -1,6 +1,6 @@
 # SDV_AIFW
 
-## 개요
+## 1. 개요
 
 - **SDV 기반 자동차 SW 플랫폼**  
   - 차량 내 제한된 리소스와 신뢰성을 충족하며 고속 AI 처리 지원  
@@ -19,7 +19,9 @@
   <img src="https://github.com/user-attachments/assets/3127675f-4a1f-4e8d-b778-94e1f4f3740a" width="600">
 </div>
 
-## 프로젝트 목표
+## 2. 공개SW 서비스 제공
+
+## 3. 프로젝트 목표
 
 - **SDV 차량에 최적화된 온디바이스 및 서버 환경용 AI 프레임워크를 개발하여 개인화 학습 등 기존 프레임워크에 없는 기능을 추가 제공할 예정임**
 
@@ -30,7 +32,7 @@
   <img src="https://github.com/user-attachments/assets/f5883457-7995-46a8-9dcd-1ce0778c2a0f" width="600">
 </div>
 
-## Monolithic & Microservice Architecture
+## 4. Monolithic & Microservice Architecture
 
 <details>
   <summary>Monolithic & Microservice 요구사항</summary>
@@ -109,7 +111,7 @@
 </details>
 
 
-## 온디바이스 개발 환경
+## 5. 온디바이스 개발 환경
 - ML 지원 AI 프레임워크는 다양한 기능 도구를 활용한 AI 서비스를 제공할 예정임.  
   AI 서비스를 제공하기 위해 온디바이스 환경 내 기능 도구별로 환경 구축 및 실행이 가능한 Docker Container를 활용하여 각 기능 도구별 환경 구축이 필요함.
 
@@ -145,13 +147,13 @@
       </div>
     </details>
 
-## 도커 이미지 가져오고 명령 실행
+## 6. 도커 이미지 가져오고 명령 실행
 
 ![image](https://github.com/user-attachments/assets/c81174a1-4f99-4604-9dd9-3f4b6aa62c47)
 
 ---
 
-## 1. Docker 이미지 빌드 및 푸시
+## (a) Docker 이미지 빌드 및 푸시
 
 **Docker 이미지 빌드**  
 Dockerfile을 기반으로 Docker 이미지를 생성합니다:
@@ -165,7 +167,7 @@ Docker Hub에 이미지를 업로드합니다:
   docker push junh27/yolo_app:latest
 ```
 
-## 2. Minikube 시작
+## (b) Minikube 시작
 
 ### Minikube 클러스터 시작
 Minikube 클러스터를 시작합니다:
@@ -178,7 +180,7 @@ Minikube의 Docker 환경에서 이미지를 활용할 수 있도록 설정합�
   ```bash
   eval $(minikube docker-env)
 ```
-## 3. Deployment 생성
+## (c) Deployment 생성
 ### deployment.yaml 파일 적용
 Kubernetes Deployment를 생성합니다:
 ```bash
@@ -189,9 +191,9 @@ Kubernetes Deployment를 생성합니다:
 Pod가 제대로 생성되었는지 확인합니다:
 ```bash
   kubectl get deployments
-  kubectl get pods
+  k(c)ectl get pods
 ```
-## 4. Service 생성
+## (d) Service 생성
 ### service.yaml 파일 적용
 Kubernetes Service를 생성합니다:
 ```bash
@@ -207,7 +209,7 @@ kubectl get services
 ```bash
 kubectl describe service yolo-app
 ```
-## 5. 애플리케이션 접근
+## (e) 애플리케이션 접근
 ### Minikube 서비스 URL 확인
 애플리케이션 URL을 가져옵니다:
 ```bash
@@ -216,7 +218,7 @@ minikube service yolo-app --url
 브라우저 또는 API 클라이언트로 접속
 출력된 URL을 복사하여 브라우저나 API 클라이언트에서 접속합니다.
 
-## 6. 추가 명령어
+## (f) 추가 명령어
 Pod 로그 확인:
 ```bash
 kubectl logs <pod-name> (Pod 이름은 kubectl get pods 명령어로 확인 가능)
@@ -236,6 +238,9 @@ kubectl apply -f C:\Users\KETI\Desktop\yolo_again\service.yaml
 
 ![Screenshot from 2024-10-10 09-37-23](https://github.com/user-attachments/assets/17a1d9b9-84c0-4653-8ff3-4aff7f2196a6)
 
-## Contact
+## 7. Contact
 한국전자기술연구원 모빌리티 플랫폼연구센터
 - **장수현 (Soohyun Jang)** 책임연구원 / [shjang@keti.re.kr](mailto:shjang@keti.re.kr)
+
+## 8. Acknowledgement
+This work was supported by Institute for Information & communications Technology Promotion(IITP) grant funded by the Korea government(MSIP) (No.RS-2024-00397615, Development of an automotive software platform for Software-Defined-Vehicle (SDV) integrated with an AI framework required for intelligent vehicles)
