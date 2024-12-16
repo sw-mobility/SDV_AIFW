@@ -195,7 +195,7 @@ Kubernetes Deployment를 생성합니다:
 Pod가 제대로 생성되었는지 확인합니다:
 ```bash
   kubectl get deployments
-  k(c)ectl get pods
+  kubectl get pods
 ```
 ## (d) Service 생성
 ### service.yaml 파일 적용
