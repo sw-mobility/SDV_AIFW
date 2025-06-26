@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+export INPUT_DIR="${INPUT_DIR:-/workspace/data/testing_images}"
+export EXPORT_DIR="${EXPORT_DIR:-/export}"
+export CONFIDENCE_THRESHOLD="${CONFIDENCE_THRESHOLD:-0.25}"
+
+uvicorn main:app --host 0.0.0.0 --port 8001

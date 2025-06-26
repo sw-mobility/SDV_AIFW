@@ -1,0 +1,46 @@
+[YOLOv8 객체 탐지 Docker 이미지 실행 안내]
+
+이 Docker 이미지(tar 파일)는 Jetson Orin 보드에서 YOLOv8 객체 탐지(inference)를 수행할 수 있도록 설정되어 있습니다.
+
+📦 포함된 파일:
+- yolov8-labeler.tar
+- yolov8-labeler-사용법.txt (이 파일)
+
+🛠️ 사전 준비 (Jetson Orin 보드에서):
+1. Docker 및 NVIDIA Docker 런타임 설치
+2. USB를 장치에 연결하여 파일 복사
+
+📋 실행 순서:
+
+1. USB에서 파일 복사:
+    예시:
+    ```bash
+    cp /media/usb/yolov8-labeler.tar ~/
+    ```
+
+2. Docker 이미지 로드:
+    ```bash
+    sudo docker load -i ~/yolov8-labeler.tar
+    ```
+
+3. 컨테이너 실행 (output 폴더는 사용자 홈 디렉토리에 생성됨):
+    ```bash
+    mkdir -p ~/yolo_output
+    sudo docker run --runtime nvidia -it --rm \
+      -v ~/yolo_output:/workspace/output \
+      yolov8-labeler
+    ```
+
+    ※ '--rm' 옵션은 컨테이너 종료 시 자동 삭제됩니다.
+
+📂 입력/출력 경로 (컨테이너 내부 기준):
+- 입력 이미지 경로: `/workspace/data/testing_images`
+- 출력 결과 경로: `/workspace/output`
+
+📌 참고 사항:
+- 모델: `yolov8n.pt` 사용
+- Confidence Score ≥ 0.9인 객체만 저장됨
+- 출력 이미지들은 bounding box가 시각적으로 표시되어 `/workspace/output`에 저장됨
+
+✅ 모든 결과는 마운트된 `~/yolo_output` 폴더에서 확인 가능합니다.
+
