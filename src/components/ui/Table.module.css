@@ -1,7 +1,7 @@
 .table-container {
-    background: #ffffff;
-    border: 1px solid #e5e8eb;
-    border-radius: 0.5rem;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-lg);
     overflow: hidden;
 }
 
@@ -11,23 +11,23 @@ table {
 }
 
 thead {
-    background: #f0f2f5;
+    background: var(--color-bg-secondary);
 }
 
 th {
-    padding: 0.75rem 1.5rem;
+    padding: var(--spacing-md) var(--spacing-xl);
     text-align: left;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #4a709c;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
 }
 
 td {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.875rem;
-    color: #121417;
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-main);
 }
 
 tbody tr:not(:last-child) {
-    border-bottom: 1px solid #e5e8eb;
+    border-bottom: 1px solid var(--color-border-primary);
 }

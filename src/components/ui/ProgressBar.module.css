@@ -1,28 +1,28 @@
 .progress-bar-container {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-xl);
 }
 
 .progress-bar-label {
-    font-size: 0.875rem;
-    color: #4a709c;
-    margin-bottom: 0.5rem;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
 }
 
 .progress-bar-bg {
     width: 100%;
-    background: #e5e8eb;
-    border-radius: 9999px;
+    background: var(--color-border-primary);
+    border-radius: var(--radius-full);
     height: 0.5rem;
 }
 
 .progress-bar-fill {
-    background: #0d78f2;
+    background: var(--color-blue);
     height: 100%;
-    border-radius: 9999px;
+    border-radius: var(--radius-full);
 }
 
 .progress-bar-text {
-    font-size: 0.875rem;
-    color: #4a709c;
-    margin-top: 0.25rem;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
 }

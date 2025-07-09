@@ -1,10 +1,10 @@
 .button {
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-weight: 500;
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition-normal);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -16,7 +16,7 @@
 }
 
 .button:focus {
-  outline: 2px solid var(--color-blue);
+  outline: 2px solid var(--color-border-focus);
   outline-offset: 2px;
 }
 
@@ -24,7 +24,6 @@
   transform: translateY(1px);
 }
 
-/* Button Variants */
 .primary {
   background-color: var(--color-blue);
   color: white;
@@ -49,12 +48,12 @@
 .outline {
   background-color: transparent;
   color: var(--color-text-main);
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-gray-200);
 }
 
 .outline:hover:not(.disabled) {
-  background-color: #f5f5f5;
-  border-color: #d0d0d0;
+  background-color: var(--color-gray-100);
+  border-color: var(--color-gray-300);
 }
 
 .ghost {
@@ -64,40 +63,38 @@
 }
 
 .ghost:hover:not(.disabled) {
-  background-color: #f5f5f5;
+  background-color: var(--color-gray-100);
 }
 
 .danger {
-  background-color: var(--color-red);
+  background-color: var(--color-error);
   color: white;
-  border: 1px solid var(--color-red);
+  border: 1px solid var(--color-error);
 }
 
 .danger:hover:not(.disabled) {
-  background-color: #d32f2f;
-  border-color: #d32f2f;
+  background-color: var(--color-red);
+  border-color: var(--color-red);
 }
 
-/* Button Sizes */
 .small {
-  padding: 6px 12px;
-  font-size: 12px;
+  padding: var(--spacing-sm) var(--spacing-base);
+  font-size: var(--font-size-xs);
   min-height: 28px;
 }
 
 .medium {
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: var(--spacing-sm) var(--spacing-base);
+  font-size: var(--font-size-sm);
   min-height: 36px;
 }
 
 .large {
-  padding: 12px 24px;
-  font-size: 16px;
+  padding: var(--spacing-base) var(--spacing-xl);
+  font-size: var(--font-size-base);
   min-height: 44px;
 }
 
-/* Disabled State */
 .disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -108,7 +105,6 @@
   transform: none;
 }
 
-/* Loading State */
 .loading {
   position: relative;
   color: transparent;
@@ -130,9 +126,8 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Icon Support */
 .icon {
-  margin-right: 6px;
+  margin-right: var(--spacing-sm);
   width: 16px;
   height: 16px;
 }
@@ -140,11 +135,11 @@
 .small .icon {
   width: 14px;
   height: 14px;
-  margin-right: 4px;
+  margin-right: var(--spacing-xs);
 }
 
 .large .icon {
   width: 18px;
   height: 18px;
-  margin-right: 8px;
+  margin-right: var(--spacing-sm);
 }
