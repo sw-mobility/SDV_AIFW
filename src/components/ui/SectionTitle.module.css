@@ -1,0 +1,14 @@
+.section-title {
+    color: #121417;
+    margin-bottom: 1.5rem;
+}
+
+.section-title-lg {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.section-title-xl {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
