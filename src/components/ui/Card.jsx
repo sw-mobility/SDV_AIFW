@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Card.module.css';
+// 추후 link to 넣기
 
 export default function Card({
     children,
@@ -54,4 +55,4 @@ export function CardGrid({
             {children}
         </div>
     );
-} 
+}
