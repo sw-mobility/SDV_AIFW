@@ -1,14 +1,24 @@
 .section-title {
-    color: #121417;
-    margin-bottom: 1.5rem;
+    color: var(--color-text-main);
+    margin-left: 160px;
+    margin-top: var(--spacing-xl);
+}
+.section-title-sm {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.section-title-md {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
 }
 
 .section-title-lg {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
 }
 
 .section-title-xl {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
 }

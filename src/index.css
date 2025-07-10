@@ -1,6 +1,6 @@
 :root {
     /* Colors - Primary */
-    --color-text-main: #141414;
+    --color-text-main: #000000;
     --color-text-secondary: #6b7280;
     --color-text-muted: #9ca3af;
     --color-text-disabled: #6b7280;
@@ -94,15 +94,14 @@
 
 html, body {
     height: 100%;
-    overflow: hidden;
     font-family: var(--font-family);
     font-weight: var(--font-weight-medium);
     color: var(--color-text-main);
 }
 
 #root {
-    height: 100vh;
-    width: 100vw;
+    min-height: 100vh;
+    width: 100%;
 }
 
 ::-webkit-scrollbar {
