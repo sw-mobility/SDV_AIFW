@@ -11,6 +11,7 @@ import DataManagementPage from '../pages/DataManagementPage';
 import DataAcquisitionPage from '../pages/DataAcquisitionPage';
 import DeploymentPage from '../pages/DeploymentPage';
 import ServiceProcessPage from '../pages/ServiceProcessPage';
+import MainLayout from '../components/layout/MainLayout';
 
 const IdePage = () => (
   <div style={{ 
@@ -40,8 +41,7 @@ const AppRoutes = () => (
   <Router>
     <Routes>
       <Route path="/" element={<IndexPage />} />
-      
-      <Route path="/projects/:projectId" element={<Outlet />}>
+      <Route path="/projects/:projectId" element={<MainLayout />}>
         <Route index element={<ProjectHomePage />} />
         <Route path="training" element={<TrainingPage />} />
         <Route path="training/ide" element={<IdePage />} />

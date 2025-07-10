@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header.jsx';
 import Footer from '../../components/layout/Footer.jsx';
 import styles from '../../components/layout/Layout.module.css';
@@ -32,6 +32,10 @@ const IndexPage = () => {
         { id: 11, name: 'Data Mining Project', status: 'Active', lastModified: '2024-01-05' },
         { id: 12, name: 'Neural Network Model', status: 'Training', lastModified: '2024-01-04' },
     ]);
+
+    useEffect(() => {
+        localStorage.setItem('projects', JSON.stringify(projects));
+    }, [projects]);
 
     const handleCreateProject = () => {
         setIsModalOpen(true);
