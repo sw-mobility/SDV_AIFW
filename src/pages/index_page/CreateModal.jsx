@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import Modal from '../../components/ui/Modal.jsx';
-import styles from './CreateProjectModal.module.css';
+import styles from './CreateModal.module.css';
 
-export default function CreateProjectModal({
+/**
+ * components/ui 의 Modal을 create project modal 로 custom
+ *
+ * @param isOpen
+ * @param onClose
+ * @param onSubmit
+ * @returns {Element}
+ * @constructor
+ */
+export default function CreateModal({
     isOpen,
     onClose,
     onSubmit

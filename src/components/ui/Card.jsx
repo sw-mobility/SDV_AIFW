@@ -41,14 +41,12 @@ export default function Card({
 
 export function CardGrid({ 
     children, 
-    columns = 2,
-    gap = '1rem',
+    gap = '1.5rem',
     className = '' 
 }) {
     return (
         <div 
             className={`${styles.cardGrid} ${className}`}
-            data-columns={columns}
             style={{ gap }}
         >
             {children}
