@@ -43,10 +43,10 @@
 
 @media (max-width: 1024px) {
     .card {
-        height: 140px;
+        min-height: 120px;
         padding: var(--spacing-md);
     }
-    
+
     .cardGrid[data-columns="4"] {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -57,7 +57,7 @@
         height: 120px;
         padding: var(--spacing-md);
     }
-    
+
     .cardGrid[data-columns="4"],
     .cardGrid[data-columns="3"] {
         grid-template-columns: repeat(2, 1fr);
@@ -69,10 +69,10 @@
         height: 100px;
         padding: var(--spacing-sm);
     }
-    
+
     .cardGrid[data-columns="4"],
     .cardGrid[data-columns="3"],
     .cardGrid[data-columns="2"] {
         grid-template-columns: 1fr;
     }
-} 
+}
