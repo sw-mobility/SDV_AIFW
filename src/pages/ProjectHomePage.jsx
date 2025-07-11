@@ -16,13 +16,13 @@ const ProjectHomePage = () => {
                 <div style={{ maxWidth: 420, marginBottom: 8 }}>
                     <ProgressBar label={null} percentage={70} />
                 </div>
-                <Table
-                    columns={["Pod", "Status", "CPU", "Memory", "GPU"]}
-                    data={[
-                        ["Pod1", "Running", "80%", "90%", "90%"],
-                        ["Pod2", "Idle", "10%", "20%", "15%"],
-                        ["Pod3", "Running", "70%", "50%", "85%"],
-                    ]}
+                    <Table
+                            columns={["Pod", "Status", "CPU", "Memory", "GPU"]}
+                            data={[
+                                ["Pod1", "Running", "80%", "90%", "90%"],
+                                ["Pod2", "Idle", "10%", "20%", "15%"],
+                                ["Pod3", "Running", "70%", "50%", "85%"],
+                            ]}
                 />
             </section>
             <section style={{ margin: "40px 0 32px 0" }}>
