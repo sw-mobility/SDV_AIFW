@@ -1,5 +1,5 @@
 import React from "react";
-import "./skeleton.css";
+import "./Skeleton.module.css";
 const SkeletonElement = ({ type }) => {
     const classes = `skeleton ${type}`;
     return <div className={classes}></div>;

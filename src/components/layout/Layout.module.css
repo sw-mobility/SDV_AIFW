@@ -40,6 +40,32 @@
     flex-shrink: 0;
 }
 
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.header-nav-item {
+    text-decoration: none;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.header-nav-item:hover {
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+.header-nav-item.active {
+    color: #3578e5;
+    background-color: #f0f7ff;
+}
+
 .footer {
     border-top: 1px solid #e5e8eb;
     height: 40px;
