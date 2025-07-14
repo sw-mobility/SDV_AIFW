@@ -17,7 +17,6 @@ const config = {
     "options": {}
   },
   "viteFinal": async (config) => {
-    // CSS 모듈 설정
     config.css = {
       modules: {
         localsConvention: 'camelCase',
