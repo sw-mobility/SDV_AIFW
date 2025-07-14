@@ -6,6 +6,7 @@ import styles from './IndexPage.module.css';
 import Chip from '@mui/material/Chip';
 import { Calendar } from 'lucide-react';
 import { fetchProjects, createProject, deleteProject, updateProject } from '../../api/projects.js';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const ProjectsTab = ({ mockState }) => {
     const [showMore, setShowMore] = useState(false);
@@ -27,7 +28,11 @@ const ProjectsTab = ({ mockState }) => {
             .finally(() => setLoading(false));
     }, [mockState]);
 
-    if (loading || mockState?.loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+    if (loading || mockState?.loading) return (
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+            <CircularProgress />
+        </div>
+    );
     if (error || mockState?.error) return <div style={{ color: 'red', padding: '2rem', textAlign: 'center' }}>Error: {error || 'Mock error!'}</div>;
     if (projects.length === 0 || mockState?.empty) return <div style={{ padding: '2rem', textAlign: 'center' }}>No projects found.</div>;
 
