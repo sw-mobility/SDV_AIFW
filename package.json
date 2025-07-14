@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "build-storybook": "storybook build -c .storybook -o storybook-static",
     "chromatic": "npx chromatic --project-token=chpt_4a8fc494fcf9ba1"
   },
   "dependencies": {
