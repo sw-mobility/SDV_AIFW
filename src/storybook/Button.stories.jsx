@@ -104,7 +104,6 @@ export const CSSModuleTest = {
   render: () => (
     <div style={{ padding: '20px', background: '#f5f5f5' }}>
       <h3>CSS Module Test</h3>
-      <p>아래 버튼들이 CSS 모듈 스타일이 적용되어야 합니다:</p>
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
         <Button variant="primary">Primary (Blue)</Button>
         <Button variant="secondary">Secondary (Outline)</Button>

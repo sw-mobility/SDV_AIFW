@@ -1,5 +1,5 @@
 import React from 'react';
-import './Table.module.css';
+import styles from './Table.module.css';
 
 /**
  * table component 사용 예시
@@ -18,20 +18,20 @@ import './Table.module.css';
  */
 export default function Table({ columns, data }) {
     return (
-        <div className="table-container">
-            <table>
-                <thead>
+        <div className={styles['table-container']}>
+            <table className={styles.table}>
+                <thead className={styles.thead}>
                 <tr>
                     {columns.map(col => (
-                        <th key={col}>{col}</th>
+                        <th key={col} className={styles.th}>{col}</th>
                     ))}
                 </tr>
                 </thead>
                 <tbody>
                 {data.map((row, idx) => (
-                    <tr key={idx}>
+                    <tr key={idx} className={styles.tr}>
                         {row.map((cell, i) => (
-                            <td key={i}>{cell}</td>
+                            <td key={i} className={styles.td}>{cell}</td>
                         ))}
                     </tr>
                 ))}
