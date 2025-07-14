@@ -1,31 +1,35 @@
-import React, { useState } from 'react';
-import { Plus, FolderOpen, ChevronDown, Trash2 } from 'lucide-react';
-import { useLocalStorageState } from '../../hooks/useLocalStorageState.js';
+import React, { useState, useEffect } from 'react';
+import {Plus, FolderOpen, ChevronDown, Trash2, Pencil} from 'lucide-react';
 import Card, { CardGrid } from '../../components/ui/Card.jsx';
 import CreateModal from './CreateModal.jsx';
 import styles from './IndexPage.module.css';
 import Chip from '@mui/material/Chip';
 import { Calendar } from 'lucide-react';
+import { fetchProjects, createProject, deleteProject, updateProject } from '../../api/projects.js';
 
-const ProjectsTab = () => {
+const ProjectsTab = ({ mockState }) => {
     const [showMore, setShowMore] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editProject, setEditProject] = useState(null);
     const cardsPerPage = 8;
 
-    const [projects, setProjects] = useLocalStorageState('projects', [
-        { id: 1, name: 'AI Image Recognition', status: 'Active', lastModified: '2024-01-15' },
-        { id: 2, name: 'Natural Language Processing', status: 'Active', lastModified: '2024-01-14' },
-        { id: 3, name: 'Predictive Analytics', status: 'Active', lastModified: '2024-01-13' },
-        { id: 4, name: 'Computer Vision Model', status: 'Training', lastModified: '2024-01-12' },
-        { id: 5, name: 'Recommendation System', status: 'Active', lastModified: '2024-01-11' },
-        { id: 6, name: 'Fraud Detection AI', status: 'Deployed', lastModified: '2024-01-10' },
-        { id: 7, name: 'Sentiment Analysis', status: 'Active', lastModified: '2024-01-09' },
-        { id: 8, name: 'Object Detection', status: 'Training', lastModified: '2024-01-08' },
-        { id: 9, name: 'Text Classification', status: 'Active', lastModified: '2024-01-07' },
-        { id: 10, name: 'Speech Recognition', status: 'Deployed', lastModified: '2024-01-06' },
-        { id: 11, name: 'Data Mining Project', status: 'Active', lastModified: '2024-01-05' },
-        { id: 12, name: 'Neural Network Model', status: 'Training', lastModified: '2024-01-04' },
-    ]);
+    const [projects, setProjects] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+        fetchProjects(mockState)
+            .then(res => setProjects(res.data))
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false));
+    }, [mockState]);
+
+    if (loading || mockState?.loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+    if (error || mockState?.error) return <div style={{ color: 'red', padding: '2rem', textAlign: 'center' }}>Error: {error || 'Mock error!'}</div>;
+    if (projects.length === 0 || mockState?.empty) return <div style={{ padding: '2rem', textAlign: 'center' }}>No projects found.</div>;
 
     const handleCreateProject = () => {
         setIsModalOpen(true);
@@ -51,8 +55,52 @@ const ProjectsTab = () => {
         window.location.href = `/projects/${projectId}`;
     };
 
-    const handleDeleteProject = (projectId) => {
-        setProjects(prev => prev.filter(project => project.id !== projectId));
+    // 프로젝트 목록 새로고침
+    const reloadProjects = () => {
+        setLoading(true);
+        setError(null);
+        fetchProjects(mockState)
+            .then(res => setProjects(res.data))
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false));
+    };
+
+    //삭제
+    const handleDeleteProject = async (projectId) => {
+        setLoading(true);
+        setError(null);
+        try {
+            await deleteProject(projectId);
+            reloadProjects();
+        } catch (e) {
+            setError(e.message);
+            setLoading(false);
+        }
+    };
+
+    // 편집 모달 열기
+    const handleEditProject = (project) => {
+        setEditProject(project);
+        setEditModalOpen(true);
+    };
+    // 편집 모달 닫기
+    const handleEditModalClose = () => {
+        setEditModalOpen(false);
+        setEditProject(null);
+    };
+    // 편집 저장
+    const handleEditProjectSubmit = async (newName) => {
+        setLoading(true);
+        setError(null);
+        try {
+            await updateProject(editProject.id, { name: newName });
+            reloadProjects();
+            setEditModalOpen(false);
+            setEditProject(null);
+        } catch (e) {
+            setError(e.message);
+            setLoading(false);
+        }
     };
 
     const handleToggleShowMore = () => {
@@ -117,11 +165,16 @@ const ProjectsTab = () => {
                 <div className={styles.cardActions}>
                     <button 
                         className={styles.actionButton} 
+                        title="Edit"
+                        onClick={e => { e.stopPropagation(); handleEditProject(project); }}
+                        style={{ marginRight: 8 }}
+                    >
+                        <Pencil size={14} />
+                    </button>
+                    <button 
+                        className={styles.actionButton} 
                         title="Delete"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProject(project.id);
-                        }}
+                        onClick={e => { e.stopPropagation(); handleDeleteProject(project.id); }}
                     >
                         <Trash2 size={14} />
                     </button>
@@ -165,6 +218,14 @@ const ProjectsTab = () => {
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
                 onSubmit={handleCreateProjectSubmit}
+            />
+            <CreateModal
+                isOpen={editModalOpen}
+                onClose={handleEditModalClose}
+                onSubmit={handleEditProjectSubmit}
+                initialName={editProject?.name || ''}
+                title="Edit Project Name"
+                submitLabel="Save"
             />
         </>
     );

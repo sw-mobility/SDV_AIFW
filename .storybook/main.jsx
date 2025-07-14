@@ -15,6 +15,22 @@ const config = {
   "framework": {
     "name": "@storybook/react-vite",
     "options": {}
-  }
+  },
+  "viteFinal": async (config) => {
+    // CSS 모듈 설정
+    config.css = {
+      modules: {
+        localsConvention: 'camelCase',
+      },
+    };
+    
+    // CSS 파일 처리 설정
+    config.define = {
+      ...config.define,
+      'process.env': {},
+    };
+    
+    return config;
+  },
 };
 export default config;

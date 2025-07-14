@@ -1,31 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, Database, Tag, ChevronDown } from 'lucide-react';
 import { useLocalStorageState } from '../../hooks/useLocalStorageState.js';
 import Card, { CardGrid } from '../../components/ui/Card.jsx';
 import styles from './IndexPage.module.css';
 import Chip from '@mui/material/Chip';
 import { Calendar, Download, Trash2 } from 'lucide-react';
+import { fetchRawDatasets, fetchLabeledDatasets } from '../../api/datasets.js';
 
-const DatasetsTab = () => {
+const DatasetsTab = ({ mockState }) => {
     const [showMore, setShowMore] = useState(false);
     const [dataType, setDataType] = useState('raw');
     const cardsPerPage = 8;
 
-    const [rawDatasets, setRawDatasets] = useLocalStorageState('rawDatasets', [
-        { id: 1, name: 'Image Dataset 1', type: 'Image', size: '2.3GB', lastModified: '2024-01-15', status: 'Active' },
-        { id: 2, name: 'Image Dataset 2', type: 'Image', size: '1.8GB', lastModified: '2024-01-14', status: 'Active' },
-        { id: 3, name: 'Text Dataset 1', type: 'Text', size: '500MB', lastModified: '2024-01-13', status: 'Active' },
-        { id: 4, name: 'Audio Dataset 1', type: 'Audio', size: '3.2GB', lastModified: '2024-01-12', status: 'Active' },
-        { id: 5, name: 'Video Dataset 1', type: 'Video', size: '5.1GB', lastModified: '2024-01-11', status: 'Active' },
-    ]);
+    const [rawDatasets, setRawDatasets] = useState([]);
+    const [labeledDatasets, setLabeledDatasets] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const [labeledDatasets, setLabeledDatasets] = useLocalStorageState('labeledDatasets', [
-        { id: 1, name: 'Labeled Image Dataset 1', type: 'Image', size: '2.8GB', lastModified: '2024-01-15', status: 'Active', labelCount: 15000 },
-        { id: 2, name: 'Labeled Text Dataset 1', type: 'Text', size: '1.5GB', lastModified: '2024-01-14', status: 'Active', labelCount: 8000 },
-        { id: 3, name: 'Labeled Audio Dataset 1', type: 'Audio', size: '3.5GB', lastModified: '2024-01-13', status: 'Active', labelCount: 12000 },
-        { id: 4, name: 'Labeled Video Dataset 1', type: 'Video', size: '6.2GB', lastModified: '2024-01-12', status: 'Active', labelCount: 5000 },
-        { id: 5, name: 'Labeled Image Dataset 2', type: 'Image', size: '1.9GB', lastModified: '2024-01-11', status: 'Active', labelCount: 9500 },
-    ]);
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+        if (dataType === 'raw') {
+            fetchRawDatasets(mockState)
+                .then(res => setRawDatasets(res.data))
+                .catch(err => setError(err.message))
+                .finally(() => setLoading(false));
+        } else {
+            fetchLabeledDatasets(mockState)
+                .then(res => setLabeledDatasets(res.data))
+                .catch(err => setError(err.message))
+                .finally(() => setLoading(false));
+        }
+    }, [dataType, mockState]);
 
     const handleToggleShowMore = () => {
         setShowMore(!showMore);

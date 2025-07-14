@@ -6,7 +6,7 @@ import pageStyles from './IndexPage.module.css';
 import ProjectsTab from './ProjectsTab.jsx';
 import DatasetsTab from './DatasetsTab.jsx';
 
-const IndexPage = () => {
+const IndexPage = ({ mockState }) => {
     const [activeTab, setActiveTab] = useState('projects'); // 'projects' or 'data'
 
 
@@ -33,9 +33,9 @@ const IndexPage = () => {
                         </div>
 
                         {activeTab === 'projects' ? (
-                            <ProjectsTab />
+                            <ProjectsTab mockState={mockState} />
                         ) : (
-                            <DatasetsTab />
+                            <DatasetsTab mockState={mockState} />
                         )}
                     </div>
                 </main>

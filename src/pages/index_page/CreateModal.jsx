@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '../../components/ui/Modal.jsx';
 import styles from './CreateModal.module.css';
 
@@ -14,9 +14,16 @@ import styles from './CreateModal.module.css';
 export default function CreateModal({
     isOpen,
     onClose,
-    onSubmit
+    onSubmit,
+    initialName = '',
+    title = 'Create New Project',
+    submitLabel = 'Create Project',
 }) {
-    const [projectName, setProjectName] = useState('');
+    const [projectName, setProjectName] = useState(initialName);
+
+    useEffect(() => {
+        setProjectName(initialName);
+    }, [initialName, isOpen]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -28,7 +35,7 @@ export default function CreateModal({
     };
 
     const handleClose = () => {
-        setProjectName('');
+        setProjectName(initialName);
         onClose();
     };
 
@@ -36,7 +43,7 @@ export default function CreateModal({
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
-            title="Create New Project"
+            title={title}
         >
             <form onSubmit={handleSubmit}>
                 <div className={styles.formGroup}>
@@ -67,7 +74,7 @@ export default function CreateModal({
                         className={styles.submitButton}
                         disabled={!projectName.trim()}
                     >
-                        Create Project
+                        {submitLabel}
                     </button>
                 </div>
             </form>
