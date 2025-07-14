@@ -2,7 +2,7 @@
 # Workflow name
 name: 'Chromatic Deployment'
 
-# Event for the workflow
+# Event for the workflows
 on: push
 
 # List of jobs
@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
       - run: yarn
-        #👇 Adds Chromatic as a step in the workflow
+        #👇 Adds Chromatic as a step in the workflows
       - uses: chromaui/action@latest
         # Options required for Chromatic's GitHub Action
         with:
