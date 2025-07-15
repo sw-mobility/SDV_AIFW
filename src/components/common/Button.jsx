@@ -12,35 +12,16 @@ import styles from './Button.module.css';
  *           <Button variant="danger">Danger</Button>
  * </div>
  */
-const Button = ({
-                    children,
-                    variant = 'primary',
-                    size = 'medium',
-                    disabled = false,
-                    onClick,
-                    type = 'button',
-                    className = '',
-                    ...props
-                }) => {
-    const buttonClasses = [
-        styles.button,
-        styles[variant],
-        styles[size],
-        disabled ? styles.disabled : '',
-        className
-    ].filter(Boolean).join(' '); //배열에서 falsy 값 제거, 배열 요소 공백으로 이어붙임
-
-    return (
-        <button
-            type={type}
-            className={buttonClasses}
-            onClick={onClick}
-            disabled={disabled}
-            {...props}
-        >
-            {children}
-        </button>
-    );
-};
-
-export default Button;
+export default function Button({ children, variant = 'primary', size = 'medium', onClick, disabled, style, icon }) {
+  let className = styles.button;
+  if (variant === 'primary' || variant === 'primary-gradient') className += ' ' + styles.primary;
+  if (variant === 'secondary') className += ' ' + styles.secondary;
+  if (size === 'large') className += ' ' + styles.large;
+  if (size === 'medium') className += ' ' + styles.medium;
+  return (
+    <button className={className} onClick={onClick} disabled={disabled} style={style}>
+      {icon && <span className={styles.iconWrap}>{icon}</span>}
+      {children}
+    </button>
+  );
+}

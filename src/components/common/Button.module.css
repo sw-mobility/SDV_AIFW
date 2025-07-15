@@ -49,7 +49,7 @@
 .outline:hover:not(.disabled) {
   background-color: var(--color-gray-100);
   border-color: var(--color-gray-300);
-}
+}a
 
 .ghost {
   background-color: transparent;
@@ -79,9 +79,9 @@
 }
 
 .medium {
-  padding: var(--spacing-sm) var(--spacing-base);
-  font-size: var(--font-size-sm);
-  min-height: 36px;
+  height: 36px;
+  font-size: 16px;
+  padding: 0 18px;
 }
 
 .large {
@@ -137,4 +137,10 @@
   width: 18px;
   height: 18px;
   margin-right: var(--spacing-sm);
+}
+
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
 }
