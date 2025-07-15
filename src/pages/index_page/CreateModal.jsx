@@ -3,39 +3,46 @@ import Modal from '../../components/ui/Modal.jsx';
 import styles from './CreateModal.module.css';
 
 /**
- * components/ui 의 Modal을 create project modal 로 custom
- *
+ * 범용 엔티티 생성/수정 모달
  * @param isOpen
  * @param onClose
  * @param onSubmit
+ * @param initialValue
+ * @param title
+ * @param submitLabel
+ * @param label
+ * @param placeholder
+ * @param inputName
  * @returns {Element}
- * @constructor
  */
 export default function CreateModal({
     isOpen,
     onClose,
     onSubmit,
-    initialName = '',
-    title = 'Create New Project',
-    submitLabel = 'Create Project',
+    initialValue = '',
+    title = 'Create',
+    submitLabel = 'Create',
+    label = 'Name',
+    placeholder = 'Enter name',
+    inputName = 'entityName',
 }) {
-    const [projectName, setProjectName] = useState(initialName);
+    const [value, setValue] = useState(initialValue);
 
     useEffect(() => {
-        setProjectName(initialName);
-    }, [initialName, isOpen]);
+        setValue(initialValue);
+    }, [initialValue, isOpen]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (projectName.trim()) {
-            onSubmit(projectName.trim());
-            setProjectName('');
+        if (value.trim()) {
+            onSubmit(value.trim());
+            setValue('');
             onClose();
         }
     };
 
     const handleClose = () => {
-        setProjectName(initialName);
+        setValue(initialValue);
         onClose();
     };
 
@@ -47,16 +54,16 @@ export default function CreateModal({
         >
             <form onSubmit={handleSubmit}>
                 <div className={styles.formGroup}>
-                    <label htmlFor="projectName" className={styles.label}>
-                        Project Name
+                    <label htmlFor={inputName} className={styles.label}>
+                        {label}
                     </label>
                     <input
                         type="text"
-                        id="projectName"
-                        value={projectName}
-                        onChange={(e) => setProjectName(e.target.value)}
+                        id={inputName}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
                         className={styles.input}
-                        placeholder="Enter project name"
+                        placeholder={placeholder}
                         autoFocus
                         required
                     />
@@ -72,7 +79,7 @@ export default function CreateModal({
                     <button
                         type="submit"
                         className={styles.submitButton}
-                        disabled={!projectName.trim()}
+                        disabled={!value.trim()}
                     >
                         {submitLabel}
                     </button>

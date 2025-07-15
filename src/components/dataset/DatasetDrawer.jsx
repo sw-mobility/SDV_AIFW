@@ -6,41 +6,85 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import { Download, Trash2, Upload, Database, Tag, Calendar } from 'lucide-react';
 import { useDatasetContext } from '../../context/DatasetContext';
-import Chip from '@mui/material/Chip';
+import StatusChip from '../ui/StatusChip.jsx';
+import Loading from '../ui/Loading.jsx';
+import ErrorMessage from '../ui/ErrorMessage.jsx';
+import EmptyState from '../ui/EmptyState.jsx';
+import styles from './DatasetDrawer.module.css';
+import { downloadDataset, deleteDataset } from '../../api/datasets.js';
+import DatasetUploadModal from './DatasetUploadModal.jsx';
 
-const getStatusColor = (status) => {
-    switch (status) {
-        case 'Active': return 'success';
-        case 'Training': return 'warning';
-        case 'Deployed': return 'info';
-        case 'Processing': return 'warning';
-        default: return 'default';
-    }
-};
-
-const getStatusText = (status) => {
-    switch (status) {
-        case 'Active': return 'active';
-        case 'Training': return 'training';
-        case 'Deployed': return 'deployed';
-        case 'Processing': return 'processing';
-        default: return status;
-    }
-};
+const DatasetCard = ({ dataset, onDownload, onDelete }) => (
+    <div className={styles['dataset-card']}>
+        <div className={styles['dataset-card-header']}>
+            <StatusChip status={dataset.status} />
+            <div className={styles['dataset-card-actions']}>
+                <IconButton size="small" title="Download" onClick={() => onDownload(dataset)}>
+                    <Download size={16} />
+                </IconButton>
+                <IconButton size="small" title="Delete" onClick={() => onDelete(dataset)}>
+                    <Trash2 size={16} />
+                </IconButton>
+            </div>
+        </div>
+        <div className={styles['dataset-card-name']}>
+            {dataset.name}
+        </div>
+        <div className={styles['dataset-card-info']}>
+            {dataset.type === 'Image' ? <Database size={14} /> : <Tag size={14} />}
+            <span>{dataset.type}</span>
+            <span>· {dataset.size}</span>
+        </div>
+        <div className={styles['dataset-card-date']}>
+            <Calendar size={13} />
+            <span>{dataset.lastModified}</span>
+        </div>
+    </div>
+);
 
 const DatasetDrawer = ({ open, onClose }) => {
-    const { datasets, loading, error } = useDatasetContext();
+    const { datasets, loading, error, reload } = useDatasetContext();
+    const [uploadOpen, setUploadOpen] = React.useState(false);
+
+    const handleDownload = async (dataset) => {
+        try {
+            await downloadDataset(dataset.id, dataset.type === 'Image' ? 'raw' : 'labeled');
+            console.log('Download started for:', dataset.name);
+        } catch (error) {
+            console.error('Download failed:', error.message);
+            // TODO: Show error notification
+        }
+    };
+
+    const handleDelete = async (dataset) => {
+        try {
+            await deleteDataset(dataset.id, dataset.type === 'Image' ? 'raw' : 'labeled');
+            console.log('Dataset deleted:', dataset.name);
+            // Refresh the dataset list
+            reload();
+        } catch (error) {
+            console.error('Delete failed:', error.message);
+            // TODO: Show error notification
+        }
+    };
 
     return (
-        <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 340, boxShadow: 3 } }}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '1.2rem 1.5rem', justifyContent: 'space-between' }}>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>Data Management</Typography>
+        <Drawer 
+            anchor="right" 
+            open={open} 
+            onClose={onClose} 
+            PaperProps={{ sx: { width: 340, boxShadow: 3 } }}
+        >
+            <div className={styles['drawer-header']}>
+                <div className={styles['drawer-title']}>
+                    Data Management
+                </div>
                 <IconButton onClick={onClose} size="small">
                     <span style={{ fontSize: 24, fontWeight: 700 }}>&times;</span>
                 </IconButton>
             </div>
             <Divider />
-            <div style={{padding: '1.5rem' }}>
+            <div className={styles['drawer-content']}>
                 <Button
                     variant="contained"
                     startIcon={<Upload size={16} />}
@@ -51,59 +95,28 @@ const DatasetDrawer = ({ open, onClose }) => {
                         fontWeight: 600,
                         textTransform: 'none'
                     }}
+                    onClick={() => setUploadOpen(true)}
                 >
                     Upload Dataset
                 </Button>
-                {loading && <Typography variant="body2">Loading...</Typography>}
-                {error && <Typography color="error">{error.message}</Typography>}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                    {datasets.map(ds => (
-                        <div
-                            key={ds.id}
-                            style={{
-                                border: '1px solid var(--color-border-primary, #e0e0e0)',
-                                borderRadius: 16,
-                                padding: '1rem',
-                                background: '#fff',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '0.5rem'
-                            }}
-                        >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <Chip
-                                    label={getStatusText(ds.status)}
-                                    color={getStatusColor(ds.status)}
-                                    size="small"
-                                    variant="outlined"
-                                    sx={{ fontSize: 11, height: 20 }}
-                                />
-                                <div style={{ flex: 1 }} />
-                                <IconButton size="small" title="Download">
-                                    <Download size={16} />
-                                </IconButton>
-                                <IconButton size="small" title="Delete">
-                                    <Trash2 size={16} />
-                                </IconButton>
-                            </div>
-                            <div style={{ fontWeight: 600, fontSize: 16, color: '#222', marginTop: 2 }}>
-                                {ds.name}
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#666', fontSize: 13 }}>
-                                {ds.type === 'Image' ? <Database size={14} /> : <Tag size={14} />}
-                                <span>{ds.type}</span>
-                                <span>· {ds.size}</span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#888', fontSize: 12 }}>
-                                <Calendar size={13} />
-                                <span>{ds.lastModified}</span>
-                            </div>
-                        </div>
+                <DatasetUploadModal isOpen={uploadOpen} onClose={() => setUploadOpen(false)} />
+                
+                {loading && <Loading />}
+                {error && <ErrorMessage message={error.message} />}
+                
+                <div className={styles['dataset-list']}>
+                    {datasets.map(dataset => (
+                        <DatasetCard
+                            key={dataset.id}
+                            dataset={dataset}
+                            onDownload={handleDownload}
+                            onDelete={handleDelete}
+                        />
                     ))}
                 </div>
+                
                 {datasets.length === 0 && !loading && (
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>No datasets found.</Typography>
+                    <EmptyState message="No datasets found." />
                 )}
             </div>
         </Drawer>

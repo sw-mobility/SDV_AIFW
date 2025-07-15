@@ -1,0 +1,189 @@
+/* DatasetDrawer 스타일 */
+.drawer-header {
+    display: flex;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    justify-content: space-between;
+}
+
+.drawer-content {
+    padding: 1.5rem;
+}
+
+.dataset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.drawer-title {
+    font-family: var(--font-family);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-main);
+    margin: 0;
+    padding: 0;
+}
+
+/* DatasetCard 스타일 */
+.dataset-card {
+    border: 1px solid var(--color-border-primary, #e0e0e0);
+    border-radius: 16px;
+    padding: 1rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dataset-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dataset-card-actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.dataset-card-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #222;
+    margin-top: 2px;
+}
+
+.dataset-card-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 13px;
+}
+
+.dataset-card-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #888;
+    font-size: 12px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-top: 0.5rem;
+}
+
+.label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-main);
+    margin-bottom: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.input {
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    padding: var(--spacing-sm) var(--spacing-base);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-primary);
+    color: var(--color-text-main);
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.input:focus {
+    border-color: var(--color-blue);
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.cancelButton {
+    background: var(--color-gray-100);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.cancelButton:hover {
+    background: var(--color-gray-200);
+    color: var(--color-text-main);
+}
+
+.successMessage {
+    color: var(--color-success);
+    font-size: var(--font-size-sm);
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.uploadDropZone {
+    border: 2px dashed var(--color-border-primary);
+    border-radius: var(--radius-md);
+    background: var(--color-gray-50);
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: 0.5rem;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+    cursor: pointer;
+}
+.uploadDropZone:hover, .uploadDropZone:focus {
+    border-color: var(--color-blue);
+    background: var(--color-gray-100);
+    color: var(--color-text-main);
+}
+.uploadDropText {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+.uploadFileInfo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--color-text-main);
+    font-size: var(--font-size-sm);
+}
+.removeFileButton {
+    background: var(--color-gray-100);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem 0.8rem;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+.removeFileButton:hover {
+    background: var(--color-gray-200);
+    color: var(--color-text-main);
+}
+.fileError {
+    color: var(--color-error);
+    font-size: var(--font-size-xs);
+    margin-top: 0.25rem;
+    text-align: left;
+} 

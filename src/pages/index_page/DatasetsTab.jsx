@@ -1,11 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Database, Tag, ChevronDown } from 'lucide-react';
-import { useLocalStorageState } from '../../hooks/useLocalStorageState.js';
-import Card, { CardGrid } from '../../components/ui/Card.jsx';
+import { Upload, Database, Tag} from 'lucide-react';
+import Card from '../../components/ui/Card.jsx';
 import styles from './IndexPage.module.css';
-import Chip from '@mui/material/Chip';
 import { Calendar, Download, Trash2 } from 'lucide-react';
-import { fetchRawDatasets, fetchLabeledDatasets } from '../../api/datasets.js';
+import { fetchRawDatasets, fetchLabeledDatasets, downloadDataset } from '../../api/datasets.js';
+import StatusChip from '../../components/ui/StatusChip.jsx';
+import Loading from '../../components/ui/Loading.jsx';
+import ErrorMessage from '../../components/ui/ErrorMessage.jsx';
+import EmptyState from '../../components/ui/EmptyState.jsx';
+import ShowMoreGrid from '../../components/ui/ShowMoreGrid.jsx';
+import DatasetUploadModal from '../../components/dataset/DatasetUploadModal.jsx';
+
+/**
+ * DatasetsTab 컴포넌트
+ *
+ * "Raw" 또는 "Labeled" 데이터셋 목록을 탭 형식으로 표시하는 UI 컴포넌트
+ *
+ * - API로부터 데이터셋을 가져와 카드 형태로 렌더링
+ * - 데이터 유형 전환(raw/labeled), 다운로드 및 삭제 기능 포함
+ * - 로딩/에러/빈 상태 UI 처리
+ *
+ */
+
 
 const DatasetsTab = ({ mockState }) => {
     const [showMore, setShowMore] = useState(false);
@@ -16,11 +32,13 @@ const DatasetsTab = ({ mockState }) => {
     const [labeledDatasets, setLabeledDatasets] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [uploadOpen, setUploadOpen] = useState(false);
+    const [downloadingId, setDownloadingId] = useState(null);
 
     useEffect(() => {
         setLoading(true);
         setError(null);
-        if (dataType === 'raw') {
+        if (dataType === 'raw') { //dataType 바뀔 때마다 fetch API 실행
             fetchRawDatasets(mockState)
                 .then(res => setRawDatasets(res.data))
                 .catch(err => setError(err.message))
@@ -37,28 +55,14 @@ const DatasetsTab = ({ mockState }) => {
         setShowMore(!showMore);
     };
 
-    const handleDownload = (dataset) => {
-        console.log('Downloading dataset:', dataset.name);
-        // TODO: Implement download logic
-    };
-
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'Active': return 'success';
-            case 'Training': return 'warning';
-            case 'Deployed': return 'info';
-            case 'Processing': return 'warning';
-            default: return 'default';
-        }
-    };
-
-    const getStatusText = (status) => {
-        switch (status) {
-            case 'Active': return 'active';
-            case 'Training': return 'training';
-            case 'Deployed': return 'deployed';
-            case 'Processing': return 'processing';
-            default: return status;
+    const handleDownload = async (dataset) => {
+        setDownloadingId(dataset.id);
+        try {
+            await downloadDataset(dataset.id, dataType);
+        } catch (err) {
+            alert('Download failed: ' + err.message);
+        } finally {
+            setDownloadingId(null);
         }
     };
 
@@ -71,7 +75,7 @@ const DatasetsTab = ({ mockState }) => {
     };
 
     const CreateDatasetCard = () => (
-        <Card className={styles.createCard}>
+        <Card className={styles.createCard} onClick={() => setUploadOpen(true)}>
             <div className={styles.createCardContent}>
                 <Upload size={32} className={styles.createCardIcon} />
                 <div className={styles.createCardText}>
@@ -84,13 +88,7 @@ const DatasetsTab = ({ mockState }) => {
     const RawDatasetCard = ({ dataset }) => (
         <Card className={styles.datasetCard}>
             <div className={styles.cardContent}>
-                <Chip
-                    label={getStatusText(dataset.status)}
-                    color={getStatusColor(dataset.status)}
-                    size="small"
-                    variant="outlined"
-                    className={styles.statusChip}
-                />
+                <StatusChip status={dataset.status} className={styles.statusChip} />
 
                 <div className={styles.cardIcon}>
                     <Database size={18} color="var(--color-text-secondary)" />
@@ -105,7 +103,6 @@ const DatasetsTab = ({ mockState }) => {
                     <span className={styles.cardSize}>{dataset.size}</span>
                 </div>
 
-                {/* Raw data용 빈 공간 (labeled data의 labelCount와 동일한 높이) */}
                 <div style={{ height: '24px' }}></div>
 
                 <div className={styles.cardDate}>
@@ -114,8 +111,8 @@ const DatasetsTab = ({ mockState }) => {
                 </div>
 
                 <div className={styles.cardActions}>
-                    <button className={styles.actionButton} title="Download" onClick={() => handleDownload(dataset)}>
-                        <Download size={14} />
+                    <button className={styles.actionButton} title="Download" onClick={() => handleDownload(dataset)} disabled={downloadingId === dataset.id}>
+                        {downloadingId === dataset.id ? <span>...</span> : <Download size={14} />}
                     </button>
                     <button className={styles.actionButton} title="Delete" onClick={() => handleDelete(dataset, true)}>
                         <Trash2 size={14} />
@@ -128,13 +125,7 @@ const DatasetsTab = ({ mockState }) => {
     const LabeledDatasetCard = ({ dataset }) => (
         <Card className={styles.datasetCard}>
             <div className={styles.cardContent}>
-                <Chip
-                    label={getStatusText(dataset.status)}
-                    color={getStatusColor(dataset.status)}
-                    size="small"
-                    variant="outlined"
-                    className={styles.statusChip}
-                />
+                <StatusChip status={dataset.status} className={styles.statusChip} />
 
                 <div className={styles.cardIcon}>
                     <Tag size={18} color="var(--color-text-secondary)" />
@@ -149,7 +140,6 @@ const DatasetsTab = ({ mockState }) => {
                     <span className={styles.cardSize}>{dataset.size}</span>
                 </div>
 
-                {/* Labeled data용 labelCount 영역 */}
                 <div className={styles.cardLabelCount}>
                     <Tag size={14} />
                     {dataset.labelCount.toLocaleString()} labels
@@ -161,8 +151,8 @@ const DatasetsTab = ({ mockState }) => {
                 </div>
 
                 <div className={styles.cardActions}>
-                    <button className={styles.actionButton} title="Download" onClick={() => handleDownload(dataset)}>
-                        <Download size={14} />
+                    <button className={styles.actionButton} title="Download" onClick={() => handleDownload(dataset)} disabled={downloadingId === dataset.id}>
+                        {downloadingId === dataset.id ? <span>...</span> : <Download size={14} />}
                     </button>
                     <button className={styles.actionButton} title="Delete" onClick={() => handleDelete(dataset, false)}>
                         <Trash2 size={14} />
@@ -183,8 +173,13 @@ const DatasetsTab = ({ mockState }) => {
     ];
     const visibleDatasetCards = showMore ? allDatasetCards : allDatasetCards.slice(0, cardsPerPage);
 
+    if (loading || mockState?.loading) return <Loading />;
+    if (error || mockState?.error) return <ErrorMessage message={error || 'Mock error!'} />;
+    if (currentDatasets.length === 0 || mockState?.empty) return <EmptyState message="No datasets found." />;
+
     return (
         <>
+            <DatasetUploadModal isOpen={uploadOpen} onClose={() => setUploadOpen(false)} />
             <div className={styles.dataTypeToggle}>
                 <button
                     className={`${styles.dataTypeButton} ${dataType === 'raw' ? styles.activeDataType : ''}`}
@@ -201,26 +196,9 @@ const DatasetsTab = ({ mockState }) => {
                     Labeled Data
                 </button>
             </div>
-
-            <CardGrid gap="2rem">
-                {visibleDatasetCards}
-            </CardGrid>
-
-            {allDatasetCards.length > cardsPerPage && (
-                <div className={styles.loadMoreContainer}>
-                    <button
-                        onClick={handleToggleShowMore}
-                        className={styles.moreButton}
-                    >
-                        <span className={styles.moreText}>
-                            {showMore ? 'Show Less' : `Show ${allDatasetCards.length - cardsPerPage} More`}
-                        </span>
-                        <div className={`${styles.chevron} ${showMore ? styles.chevronUp : ''}`}>
-                            <ChevronDown size={14} />
-                        </div>
-                    </button>
-                </div>
-            )}
+            <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
+                {allDatasetCards}
+            </ShowMoreGrid>
         </>
     );
 };

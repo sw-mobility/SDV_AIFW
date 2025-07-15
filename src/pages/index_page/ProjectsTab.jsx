@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import {Plus, FolderOpen, ChevronDown, Trash2, Pencil} from 'lucide-react';
 import Card, { CardGrid } from '../../components/ui/Card.jsx';
-import CreateModal from './CreateModal.jsx';
 import styles from './IndexPage.module.css';
-import Chip from '@mui/material/Chip';
 import { Calendar } from 'lucide-react';
 import { fetchProjects, createProject, deleteProject, updateProject } from '../../api/projects.js';
-import CircularProgress from '@mui/material/CircularProgress';
+import StatusChip from '../../components/ui/StatusChip.jsx';
+import Loading from '../../components/ui/Loading.jsx';
+import ErrorMessage from '../../components/ui/ErrorMessage.jsx';
+import EmptyState from '../../components/ui/EmptyState.jsx';
+import ShowMoreGrid from '../../components/ui/ShowMoreGrid.jsx';
+import CreateModal from './CreateModal.jsx';
+/**
+ * ProjectsTab 컴포넌트
+ *
+ * 프로젝트 목록 불러오기
+ * 카드 형태로 표시, 새 프로젝트 생성, 편집, 삭제 기능 제공
+ *
+ * 주요 기능:
+ * - 프로젝트 목록 조회 (API 호출)
+ * - 프로젝트 생성, 수정, 삭제
+ * - 모달 열기/닫기 및 프로젝트 이름 입력
+ * - 로딩/에러/빈 상태 처리
+ * - Show More 카드 UI 처리
+ */
 
 const ProjectsTab = ({ mockState }) => {
     const [showMore, setShowMore] = useState(false);
@@ -28,13 +44,9 @@ const ProjectsTab = ({ mockState }) => {
             .finally(() => setLoading(false));
     }, [mockState]);
 
-    if (loading || mockState?.loading) return (
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
-            <CircularProgress />
-        </div>
-    );
-    if (error || mockState?.error) return <div style={{ color: 'red', padding: '2rem', textAlign: 'center' }}>Error: {error || 'Mock error!'}</div>;
-    if (projects.length === 0 || mockState?.empty) return <div style={{ padding: '2rem', textAlign: 'center' }}>No projects found.</div>;
+    if (loading || mockState?.loading) return <Loading />;
+    if (error || mockState?.error) return <ErrorMessage message={error || 'Mock error!'} />;
+    if (projects.length === 0 || mockState?.empty) return <EmptyState message="No projects found." />;
 
     const handleCreateProject = () => {
         setIsModalOpen(true);
@@ -123,36 +135,10 @@ const ProjectsTab = ({ mockState }) => {
         </Card>
     );
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'Active': return 'success';
-            case 'Training': return 'warning';
-            case 'Deployed': return 'info';
-            case 'Processing': return 'warning';
-            default: return 'default';
-        }
-    };
-
-    const getStatusText = (status) => {
-        switch (status) {
-            case 'Active': return 'active';
-            case 'Training': return 'training';
-            case 'Deployed': return 'deployed';
-            case 'Processing': return 'processing';
-            default: return status;
-        }
-    };
-
     const ProjectCard = ({ project }) => (
         <Card onClick={() => handleProjectClick(project.id)} className={styles.projectCard}>
             <div className={styles.cardContent}>
-                <Chip
-                    label={getStatusText(project.status)}
-                    color={getStatusColor(project.status)}
-                    size="small"
-                    variant="outlined"
-                    className={styles.statusChip}
-                />
+                <StatusChip status={project.status} className={styles.statusChip} />
 
                 <div className={styles.cardIcon}>
                     <FolderOpen size={18} color="var(--color-text-secondary)" />
@@ -199,38 +185,30 @@ const ProjectsTab = ({ mockState }) => {
 
     return (
         <>
-            <CardGrid gap="2rem">
-                {visibleProjectCards}
-            </CardGrid>
-
-            {allProjectCards.length > cardsPerPage && (
-                <div className={styles.loadMoreContainer}>
-                    <button
-                        onClick={handleToggleShowMore}
-                        className={styles.moreButton}
-                    >
-                        <span className={styles.moreText}>
-                            {showMore ? 'Show Less' : `Show ${allProjectCards.length - cardsPerPage} More`}
-                        </span>
-                        <div className={`${styles.chevron} ${showMore ? styles.chevronUp : ''}`}>
-                            <ChevronDown size={14} />
-                        </div>
-                    </button>
-                </div>
-            )}
+            <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
+                {allProjectCards}
+            </ShowMoreGrid>
 
             <CreateModal
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
                 onSubmit={handleCreateProjectSubmit}
+                title="Create New Project"
+                submitLabel="Create Project"
+                label="Project Name"
+                placeholder="Enter project name"
+                inputName="projectName"
             />
             <CreateModal
                 isOpen={editModalOpen}
                 onClose={handleEditModalClose}
                 onSubmit={handleEditProjectSubmit}
-                initialName={editProject?.name || ''}
-                title="Edit Project Name"
-                submitLabel="Save"
+                initialValue={editProject?.name || ''}
+                title="Edit Project"
+                submitLabel="Save Changes"
+                label="Project Name"
+                placeholder="Enter project name"
+                inputName="projectNameEdit"
             />
         </>
     );
