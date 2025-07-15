@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useEffect, useState } from 'react';
 import Button from '../../components/common/Button.jsx';
 import Modal from '../../components/common/Modal.jsx';
@@ -10,6 +8,7 @@ import CodeEditor from '../../components/common/CodeEditor.jsx';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import pageStyles from '../index_page/IndexPage.module.css';
 import styles from './TrainingPage.module.css';
+import { PlayCircle } from 'lucide-react';
 
 const mockSnapshots = [
   { id: 'snap1', name: 'MyTrainerSnapshot1', description: 'Default trainer snapshot' },
@@ -34,6 +33,7 @@ export default function TrainingPage() {
 
   // Hyperparameters
   const [params, setParams] = useState({ epochs: 20, lr: 0.01, batchSize: 32 });
+  const [paramErrors, setParamErrors] = useState({ epochs: '', lr: '', batchSize: '' });
 
   // Training
   const [isTraining, setIsTraining] = useState(false);
@@ -91,8 +91,22 @@ export default function TrainingPage() {
     setProgress(0);
   };
 
+  const validateParam = (key, value) => {
+    let error = '';
+    if (key === 'epochs') {
+      if (value < 1 || value > 1000) error = 'Epochs는 1~1000 사이여야 합니다.';
+    } else if (key === 'lr') {
+      if (value <= 0 || value > 1) error = 'Learning Rate는 0보다 크고 1 이하이어야 합니다.';
+    } else if (key === 'batchSize') {
+      if (value < 1 || value > 1024) error = 'Batch Size는 1~1024 사이여야 합니다.';
+    }
+    setParamErrors(prev => ({ ...prev, [key]: error }));
+    return error === '';
+  };
+
   const handleParamChange = (key, value) => {
     setParams(p => ({ ...p, [key]: value }));
+    validateParam(key, value);
   };
 
   return (
@@ -200,32 +214,46 @@ export default function TrainingPage() {
                   Epochs
                   <input
                     type="number"
-                    className={styles.input}
+                    className={styles.input + (paramErrors.epochs ? ' ' + styles.inputError : '')}
                     value={params.epochs}
                     min={1}
+                    max={1000}
+                    step={1}
+                    placeholder="예: 20"
+                    disabled={isTraining}
                     onChange={e => handleParamChange('epochs', Number(e.target.value))}
                   />
+                  {paramErrors.epochs && <div className={styles.inputErrorMsg}>{paramErrors.epochs}</div>}
                 </label>
                 <label>
                   Learning Rate
                   <input
                     type="number"
-                    className={styles.input}
+                    className={styles.input + (paramErrors.lr ? ' ' + styles.inputError : '')}
                     value={params.lr}
-                    step="0.0001"
-                    min={0}
+                    min={0.0001}
+                    max={1}
+                    step={0.0001}
+                    placeholder="예: 0.01"
+                    disabled={isTraining}
                     onChange={e => handleParamChange('lr', Number(e.target.value))}
                   />
+                  {paramErrors.lr && <div className={styles.inputErrorMsg}>{paramErrors.lr}</div>}
                 </label>
                 <label>
                   Batch Size
                   <input
                     type="number"
-                    className={styles.input}
+                    className={styles.input + (paramErrors.batchSize ? ' ' + styles.inputError : '')}
                     value={params.batchSize}
                     min={1}
+                    max={1024}
+                    step={1}
+                    placeholder="예: 32"
+                    disabled={isTraining}
                     onChange={e => handleParamChange('batchSize', Number(e.target.value))}
                   />
+                  {paramErrors.batchSize && <div className={styles.inputErrorMsg}>{paramErrors.batchSize}</div>}
                 </label>
               </div>
             </div>
@@ -238,15 +266,21 @@ export default function TrainingPage() {
           </>
         )}
         <div className={styles.runCard}>
-          <Button
-            variant="primary"
-            size="large"
-            onClick={handleRunTraining}
-            disabled={isTraining}
-          >
-            Run Training
-          </Button>
-          {error && <ErrorMessage message={error} />}
+          <div className={styles.runRow}>
+            <div className={styles.runErrorWrap}>
+              {error && <ErrorMessage message={error} />}
+            </div>
+            <Button
+              variant="primary-gradient"
+              size="medium"
+              onClick={handleRunTraining}
+              disabled={isTraining}
+              icon={<PlayCircle size={20} style={{ marginRight: 6 }} />}
+              style={{ minWidth: 150 }}
+            >
+              Run Training
+            </Button>
+          </div>
         </div>
         <h3 className={styles.sectionSubheading}>State and Log</h3>
         <div className={styles.statusCard}>

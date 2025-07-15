@@ -50,7 +50,6 @@
   background: var(--color-blue-light);
 }
 
-/* 모드 버튼 */
 .modeButton {
   flex: 1;
   padding: var(--spacing-base);
@@ -126,7 +125,19 @@
   box-shadow: var(--shadow-focus);
 }
 
-/* 주요 카드 min-width, max-width 제한 해제 */
+.inputError {
+  border: 1.5px solid #e74c3c !important;
+  background: #fff6f6;
+}
+
+.inputErrorMsg {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
 .paramCard,
 .runCard,
 .statusCard,
@@ -135,6 +146,27 @@
   width: 100%;
   max-width: none;
   min-width: 0;
+}
+
+.runCard {
+  margin-top: 24px;
+  margin-bottom: 12px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+.runRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+.runErrorWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .paramGrid {
