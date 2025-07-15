@@ -1,6 +1,7 @@
 import React from "react";
-import Table from "../components/ui/Table.jsx";
-import ProgressBar from "../components/ui/ProgressBar.jsx";
+import Table from "../components/common/Table.jsx";
+import ProgressBar from "../components/common/ProgressBar.jsx";
+import "./Pages.module.css";
 
 const ProjectHomePage = () => {
     return (

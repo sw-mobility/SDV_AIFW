@@ -1,5 +1,5 @@
 import React from 'react';
-import SectionTitle from "../components/ui/SectionTitle.jsx";
+import SectionTitle from "../components/common/SectionTitle.jsx";
 
 const ServiceProcessPage = () => {
   return (

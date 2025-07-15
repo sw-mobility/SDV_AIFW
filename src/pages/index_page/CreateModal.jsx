@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Modal from '../../components/ui/Modal.jsx';
+import Modal from '../../components/common/Modal.jsx';
 import styles from './CreateModal.module.css';
 
 /**

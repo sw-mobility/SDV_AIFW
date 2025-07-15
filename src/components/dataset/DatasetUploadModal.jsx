@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
-import Modal from '../ui/Modal.jsx';
+import Modal from '../common/Modal.jsx';
 import styles from './DatasetDrawer.module.css';
-import Button from '../ui/Button.jsx';
+import Button from '../common/Button.jsx';
 import { uploadDataset } from '../../api/datasets.js';
-import Loading from '../ui/Loading.jsx';
-import ErrorMessage from '../ui/ErrorMessage.jsx';
+import Loading from '../common/Loading.jsx';
+import ErrorMessage from '../common/ErrorMessage.jsx';
 import { useDatasetContext } from '../../context/DatasetContext';
 
 const DATASET_TYPES = [
