@@ -133,9 +133,11 @@
 .inputErrorMsg {
   color: #e74c3c;
   font-size: 13px;
-  margin-top: 2px;
+  margin-top: 6px;
   margin-bottom: 4px;
   font-weight: 500;
+  line-height: 1.3;
+  display: block;
 }
 
 .paramCard,
@@ -281,7 +283,7 @@ label {
 .paramCard {
   background: #f8f9fb;
   border-radius: 10px;
-  padding: 18px 20px 10px 20px;
+  padding: 18px 20px 16px 20px;
   margin-bottom: 0;
   box-shadow: 0 1px 4px rgba(0,0,0,0.03);
 }
@@ -289,55 +291,104 @@ label {
 .paramGroupTitle {
   font-weight: 600;
   font-size: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
   color: #222;
 }
 
+/* 개선된 파라미터 행 스타일 */
 .paramRow {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.paramRow:last-child {
+  margin-bottom: 8px;
+}
+
+.paramRowHeader {
+  display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .paramLabel {
-  min-width: 120px;
-  font-size: 15px;
-  color: #333;
+  font-size: 14px;
+  color: #374151;
   font-weight: 500;
-}
-
-.paramInput {
-  flex: 1;
-  padding: 7px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 15px;
-  background: #fff;
-  transition: border 0.2s, box-shadow 0.2s;
-}
-.paramInput:focus {
-  border: 1.5px solid #4f8cff;
-  outline: none;
-  box-shadow: 0 0 0 2px #e3f0ff;
-}
-.paramInput:disabled {
-  background: #f3f4f6;
-  color: #aaa;
-  cursor: not-allowed;
+  line-height: 1.4;
 }
 
 .paramDesc {
-  color: #888;
+  color: #6b7280;
   font-size: 12px;
-  margin-left: 8px;
+  font-weight: 400;
+}
+
+.paramInputWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.paramInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.paramInput:focus {
+  border-color: #4f8cff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+.paramInput:hover:not(:disabled):not(.error) {
+  border-color: #4f8cff;
+}
+
+.paramInput:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+}
+
+/* 에러 상태 스타일 */
+.paramInput.error {
+  border-color: #ef4444;
+  background: #fef2f2;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.paramInput.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 }
 
 .paramError {
-  color: #e74c3c;
+  color: #ef4444;
   font-size: 12px;
-  margin-top: 2px;
-  margin-left: 136px;
+  font-weight: 500;
+  margin-top: 4px;
+  line-height: 1.3;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.paramError::before {
+  content: "⚠";
+  font-size: 12px;
+  margin-top: 1px;
+  flex-shrink: 0;
 }
 
 .runButton {
@@ -415,6 +466,126 @@ label {
   border-top: none;
 }
 
+/* 개선된 파라미터 섹션 레이아웃 */
+.paramSectionWrap {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.paramCardWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.paramSummaryBox {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.paramSummaryGroupWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.paramSummaryGroupBox {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.paramSummaryGroupBox:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.paramSummaryGroupBox .paramGroupTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+}
+
+.paramSummaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+
+.paramSummaryItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.paramSummaryLabel {
+  color: #64748b;
+  font-weight: 500;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paramSummaryValue {
+  color: #1e293b;
+  font-weight: 600;
+  font-family: 'Monaco', 'Menlo', monospace;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.paramSummaryValue.error {
+  color: #ef4444;
+}
+
+/* 빈 상태 스타일 */
+.paramSummaryEmpty {
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+/* 숫자 입력 스피너 제거 */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .paramSectionWrap {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .paramSummaryBox {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .paramSummaryGroupWrap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+}
+
 @media (max-width: 900px) {
   .container {
     padding: 0 16px;
@@ -426,4 +597,37 @@ label {
   .editorCard {
     max-width: 100%;
   }
+
+  .paramSummaryGroupWrap {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Drawer for code editor (right side slide-in) */
+.codeDrawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 600px;
+  max-width: 100vw;
+  height: 100vh;
+  background: #f8f9fb;
+  box-shadow: -2px 0 16px rgba(0,0,0,0.08);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+}
+.drawerOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30,40,60,0.18);
+  z-index: 1199;
+}
+.drawerEditorWrap {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
