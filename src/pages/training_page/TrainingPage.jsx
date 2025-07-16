@@ -106,6 +106,9 @@ export default function TrainingPage() {
   // Accordion open state
   const [openParamGroup, setOpenParamGroup] = useState(0);
 
+  // Code Editor toggle state
+  const [showCodeEditor, setShowCodeEditor] = useState(false);
+
   // Fetch labeled datasets on mount
   useEffect(() => {
     setDatasetLoading(true);
@@ -181,50 +184,51 @@ export default function TrainingPage() {
   return (
     <div className={styles.container}>
       <div style={{ fontSize: 28, fontWeight: 700, color: "#222", marginBottom: "10px"}}>Training</div>
-      {/* Mode Toggle */}
+      {/* Standard/Continual Training Tab Navigation */}
+      <div className={styles.tabNavigation}>
+        <button
+          className={`${pageStyles.tabButton} ${trainingType === 'standard' ? pageStyles.activeTab : ''}`}
+          onClick={() => setTrainingType('standard')}
+        >
+          Standard Training
+        </button>
+        <button
+          className={`${pageStyles.tabButton} ${trainingType === 'continual' ? pageStyles.activeTab : ''}`}
+          onClick={() => setTrainingType('continual')}
+        >
+          Continual Training
+        </button>
+      </div>
+      <hr className={styles.tabDivider} />
+      {/* Algorithm Selector (always shown) */}
       <div className={styles.sectionCard}>
-      <div className={pageStyles.dataTypeToggle}>
-        <button
-          className={`${pageStyles.dataTypeButton} ${mode === 'no-code' ? pageStyles.activeDataType : ''}`}
-          onClick={() => setMode('no-code')}
-        >
-          No-Code Mode
-        </button>
-        <button
-          className={`${pageStyles.dataTypeButton} ${mode === 'ide' ? pageStyles.activeDataType : ''}`}
-          onClick={() => setMode('ide')}
-        >
-          IDE Mode
-        </button>
-      </div>
-      </div>
-      {/* Algorithm Selector */}
-      {mode === 'no-code' && (
-        <div className={styles.sectionCard}>
-          <div className={styles.selectorGroup}>
-            <div className={styles.selectorBox}>
-              <select
-                className={styles.select}
-                value={algorithm}
-                onChange={e => {
-                  setAlgorithm(e.target.value);
-                  setAlgoParams({});
-                  setOpenParamGroup(0); // reset accordion to first group
-                }}
-              >
-                {algorithmOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
+        <div className={styles.selectorGroup}>
+          <div className={styles.selectorBox}>
+            <label className={styles.paramLabel} style={{marginBottom: 4}}>Algorithm</label>
+            <select
+              className={styles.select}
+              value={algorithm}
+              onChange={e => {
+                setAlgorithm(e.target.value);
+                setAlgoParams({});
+                setOpenParamGroup(0);
+              }}
+            >
+              {algorithmOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
-      {/* Dataset & Snapshot */}
-      {mode === 'no-code' && (
-        <div className={styles.sectionCard}>
+      </div>
+      {/* Standard/Continual UI */}
+      {trainingType === 'standard' ? (
+        <>
+          {/* Dataset & Snapshot (Standard) */}
+          <div className={styles.sectionCard}>
             <div className={styles.selectorGroup}>
               <div className={styles.selectorBox}>
+                <label className={styles.paramLabel} style={{marginBottom: 4}}>Dataset</label>
                 {datasetLoading && <Loading />}
                 {datasetError && <ErrorMessage message={datasetError} />}
                 {!datasetLoading && !datasetError && (
@@ -254,6 +258,7 @@ export default function TrainingPage() {
                 )}
               </div>
               <div className={styles.selectorBox}>
+                <label className={styles.paramLabel} style={{marginBottom: 4}}>Snapshot</label>
                 <div className={styles.snapshotRow}>
                   <select
                     className={styles.select}
@@ -286,145 +291,356 @@ export default function TrainingPage() {
                 </Modal>
               </div>
             </div>
-        </div>
-      )}
-      {/* Parameters - Accordion UI */}
-      {mode === 'no-code' && (
-        <div className={styles.paramCardWrap}>
-          {algorithm === 'yolov8' ? (
-            yolov8ParamGroups.map((group, idx) => (
-              <div key={group.group} className={styles.accordionCard}>
+          </div>
+          {/* Parameters - Accordion UI (Standard) */}
+          <div className={styles.paramCardWrap}>
+            {algorithm === 'yolov8' ? (
+              yolov8ParamGroups.map((group, idx) => (
+                <div key={group.group} className={styles.accordionCard}>
+                  <div
+                    className={styles.accordionHeader + ' ' + (openParamGroup === idx ? styles.accordionOpen : '')}
+                    onClick={() => setOpenParamGroup(openParamGroup === idx ? -1 : idx)}
+                    tabIndex={0}
+                    role="button"
+                    aria-expanded={openParamGroup === idx}
+                  >
+                    <span>{group.group}</span>
+                    <span className={styles.accordionArrow}>{openParamGroup === idx ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                  </div>
+                  {openParamGroup === idx && (
+                    <div className={styles.accordionContent}>
+                      {group.params.map(param => (
+                        <div className={styles.paramRow} key={param.key}>
+                          <label className={styles.paramLabel}>{param.label}</label>
+                          {param.type === 'select' ? (
+                            <select
+                              className={styles.paramInput}
+                              value={algoParams[param.key] ?? param.default}
+                              onChange={e => handleAlgoParamChange(param.key, e.target.value)}
+                              disabled={isTraining}
+                            >
+                              {param.options.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                          ) : param.type === 'checkbox' ? (
+                            <input
+                              type="checkbox"
+                              className={styles.paramInput}
+                              checked={algoParams[param.key] ?? param.default}
+                              onChange={e => handleAlgoParamChange(param.key, e.target.checked)}
+                              disabled={isTraining}
+                            />
+                          ) : (
+                            <input
+                              type={param.type}
+                              className={styles.paramInput}
+                              value={algoParams[param.key] ?? param.default}
+                              min={param.min}
+                              max={param.max}
+                              step={param.step}
+                              placeholder={param.label}
+                              disabled={isTraining}
+                              onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
+                            />
+                          )}
+                          {param.desc && <span className={styles.paramDesc}>{param.desc}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : algorithm === 'algorithm1' ? (
+              <div className={styles.accordionCard}>
                 <div
-                  className={styles.accordionHeader + ' ' + (openParamGroup === idx ? styles.accordionOpen : '')}
-                  onClick={() => setOpenParamGroup(openParamGroup === idx ? -1 : idx)}
+                  className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
+                  onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
                   tabIndex={0}
                   role="button"
-                  aria-expanded={openParamGroup === idx}
+                  aria-expanded={openParamGroup === 0}
                 >
-                  <span>{group.group}</span>
-                  <span className={styles.accordionArrow}>{openParamGroup === idx ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                  <span>Algorithm 1</span>
+                  <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
                 </div>
-                {openParamGroup === idx && (
+                {openParamGroup === 0 && (
                   <div className={styles.accordionContent}>
-                    {group.params.map(param => (
+                    {algorithm1Params.map(param => (
                       <div className={styles.paramRow} key={param.key}>
                         <label className={styles.paramLabel}>{param.label}</label>
-                        {param.type === 'select' ? (
-                          <select
-                            className={styles.paramInput}
-                            value={algoParams[param.key] ?? param.default}
-                            onChange={e => handleAlgoParamChange(param.key, e.target.value)}
-                            disabled={isTraining}
-                          >
-                            {param.options.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
-                        ) : param.type === 'checkbox' ? (
-                  <input
-                            type="checkbox"
-                            className={styles.paramInput}
-                            checked={algoParams[param.key] ?? param.default}
-                            onChange={e => handleAlgoParamChange(param.key, e.target.checked)}
-                    disabled={isTraining}
-                  />
-                        ) : (
-                  <input
-                            type={param.type}
-                            className={styles.paramInput}
-                            value={algoParams[param.key] ?? param.default}
-                            min={param.min}
-                            max={param.max}
-                            step={param.step}
-                            placeholder={param.label}
-                    disabled={isTraining}
-                            onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
-                  />
-                        )}
-                        {param.desc && <span className={styles.paramDesc}>{param.desc}</span>}
+                        <input
+                          type={param.type}
+                          className={styles.paramInput}
+                          value={algoParams[param.key] ?? param.default}
+                          min={param.min}
+                          max={param.max}
+                          step={param.step}
+                          placeholder={param.label}
+                          disabled={isTraining}
+                          onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
+                        />
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            ))
-          ) : algorithm === 'algorithm1' ? (
-            <div className={styles.accordionCard}>
-              <div
-                className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
-                onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
-                tabIndex={0}
-                role="button"
-                aria-expanded={openParamGroup === 0}
-              >
-                <span>Algorithm 1</span>
-                <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
-              </div>
-              {openParamGroup === 0 && (
-                <div className={styles.accordionContent}>
-                  {algorithm1Params.map(param => (
-                    <div className={styles.paramRow} key={param.key}>
-                      <label className={styles.paramLabel}>{param.label}</label>
-                  <input
-                        type={param.type}
-                        className={styles.paramInput}
-                        value={algoParams[param.key] ?? param.default}
-                        min={param.min}
-                        max={param.max}
-                        step={param.step}
-                        placeholder={param.label}
-                    disabled={isTraining}
-                        onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
-                  />
-                    </div>
-                  ))}
+            ) : algorithm === 'algorithm2' ? (
+              <div className={styles.accordionCard}>
+                <div
+                  className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
+                  onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
+                  tabIndex={0}
+                  role="button"
+                  aria-expanded={openParamGroup === 0}
+                >
+                  <span>Algorithm 2</span>
+                  <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
                 </div>
-              )}
-            </div>
-          ) : algorithm === 'algorithm2' ? (
-            <div className={styles.accordionCard}>
-              <div
-                className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
-                onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
-                tabIndex={0}
-                role="button"
-                aria-expanded={openParamGroup === 0}
-              >
-                <span>Algorithm 2</span>
-                <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                {openParamGroup === 0 && (
+                  <div className={styles.accordionContent}>
+                    {algorithm2Params.map(param => (
+                      <div className={styles.paramRow} key={param.key}>
+                        <label className={styles.paramLabel}>{param.label}</label>
+                        <input
+                          type={param.type}
+                          className={styles.paramInput}
+                          value={algoParams[param.key] ?? param.default}
+                          min={param.min}
+                          max={param.max}
+                          step={param.step}
+                          placeholder={param.label}
+                          disabled={isTraining}
+                          onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              {openParamGroup === 0 && (
-                <div className={styles.accordionContent}>
-                  {algorithm2Params.map(param => (
-                    <div className={styles.paramRow} key={param.key}>
-                      <label className={styles.paramLabel}>{param.label}</label>
-                      <input
-                        type={param.type}
-                        className={styles.paramInput}
-                        value={algoParams[param.key] ?? param.default}
-                        min={param.min}
-                        max={param.max}
-                        step={param.step}
-                        placeholder={param.label}
-                        disabled={isTraining}
-                        onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
-                      />
-                    </div>
-                  ))}
+            ) : null}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Continual Learning Info */}
+          <div className={styles.sectionCard} style={{ background: '#f8f9fb', border: '1.5px solid #4f8cff', color: '#1a3a5d', marginBottom: 18 }}>
+            <b>Continual Learning</b> allows you to update a model incrementally with new data, starting from a previous snapshot. Select a base snapshot and a new dataset to continue training.
+          </div>
+          {/* Base Snapshot (required) and New Dataset */}
+          <div className={styles.sectionCard}>
+            <div className={styles.selectorGroup}>
+              <div className={styles.selectorBox}>
+                <label className={styles.paramLabel} style={{marginBottom: 4}}>Base Snapshot <span style={{color:'#e74c3c'}}>*</span></label>
+                <div className={styles.snapshotRow}>
+                  <select
+                    className={styles.select}
+                    value={selectedSnapshot ? selectedSnapshot.id : ''}
+                    onChange={e => {
+                      const snap = snapshots.find(s => s.id === e.target.value);
+                      setSelectedSnapshot(snap);
+                    }}
+                  >
+                    <option value="">Select base snapshot</option>
+                    {snapshots.map(snap => (
+                      <option key={snap.id} value={snap.id}>{snap.name}</option>
+                    ))}
+                  </select>
+                  <Button variant="secondary" onClick={() => setSnapshotModalOpen(true)}>
+                    + Register New
+                  </Button>
                 </div>
-              )}
+                {selectedSnapshot && (
+                  <div className={styles.snapshotInfo}>
+                    <div><b>Name:</b> {selectedSnapshot.name}</div>
+                    <div><b>Description:</b> {selectedSnapshot.description}</div>
+                  </div>
+                )}
+                <Modal isOpen={snapshotModalOpen} onClose={() => setSnapshotModalOpen(false)} title="Register Snapshot">
+                  <div style={{ padding: 16 }}>
+                    <div>Snapshot registration feature coming soon.</div>
+                    <Button onClick={() => setSnapshotModalOpen(false)} style={{ marginTop: 16 }}>Close</Button>
+                  </div>
+                </Modal>
+              </div>
+              <div className={styles.selectorBox}>
+                <label className={styles.paramLabel} style={{marginBottom: 4}}>New Dataset <span style={{color:'#e74c3c'}}>*</span></label>
+                {datasetLoading && <Loading />}
+                {datasetError && <ErrorMessage message={datasetError} />}
+                {!datasetLoading && !datasetError && (
+                  <select
+                    className={styles.select}
+                    value={selectedDataset ? selectedDataset.id : ''}
+                    onChange={e => {
+                      const ds = datasets.find(d => d.id === Number(e.target.value));
+                      setSelectedDataset(ds);
+                    }}
+                  >
+                    <option value="">Select new dataset</option>
+                    {datasets.map(ds => (
+                      <option key={ds.id} value={ds.id}>
+                        {ds.name} ({ds.type}, {ds.size})
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {selectedDataset && (
+                  <div className={styles.datasetInfo}>
+                    <div><b>Name:</b> {selectedDataset.name}</div>
+                    <div><b>Type:</b> {selectedDataset.type}</div>
+                    <div><b>Size:</b> {selectedDataset.size}</div>
+                    <div><b>Label Count:</b> {selectedDataset.labelCount}</div>
+                  </div>
+                )}
+              </div>
             </div>
-          ) : null}
+          </div>
+          {/* Parameters - Only show 'Training' group for Continual */}
+          <div className={styles.paramCardWrap}>
+            {algorithm === 'yolov8' ? (
+              yolov8ParamGroups.filter(g => g.group === 'Training').map((group, idx) => (
+                <div key={group.group} className={styles.accordionCard}>
+                  <div
+                    className={styles.accordionHeader + ' ' + (openParamGroup === idx ? styles.accordionOpen : '')}
+                    onClick={() => setOpenParamGroup(openParamGroup === idx ? -1 : idx)}
+                    tabIndex={0}
+                    role="button"
+                    aria-expanded={openParamGroup === idx}
+                  >
+                    <span>{group.group}</span>
+                    <span className={styles.accordionArrow}>{openParamGroup === idx ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                  </div>
+                  {openParamGroup === idx && (
+                    <div className={styles.accordionContent}>
+                      {group.params.map(param => (
+                        <div className={styles.paramRow} key={param.key}>
+                          <label className={styles.paramLabel}>{param.label}</label>
+                          {param.type === 'select' ? (
+                            <select
+                              className={styles.paramInput}
+                              value={algoParams[param.key] ?? param.default}
+                              onChange={e => handleAlgoParamChange(param.key, e.target.value)}
+                              disabled={isTraining}
+                            >
+                              {param.options.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                          ) : param.type === 'checkbox' ? (
+                            <input
+                              type="checkbox"
+                              className={styles.paramInput}
+                              checked={algoParams[param.key] ?? param.default}
+                              onChange={e => handleAlgoParamChange(param.key, e.target.checked)}
+                              disabled={isTraining}
+                            />
+                          ) : (
+                            <input
+                              type={param.type}
+                              className={styles.paramInput}
+                              value={algoParams[param.key] ?? param.default}
+                              min={param.min}
+                              max={param.max}
+                              step={param.step}
+                              placeholder={param.label}
+                              disabled={isTraining}
+                              onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
+                            />
+                          )}
+                          {param.desc && <span className={styles.paramDesc}>{param.desc}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : algorithm === 'algorithm1' ? (
+              <div className={styles.accordionCard}>
+                <div
+                  className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
+                  onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
+                  tabIndex={0}
+                  role="button"
+                  aria-expanded={openParamGroup === 0}
+                >
+                  <span>Algorithm 1</span>
+                  <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                </div>
+                {openParamGroup === 0 && (
+                  <div className={styles.accordionContent}>
+                    {algorithm1Params.map(param => (
+                      <div className={styles.paramRow} key={param.key}>
+                        <label className={styles.paramLabel}>{param.label}</label>
+                        <input
+                          type={param.type}
+                          className={styles.paramInput}
+                          value={algoParams[param.key] ?? param.default}
+                          min={param.min}
+                          max={param.max}
+                          step={param.step}
+                          placeholder={param.label}
+                          disabled={isTraining}
+                          onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : algorithm === 'algorithm2' ? (
+              <div className={styles.accordionCard}>
+                <div
+                  className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
+                  onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
+                  tabIndex={0}
+                  role="button"
+                  aria-expanded={openParamGroup === 0}
+                >
+                  <span>Algorithm 2</span>
+                  <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                </div>
+                {openParamGroup === 0 && (
+                  <div className={styles.accordionContent}>
+                    {algorithm2Params.map(param => (
+                      <div className={styles.paramRow} key={param.key}>
+                        <label className={styles.paramLabel}>{param.label}</label>
+                        <input
+                          type={param.type}
+                          className={styles.paramInput}
+                          value={algoParams[param.key] ?? param.default}
+                          min={param.min}
+                          max={param.max}
+                          step={param.step}
+                          placeholder={param.label}
+                          disabled={isTraining}
+                          onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </>
+      )}
+      {/* Edit Code/Expert Mode toggle button (always shown) */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '16px 0 0 0' }}>
+        <Button
+          variant="secondary"
+          onClick={() => setShowCodeEditor(v => !v)}
+          style={{ minWidth: 140 }}
+        >
+          {showCodeEditor ? 'Hide Code Editor' : 'Edit Code (Expert Mode)'}
+        </Button>
+      </div>
+      {/* Collapsible Code Editor Section */}
+      {showCodeEditor && (
+        <div className={styles.sectionCard} style={{ marginTop: 12 }}>
+          <div className={styles.editorCard + ' ' + styles.editorWide}>
+            <CodeEditor />
+          </div>
         </div>
       )}
-      {/* IDE Mode */}
-      {mode === 'ide' && (
-        <div className={styles.sectionCard}>
-            <div className={styles.editorCard + ' ' + styles.editorWide}>
-              <CodeEditor />
-            </div>
-        </div>
-        )}
       {/* Run Section */}
       <div className={styles.sectionCard}>
         <div className={styles.runCard}>
