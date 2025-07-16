@@ -1,19 +1,110 @@
 import React, { useEffect, useState } from 'react';
 import Button from '../../components/common/Button.jsx';
-import Modal from '../../components/common/Modal.jsx';
 import ProgressBar from '../../components/common/ProgressBar.jsx';
 import Loading from '../../components/common/Loading.jsx';
-import ErrorMessage from '../../components/common/ErrorMessage.jsx';
 import CodeEditor from '../../components/common/CodeEditor.jsx';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import pageStyles from '../index_page/IndexPage.module.css';
 import styles from './TrainingPage.module.css';
-import { PlayCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { PlayCircle, ChevronDown, ChevronUp, Plus, Minus } from 'lucide-react';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
 
+const defaultSnapshot = { id: 'default', name: 'Default Snapshot', description: 'System default snapshot' };
 const mockSnapshots = [
+  defaultSnapshot,
   { id: 'snap1', name: 'MyTrainerSnapshot1', description: 'Default trainer snapshot' },
   { id: 'snap2', name: 'MyTrainerSnapshot2', description: 'Experimental snapshot' },
 ];
+
+// 스냅샷별 파일 구조/내용 (mock)
+const snapshotFiles = {
+  default: {
+    fileStructure: [
+      {
+        name: 'src',
+        type: 'folder',
+        children: [
+          { name: 'train.py', type: 'file' },
+          { name: 'data_loader.py', type: 'file' },
+          { name: 'model_config.py', type: 'file' },
+          { name: 'train_parameter.json', type: 'file' },
+        ]
+      }
+    ],
+    files: {
+      'train.py': { code: '# Default train.py', language: 'python' },
+      'data_loader.py': { code: '# Default data_loader.py', language: 'python' },
+      'model_config.py': { code: '# Default model_config.py', language: 'python' },
+      'train_parameter.json': { code: '{\n  "epochs": 20\n}', language: 'json' },
+    }
+  },
+  snap1: {
+    fileStructure: [
+      {
+        name: 'src',
+        type: 'folder',
+        children: [
+          { name: 'train.py', type: 'file' },
+          { name: 'data_loader.py', type: 'file' },
+          { name: 'model_config.py', type: 'file' },
+          { name: 'train_parameter.json', type: 'file' },
+        ]
+      }
+    ],
+    files: {
+      'train.py': { code: '# snap1 train.py', language: 'python' },
+      'data_loader.py': { code: '# snap1 data_loader.py', language: 'python' },
+      'model_config.py': { code: '# snap1 model_config.py', language: 'python' },
+      'train_parameter.json': { code: '{\n  "epochs": 30\n}', language: 'json' },
+    }
+  },
+  snap2: {
+    fileStructure: [
+      {
+        name: 'src',
+        type: 'folder',
+        children: [
+          { name: 'train.py', type: 'file' },
+          { name: 'data_loader.py', type: 'file' },
+          { name: 'model_config.py', type: 'file' },
+          { name: 'train_parameter.json', type: 'file' },
+        ]
+      }
+    ],
+    files: {
+      'train.py': { code: '# snap2 train.py', language: 'python' },
+      'data_loader.py': { code: '# snap2 data_loader.py', language: 'python' },
+      'model_config.py': { code: '# snap2 model_config.py', language: 'python' },
+      'train_parameter.json': { code: '{\n  "epochs": 50\n}', language: 'json' },
+    }
+  },
+};
+
+// 파라미터 요약 컴포넌트
+function ParamSummary({ paramGroups, algoParams }) {
+  if (!paramGroups) return null;
+  return (
+    <div className={styles.paramSummaryGroupWrap}>
+      {paramGroups.map((group, gidx) => (
+        <div key={group.group} className={styles.paramSummaryGroupBox} data-group={group.group}>
+          <div className={styles.paramGroupTitle}>{group.group}</div>
+          {group.params.map((param, idx) => {
+            const value = algoParams[param.key] ?? param.default;
+            const isChanged = value !== param.default;
+            return (
+              <div key={param.key} className={styles.paramSummaryItem}>
+                <span className={styles.paramSummaryLabel}>{param.label}</span>
+                <span className={isChanged ? styles.paramSummaryValue : styles.paramSummaryValueDefault}>{String(value)}</span>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function TrainingPage() {
   // Tabs & Mode
@@ -40,7 +131,6 @@ export default function TrainingPage() {
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('Idle');
   const [logs, setLogs] = useState([]);
-  const [error, setError] = useState(null);
 
   // Algorithm
   const algorithmOptions = [
@@ -108,6 +198,19 @@ export default function TrainingPage() {
 
   // Code Editor toggle state
   const [showCodeEditor, setShowCodeEditor] = useState(false);
+  // 코드 에디터용 상태: 현재 파일 구조/내용 (스냅샷 선택에 따라 변경)
+  const [editorFileStructure, setEditorFileStructure] = useState(snapshotFiles['default'].fileStructure);
+  const [editorFiles, setEditorFiles] = useState(snapshotFiles['default'].files);
+
+  // 스냅샷 선택 시 파일 구조/내용 변경
+  useEffect(() => {
+    const snapId = selectedSnapshot ? selectedSnapshot.id : 'default';
+    setEditorFileStructure(snapshotFiles[snapId]?.fileStructure || snapshotFiles['default'].fileStructure);
+    setEditorFiles(snapshotFiles[snapId]?.files || snapshotFiles['default'].files);
+  }, [selectedSnapshot]);
+
+  // Drawer close handler
+  const handleCloseDrawer = () => setShowCodeEditor(false);
 
   // Fetch labeled datasets on mount
   useEffect(() => {
@@ -147,9 +250,8 @@ export default function TrainingPage() {
 
   // Handlers
   const handleRunTraining = () => {
-    setError(null);
     if (mode === 'no-code' && (!selectedDataset || !selectedSnapshot)) {
-      setError('Please select both a dataset and a snapshot.');
+      alert('Please select both a dataset and a snapshot.');
       return;
     }
     setIsTraining(true);
@@ -158,29 +260,48 @@ export default function TrainingPage() {
     setProgress(0);
   };
 
-  const validateParam = (key, value) => {
+  // --- validateParam 범용화 및 에러 관리 개선 ---
+  const validateParam = (param, value) => {
     let error = '';
-    if (key === 'epochs') {
-      if (value < 1 || value > 1000) error = 'Epochs must be between 1 and 1000.';
-    } else if (key === 'lr') {
-      if (value <= 0 || value > 1) error = 'Learning Rate must be greater than 0 and less than or equal to 1.';
-    } else if (key === 'batchSize') {
-      if (value < 1 || value > 1024) error = 'Batch Size must be between 1 and 1024.';
+    if (param.type === 'number') {
+      if (typeof value !== 'number' || isNaN(value)) {
+        error = '숫자를 입력하세요.';
+      } else if (param.min !== undefined && value < param.min) {
+        error = `${param.label}은(는) 최소 ${param.min} 이상이어야 합니다.`;
+      } else if (param.max !== undefined && value > param.max) {
+        error = `${param.label}은(는) 최대 ${param.max} 이하여야 합니다.`;
+      }
+    } else if (param.type === 'text') {
+      if (param.required && (!value || value === '')) {
+        error = `${param.label}을(를) 입력하세요.`;
+      }
     }
-    setParamErrors(prev => ({ ...prev, [key]: error }));
+    setParamErrors(prev => ({ ...prev, [param.key]: error }));
     return error === '';
   };
 
-  const handleParamChange = (key, value) => {
-    setParams(p => ({ ...p, [key]: value }));
-    validateParam(key, value);
+  // --- handleAlgoParamChange에서 항상 validateParam 호출 ---
+  const handleAlgoParamChange = (key, value, param) => {
+    let newValue = value;
+    if (param && param.type === 'number') {
+      const decimals = getDecimalPlaces(param.step);
+      newValue = Number(Number(value).toFixed(decimals));
+    }
+    setAlgoParams(p => ({ ...p, [key]: newValue }));
+    validateParam(param, newValue);
   };
 
-  // 기존 handleParamChange와 validateParam는 no-code용이므로, 알고리즘 파라미터용 핸들러 추가
-  const handleAlgoParamChange = (key, value) => {
-    setAlgoParams(p => ({ ...p, [key]: value }));
+  // step에서 소수점 자릿수 계산
+  const getDecimalPlaces = (step) => {
+    if (!step || step >= 1) return 0;
+    return step.toString().split('.')[1]?.length || 0;
   };
 
+  // 파라미터 입력 필드 스타일 통일 (TextField/select/input)
+  const inputSizeStyle = { width: 150, height: 38, fontSize: 15, fontWeight: 500, borderRadius: 6, background: '#fff', minWidth: 0, maxWidth: '100%' };
+
+  // --- 파라미터 입력 필드 렌더링 개선 (에러 UX 통일) ---
+  // (yolov8, algorithm1, algorithm2 모두 동일하게 적용)
   return (
     <div className={styles.container}>
       <div style={{ fontSize: 28, fontWeight: 700, color: "#222", marginBottom: "10px"}}>Training</div>
@@ -223,14 +344,14 @@ export default function TrainingPage() {
       </div>
       {/* Standard/Continual UI */}
       {trainingType === 'standard' ? (
-        <>
+          <>
           {/* Dataset & Snapshot (Standard) */}
           <div className={styles.sectionCard}>
             <div className={styles.selectorGroup}>
               <div className={styles.selectorBox}>
                 <label className={styles.paramLabel} style={{marginBottom: 4}}>Dataset</label>
                 {datasetLoading && <Loading />}
-                {datasetError && <ErrorMessage message={datasetError} />}
+                {datasetError && <span className={styles.inputErrorMsg}>{datasetError}</span>}
                 {!datasetLoading && !datasetError && (
                   <select
                     className={styles.select}
@@ -262,20 +383,16 @@ export default function TrainingPage() {
                 <div className={styles.snapshotRow}>
                   <select
                     className={styles.select}
-                    value={selectedSnapshot ? selectedSnapshot.id : ''}
+                    value={selectedSnapshot ? selectedSnapshot.id : 'default'}
                     onChange={e => {
-                      const snap = snapshots.find(s => s.id === e.target.value);
-                      setSelectedSnapshot(snap);
+                      const snap = snapshots.find(s => s.id === e.target.value) || defaultSnapshot;
+                      setSelectedSnapshot(snap.id === 'default' ? null : snap);
                     }}
                   >
-                    <option value="">Select snapshot</option>
                     {snapshots.map(snap => (
                       <option key={snap.id} value={snap.id}>{snap.name}</option>
                     ))}
                   </select>
-                  <Button variant="secondary" onClick={() => setSnapshotModalOpen(true)}>
-                    + Register New
-                  </Button>
                 </div>
                 {selectedSnapshot && (
                   <div className={styles.snapshotInfo}>
@@ -283,145 +400,275 @@ export default function TrainingPage() {
                     <div><b>Description:</b> {selectedSnapshot.description}</div>
                   </div>
                 )}
-                <Modal isOpen={snapshotModalOpen} onClose={() => setSnapshotModalOpen(false)} title="Register Snapshot">
-                  <div style={{ padding: 16 }}>
-                    <div>Snapshot registration feature coming soon.</div>
-                    <Button onClick={() => setSnapshotModalOpen(false)} style={{ marginTop: 16 }}>Close</Button>
-                  </div>
-                </Modal>
               </div>
             </div>
           </div>
-          {/* Parameters - Accordion UI (Standard) */}
-          <div className={styles.paramCardWrap}>
-            {algorithm === 'yolov8' ? (
-              yolov8ParamGroups.map((group, idx) => (
-                <div key={group.group} className={styles.accordionCard}>
+          {/* Parameters & Summary 2단 레이아웃 (Summary 왼쪽, 입력 오른쪽) */}
+          <div className={styles.paramSectionWrap}>
+            <div className={styles.paramSummaryBox + ' ' + styles.sectionCard}>
+              <div className={styles.paramGroupTitle} style={{ fontSize: 17, marginBottom: 12 }}>Selected Parameters</div>
+              <ParamSummary paramGroups={algorithm === 'yolov8' ? yolov8ParamGroups : algorithm === 'algorithm1' ? [{ group: 'Algorithm 1', params: algorithm1Params }] : [{ group: 'Algorithm 2', params: algorithm2Params }]} algoParams={algoParams} />
+            </div>
+            <div className={styles.paramCardWrap}>
+              {algorithm === 'yolov8' ? (
+                yolov8ParamGroups.map((group, idx) => (
+                  <div key={group.group} className={styles.accordionCard}>
+                    <div
+                      className={styles.accordionHeader + ' ' + (openParamGroup === idx ? styles.accordionOpen : '')}
+                      onClick={() => setOpenParamGroup(openParamGroup === idx ? -1 : idx)}
+                      tabIndex={0}
+                      role="button"
+                      aria-expanded={openParamGroup === idx}
+                    >
+                      <span>{group.group}</span>
+                      <span className={styles.accordionArrow}>{openParamGroup === idx ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                    </div>
+                    {openParamGroup === idx && (
+                      <div className={styles.accordionContent}>
+                        {group.params.map(param => {
+                          const error = paramErrors[param.key];
+                          const isNumber = param.type === 'number';
+                          return (
+                            <div className={styles.paramRow} key={param.key}>
+                              <label className={styles.paramLabel}>{param.label}</label>
+                              {param.type === 'select' ? (
+                                <select
+                                  className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
+                                  value={algoParams[param.key] ?? param.default}
+                                  onChange={e => handleAlgoParamChange(param.key, e.target.value, param)}
+                                  disabled={isTraining}
+                                  style={inputSizeStyle}
+                                >
+                                  {param.options.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                  ))}
+                                </select>
+                              ) : param.type === 'checkbox' ? (
+                                <input
+                                  type="checkbox"
+                                  className={styles.paramInput}
+                                  checked={algoParams[param.key] ?? param.default}
+                                  onChange={e => handleAlgoParamChange(param.key, e.target.checked, param)}
+                                  disabled={isTraining}
+                                  style={{ width: 20, height: 20 }}
+                                />
+                              ) : isNumber ? (
+                                <TextField
+                                  type="number"
+                                  size="small"
+                                  value={algoParams[param.key] ?? param.default}
+                                  onChange={e => handleAlgoParamChange(param.key, Number(e.target.value), param)}
+                                  inputProps={{
+                                    min: param.min,
+                                    max: param.max,
+                                    step: param.step,
+                                    style: { textAlign: 'right', fontSize: 15, fontWeight: 500, padding: '6px 10px' }
+                                  }}
+                                  InputProps={{
+                                    endAdornment: (
+                                      <InputAdornment position="end" sx={{ ml: 0 }}>
+                                        <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) + (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) >= param.max}>
+                                          <Plus size={16} />
+                                        </IconButton>
+                                        <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) - (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) <= param.min}>
+                                          <Minus size={16} />
+                                        </IconButton>
+                                      </InputAdornment>
+                                    ),
+                                    sx: {
+                                      borderRadius: 2,
+                                      background: '#fff',
+                                      minWidth: 0,
+                                      maxWidth: '100%',
+                                    }
+                                  }}
+                                  sx={{ ...inputSizeStyle, ...(error ? { border: '1.5px solid #e74c3c', background: '#fff6f6' } : {}) }}
+                                  error={!!error}
+                                  disabled={isTraining}
+                                  helperText={error || ' '}
+                                  FormHelperTextProps={{ style: { marginTop: 4, minHeight: 18, fontSize: 13, fontWeight: 500, color: '#e74c3c', background: 'none' } }}
+                                />
+                              ) : (
+                                <input
+                                  type={param.type}
+                                  className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
+                                  value={algoParams[param.key] ?? param.default}
+                                  min={param.min}
+                                  max={param.max}
+                                  step={param.step}
+                                  placeholder={param.label}
+                                  disabled={isTraining}
+                                  onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value, param)}
+                                  style={inputSizeStyle}
+                                />
+                              )}
+                              {error && !isNumber && <span className={styles.inputErrorMsg}>{error}</span>}
+                              {param.desc && <span className={styles.paramDesc}>{param.desc}</span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : algorithm === 'algorithm1' ? (
+                <div className={styles.accordionCard}>
                   <div
-                    className={styles.accordionHeader + ' ' + (openParamGroup === idx ? styles.accordionOpen : '')}
-                    onClick={() => setOpenParamGroup(openParamGroup === idx ? -1 : idx)}
+                    className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
+                    onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
                     tabIndex={0}
                     role="button"
-                    aria-expanded={openParamGroup === idx}
+                    aria-expanded={openParamGroup === 0}
                   >
-                    <span>{group.group}</span>
-                    <span className={styles.accordionArrow}>{openParamGroup === idx ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                    <span>Algorithm 1</span>
+                    <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
                   </div>
-                  {openParamGroup === idx && (
+                  {openParamGroup === 0 && (
                     <div className={styles.accordionContent}>
-                      {group.params.map(param => (
-                        <div className={styles.paramRow} key={param.key}>
-                          <label className={styles.paramLabel}>{param.label}</label>
-                          {param.type === 'select' ? (
-                            <select
-                              className={styles.paramInput}
-                              value={algoParams[param.key] ?? param.default}
-                              onChange={e => handleAlgoParamChange(param.key, e.target.value)}
-                              disabled={isTraining}
-                            >
-                              {param.options.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
-                          ) : param.type === 'checkbox' ? (
-                            <input
-                              type="checkbox"
-                              className={styles.paramInput}
-                              checked={algoParams[param.key] ?? param.default}
-                              onChange={e => handleAlgoParamChange(param.key, e.target.checked)}
-                              disabled={isTraining}
-                            />
-                          ) : (
-                            <input
-                              type={param.type}
-                              className={styles.paramInput}
-                              value={algoParams[param.key] ?? param.default}
-                              min={param.min}
-                              max={param.max}
-                              step={param.step}
-                              placeholder={param.label}
-                              disabled={isTraining}
-                              onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
-                            />
-                          )}
-                          {param.desc && <span className={styles.paramDesc}>{param.desc}</span>}
-                        </div>
-                      ))}
+                      {algorithm1Params.map(param => {
+                        const error = paramErrors[param.key];
+                        const isNumber = param.type === 'number';
+                        return (
+                          <div className={styles.paramRow} key={param.key}>
+                            <label className={styles.paramLabel}>{param.label}</label>
+                            {isNumber ? (
+                              <TextField
+                                type="number"
+                                size="small"
+                                value={algoParams[param.key] ?? param.default}
+                                onChange={e => handleAlgoParamChange(param.key, Number(e.target.value), param)}
+                                inputProps={{
+                                  min: param.min,
+                                  max: param.max,
+                                  step: param.step,
+                                  style: { textAlign: 'right', fontSize: 15, fontWeight: 500, padding: '6px 10px' }
+                                }}
+                                InputProps={{
+                                  endAdornment: (
+                                    <InputAdornment position="end" sx={{ ml: 0 }}>
+                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) + (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) >= param.max}>
+                                        <Plus size={16} />
+                                      </IconButton>
+                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) - (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) <= param.min}>
+                                        <Minus size={16} />
+                                      </IconButton>
+                                    </InputAdornment>
+                                  ),
+                                  sx: {
+                                    borderRadius: 2,
+                                    background: '#fff',
+                                    minWidth: 0,
+                                    maxWidth: '100%',
+                                  }
+                                }}
+                                sx={{ ...inputSizeStyle, ...(error ? { border: '1.5px solid #e74c3c', background: '#fff6f6' } : {}) }}
+                                error={!!error}
+                                disabled={isTraining}
+                                helperText={error || ' '}
+                                FormHelperTextProps={{ style: { marginTop: 4, minHeight: 18, fontSize: 13, fontWeight: 500, color: '#e74c3c', background: 'none' } }}
+                              />
+                            ) : (
+                              <input
+                                type={param.type}
+                                className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
+                                value={algoParams[param.key] ?? param.default}
+                                min={param.min}
+                                max={param.max}
+                                step={param.step}
+                                placeholder={param.label}
+                                disabled={isTraining}
+                                onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value, param)}
+                                style={inputSizeStyle}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
-              ))
-            ) : algorithm === 'algorithm1' ? (
-              <div className={styles.accordionCard}>
-                <div
-                  className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
-                  onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
-                  tabIndex={0}
-                  role="button"
-                  aria-expanded={openParamGroup === 0}
-                >
-                  <span>Algorithm 1</span>
-                  <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
-                </div>
-                {openParamGroup === 0 && (
-                  <div className={styles.accordionContent}>
-                    {algorithm1Params.map(param => (
-                      <div className={styles.paramRow} key={param.key}>
-                        <label className={styles.paramLabel}>{param.label}</label>
-                        <input
-                          type={param.type}
-                          className={styles.paramInput}
-                          value={algoParams[param.key] ?? param.default}
-                          min={param.min}
-                          max={param.max}
-                          step={param.step}
-                          placeholder={param.label}
-                          disabled={isTraining}
-                          onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
-                        />
-                      </div>
-                    ))}
+              ) : algorithm === 'algorithm2' ? (
+                <div className={styles.accordionCard}>
+                  <div
+                    className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
+                    onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
+                    tabIndex={0}
+                    role="button"
+                    aria-expanded={openParamGroup === 0}
+                  >
+                    <span>Algorithm 2</span>
+                    <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
                   </div>
-                )}
-              </div>
-            ) : algorithm === 'algorithm2' ? (
-              <div className={styles.accordionCard}>
-                <div
-                  className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
-                  onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
-                  tabIndex={0}
-                  role="button"
-                  aria-expanded={openParamGroup === 0}
-                >
-                  <span>Algorithm 2</span>
-                  <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                  {openParamGroup === 0 && (
+                    <div className={styles.accordionContent}>
+                      {algorithm2Params.map(param => {
+                        const error = paramErrors[param.key];
+                        const isNumber = param.type === 'number';
+                        return (
+                          <div className={styles.paramRow} key={param.key}>
+                            <label className={styles.paramLabel}>{param.label}</label>
+                            {isNumber ? (
+                              <TextField
+                                type="number"
+                                size="small"
+                                value={algoParams[param.key] ?? param.default}
+                                onChange={e => handleAlgoParamChange(param.key, Number(e.target.value), param)}
+                                inputProps={{
+                                  min: param.min,
+                                  max: param.max,
+                                  step: param.step,
+                                  style: { textAlign: 'right', fontSize: 15, fontWeight: 500, padding: '6px 10px' }
+                                }}
+                                InputProps={{
+                                  endAdornment: (
+                                    <InputAdornment position="end" sx={{ ml: 0 }}>
+                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) + (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) >= param.max}>
+                                        <Plus size={16} />
+                                      </IconButton>
+                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) - (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) <= param.min}>
+                                        <Minus size={16} />
+                                      </IconButton>
+                                    </InputAdornment>
+                                  ),
+                                  sx: {
+                                    borderRadius: 2,
+                                    background: '#fff',
+                                    minWidth: 0,
+                                    maxWidth: '100%',
+                                  }
+                                }}
+                                sx={{ ...inputSizeStyle, ...(error ? { border: '1.5px solid #e74c3c', background: '#fff6f6' } : {}) }}
+                                error={!!error}
+                                disabled={isTraining}
+                                helperText={error || ' '}
+                                FormHelperTextProps={{ style: { marginTop: 4, minHeight: 18, fontSize: 13, fontWeight: 500, color: '#e74c3c', background: 'none' } }}
+                              />
+                            ) : (
+                              <input
+                                type={param.type}
+                                className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
+                                value={algoParams[param.key] ?? param.default}
+                                min={param.min}
+                                max={param.max}
+                                step={param.step}
+                                placeholder={param.label}
+                                disabled={isTraining}
+                                onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value, param)}
+                                style={inputSizeStyle}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-                {openParamGroup === 0 && (
-                  <div className={styles.accordionContent}>
-                    {algorithm2Params.map(param => (
-                      <div className={styles.paramRow} key={param.key}>
-                        <label className={styles.paramLabel}>{param.label}</label>
-                        <input
-                          type={param.type}
-                          className={styles.paramInput}
-                          value={algoParams[param.key] ?? param.default}
-                          min={param.min}
-                          max={param.max}
-                          step={param.step}
-                          placeholder={param.label}
-                          disabled={isTraining}
-                          onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
-        </>
-      ) : (
-        <>
+          </>
+        ) : (
+          <>
           {/* Continual Learning Info */}
           <div className={styles.sectionCard} style={{ background: '#f8f9fb', border: '1.5px solid #4f8cff', color: '#1a3a5d', marginBottom: 18 }}>
             <b>Continual Learning</b> allows you to update a model incrementally with new data, starting from a previous snapshot. Select a base snapshot and a new dataset to continue training.
@@ -434,20 +681,16 @@ export default function TrainingPage() {
                 <div className={styles.snapshotRow}>
                   <select
                     className={styles.select}
-                    value={selectedSnapshot ? selectedSnapshot.id : ''}
+                    value={selectedSnapshot ? selectedSnapshot.id : 'default'}
                     onChange={e => {
-                      const snap = snapshots.find(s => s.id === e.target.value);
-                      setSelectedSnapshot(snap);
+                      const snap = snapshots.find(s => s.id === e.target.value) || defaultSnapshot;
+                      setSelectedSnapshot(snap.id === 'default' ? null : snap);
                     }}
                   >
-                    <option value="">Select base snapshot</option>
                     {snapshots.map(snap => (
                       <option key={snap.id} value={snap.id}>{snap.name}</option>
                     ))}
                   </select>
-                  <Button variant="secondary" onClick={() => setSnapshotModalOpen(true)}>
-                    + Register New
-                  </Button>
                 </div>
                 {selectedSnapshot && (
                   <div className={styles.snapshotInfo}>
@@ -455,17 +698,11 @@ export default function TrainingPage() {
                     <div><b>Description:</b> {selectedSnapshot.description}</div>
                   </div>
                 )}
-                <Modal isOpen={snapshotModalOpen} onClose={() => setSnapshotModalOpen(false)} title="Register Snapshot">
-                  <div style={{ padding: 16 }}>
-                    <div>Snapshot registration feature coming soon.</div>
-                    <Button onClick={() => setSnapshotModalOpen(false)} style={{ marginTop: 16 }}>Close</Button>
-                  </div>
-                </Modal>
               </div>
               <div className={styles.selectorBox}>
                 <label className={styles.paramLabel} style={{marginBottom: 4}}>New Dataset <span style={{color:'#e74c3c'}}>*</span></label>
                 {datasetLoading && <Loading />}
-                {datasetError && <ErrorMessage message={datasetError} />}
+                {datasetError && <span className={styles.inputErrorMsg}>{datasetError}</span>}
                 {!datasetLoading && !datasetError && (
                   <select
                     className={styles.select}
@@ -511,44 +748,86 @@ export default function TrainingPage() {
                   </div>
                   {openParamGroup === idx && (
                     <div className={styles.accordionContent}>
-                      {group.params.map(param => (
-                        <div className={styles.paramRow} key={param.key}>
-                          <label className={styles.paramLabel}>{param.label}</label>
-                          {param.type === 'select' ? (
-                            <select
-                              className={styles.paramInput}
-                              value={algoParams[param.key] ?? param.default}
-                              onChange={e => handleAlgoParamChange(param.key, e.target.value)}
-                              disabled={isTraining}
-                            >
-                              {param.options.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
-                            </select>
-                          ) : param.type === 'checkbox' ? (
-                            <input
-                              type="checkbox"
-                              className={styles.paramInput}
-                              checked={algoParams[param.key] ?? param.default}
-                              onChange={e => handleAlgoParamChange(param.key, e.target.checked)}
-                              disabled={isTraining}
-                            />
-                          ) : (
-                            <input
-                              type={param.type}
-                              className={styles.paramInput}
-                              value={algoParams[param.key] ?? param.default}
-                              min={param.min}
-                              max={param.max}
-                              step={param.step}
-                              placeholder={param.label}
-                              disabled={isTraining}
-                              onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
-                            />
-                          )}
-                          {param.desc && <span className={styles.paramDesc}>{param.desc}</span>}
-                        </div>
-                      ))}
+                      {group.params.map(param => {
+                        const error = paramErrors[param.key];
+                        const isNumber = param.type === 'number';
+                        return (
+                          <div className={styles.paramRow} key={param.key}>
+                            <label className={styles.paramLabel}>{param.label}</label>
+                            {param.type === 'select' ? (
+                              <select
+                                className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
+                                value={algoParams[param.key] ?? param.default}
+                                onChange={e => handleAlgoParamChange(param.key, e.target.value, param)}
+                                disabled={isTraining}
+                                style={inputSizeStyle}
+                              >
+                                {param.options.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            ) : param.type === 'checkbox' ? (
+                              <input
+                                type="checkbox"
+                                className={styles.paramInput}
+                                checked={algoParams[param.key] ?? param.default}
+                                onChange={e => handleAlgoParamChange(param.key, e.target.checked, param)}
+                                disabled={isTraining}
+                              />
+                            ) : isNumber ? (
+                              <TextField
+                                type="number"
+                                size="small"
+                                value={algoParams[param.key] ?? param.default}
+                                onChange={e => handleAlgoParamChange(param.key, Number(e.target.value), param)}
+                                inputProps={{
+                                  min: param.min,
+                                  max: param.max,
+                                  step: param.step,
+                                  style: { textAlign: 'right', fontSize: 15, fontWeight: 500, padding: '6px 10px' }
+                                }}
+                                InputProps={{
+                                  endAdornment: (
+                                    <InputAdornment position="end" sx={{ ml: 0 }}>
+                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) + (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) >= param.max}>
+                                        <Plus size={16} />
+                                      </IconButton>
+                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) - (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) <= param.min}>
+                                        <Minus size={16} />
+                                      </IconButton>
+                                    </InputAdornment>
+                                  ),
+                                  sx: {
+                                    borderRadius: 2,
+                                    background: '#fff',
+                                    minWidth: 0,
+                                    maxWidth: '100%',
+                                  }
+                                }}
+                                sx={{ ...inputSizeStyle, ...(error ? { border: '1.5px solid #e74c3c', background: '#fff6f6' } : {}) }}
+                                error={!!error}
+                                disabled={isTraining}
+                                helperText={error || ' '}
+                                FormHelperTextProps={{ style: { marginTop: 4, minHeight: 18, fontSize: 13, fontWeight: 500, color: '#e74c3c', background: 'none' } }}
+                              />
+                            ) : (
+                              <input
+                                type={param.type}
+                                className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
+                                value={algoParams[param.key] ?? param.default}
+                                min={param.min}
+                                max={param.max}
+                                step={param.step}
+                                placeholder={param.label}
+                                disabled={isTraining}
+                                onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value, param)}
+                                style={inputSizeStyle}
+                              />
+                            )}
+                            {param.desc && <span className={styles.paramDesc}>{param.desc}</span>}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -567,22 +846,65 @@ export default function TrainingPage() {
                 </div>
                 {openParamGroup === 0 && (
                   <div className={styles.accordionContent}>
-                    {algorithm1Params.map(param => (
-                      <div className={styles.paramRow} key={param.key}>
-                        <label className={styles.paramLabel}>{param.label}</label>
-                        <input
-                          type={param.type}
-                          className={styles.paramInput}
-                          value={algoParams[param.key] ?? param.default}
-                          min={param.min}
-                          max={param.max}
-                          step={param.step}
-                          placeholder={param.label}
-                          disabled={isTraining}
-                          onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
-                        />
-                      </div>
-                    ))}
+                    {algorithm1Params.map(param => {
+                      const error = paramErrors[param.key];
+                      const isNumber = param.type === 'number';
+                      return (
+                        <div className={styles.paramRow} key={param.key}>
+                          <label className={styles.paramLabel}>{param.label}</label>
+                          {isNumber ? (
+                            <TextField
+                              type="number"
+                              size="small"
+                              value={algoParams[param.key] ?? param.default}
+                              onChange={e => handleAlgoParamChange(param.key, Number(e.target.value), param)}
+                              inputProps={{
+                                min: param.min,
+                                max: param.max,
+                                step: param.step,
+                                style: { textAlign: 'right', fontSize: 15, fontWeight: 500, padding: '6px 10px' }
+                              }}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end" sx={{ ml: 0 }}>
+                                    <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) + (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) >= param.max}>
+                                      <Plus size={16} />
+                                    </IconButton>
+                                    <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) - (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) <= param.min}>
+                                      <Minus size={16} />
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                                sx: {
+                                  borderRadius: 2,
+                                  background: '#fff',
+                                  minWidth: 0,
+                                  maxWidth: '100%',
+                                }
+                              }}
+                              sx={{ ...inputSizeStyle, ...(error ? { border: '1.5px solid #e74c3c', background: '#fff6f6' } : {}) }}
+                              error={!!error}
+                              disabled={isTraining}
+                              helperText={error || ' '}
+                              FormHelperTextProps={{ style: { marginTop: 4, minHeight: 18, fontSize: 13, fontWeight: 500, color: '#e74c3c', background: 'none' } }}
+                            />
+                          ) : (
+                            <input
+                              type={param.type}
+                              className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
+                              value={algoParams[param.key] ?? param.default}
+                              min={param.min}
+                              max={param.max}
+                              step={param.step}
+                              placeholder={param.label}
+                              disabled={isTraining}
+                              onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value, param)}
+                              style={inputSizeStyle}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -600,22 +922,65 @@ export default function TrainingPage() {
                 </div>
                 {openParamGroup === 0 && (
                   <div className={styles.accordionContent}>
-                    {algorithm2Params.map(param => (
-                      <div className={styles.paramRow} key={param.key}>
-                        <label className={styles.paramLabel}>{param.label}</label>
-                        <input
-                          type={param.type}
-                          className={styles.paramInput}
-                          value={algoParams[param.key] ?? param.default}
-                          min={param.min}
-                          max={param.max}
-                          step={param.step}
-                          placeholder={param.label}
-                          disabled={isTraining}
-                          onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
-                        />
-                      </div>
-                    ))}
+                    {algorithm2Params.map(param => {
+                      const error = paramErrors[param.key];
+                      const isNumber = param.type === 'number';
+                      return (
+                        <div className={styles.paramRow} key={param.key}>
+                          <label className={styles.paramLabel}>{param.label}</label>
+                          {isNumber ? (
+                            <TextField
+                              type="number"
+                              size="small"
+                              value={algoParams[param.key] ?? param.default}
+                              onChange={e => handleAlgoParamChange(param.key, Number(e.target.value), param)}
+                              inputProps={{
+                                min: param.min,
+                                max: param.max,
+                                step: param.step,
+                                style: { textAlign: 'right', fontSize: 15, fontWeight: 500, padding: '6px 10px' }
+                              }}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end" sx={{ ml: 0 }}>
+                                    <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) + (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) >= param.max}>
+                                      <Plus size={16} />
+                                    </IconButton>
+                                    <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) - (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) <= param.min}>
+                                      <Minus size={16} />
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                                sx: {
+                                  borderRadius: 2,
+                                  background: '#fff',
+                                  minWidth: 0,
+                                  maxWidth: '100%',
+                                }
+                              }}
+                              sx={{ ...inputSizeStyle, ...(error ? { border: '1.5px solid #e74c3c', background: '#fff6f6' } : {}) }}
+                              error={!!error}
+                              disabled={isTraining}
+                              helperText={error || ' '}
+                              FormHelperTextProps={{ style: { marginTop: 4, minHeight: 18, fontSize: 13, fontWeight: 500, color: '#e74c3c', background: 'none' } }}
+                            />
+                          ) : (
+                            <input
+                              type={param.type}
+                              className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
+                              value={algoParams[param.key] ?? param.default}
+                              min={param.min}
+                              max={param.max}
+                              step={param.step}
+                              placeholder={param.label}
+                              disabled={isTraining}
+                              onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value, param)}
+                              style={inputSizeStyle}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -627,27 +992,37 @@ export default function TrainingPage() {
       <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '16px 0 0 0' }}>
         <Button
           variant="secondary"
-          onClick={() => setShowCodeEditor(v => !v)}
+          onClick={() => setShowCodeEditor(true)}
           style={{ minWidth: 140 }}
         >
-          {showCodeEditor ? 'Hide Code Editor' : 'Edit Code (Expert Mode)'}
+          Edit Code (Expert Mode)
         </Button>
       </div>
-      {/* Collapsible Code Editor Section */}
+      {/* Drawer for Code Editor */}
       {showCodeEditor && (
-        <div className={styles.sectionCard} style={{ marginTop: 12 }}>
-          <div className={styles.editorCard + ' ' + styles.editorWide}>
-            <CodeEditor />
-          </div>
-        </div>
-      )}
+        <>
+          <div className={styles.drawerOverlay} onClick={handleCloseDrawer}></div>
+          <div className={styles.codeDrawer}>
+            <div className={styles.drawerEditorWrap}>
+              <CodeEditor
+                snapshotName={selectedSnapshot ? selectedSnapshot.name : 'Default Snapshot'}
+                fileStructure={editorFileStructure}
+                files={editorFiles}
+                // activeFile, onFileChange, onFilesChange 등은 추후 필요시 추가
+                onSaveSnapshot={name => {
+                  // 실제 저장 로직은 추후 구현 (현재는 alert)
+                  alert(`Saved as snapshot: ${name}`);
+                }}
+                onCloseDrawer={handleCloseDrawer}
+              />
+            </div>
+            </div>
+          </>
+        )}
       {/* Run Section */}
       <div className={styles.sectionCard}>
         <div className={styles.runCard}>
           <div className={styles.runRow}>
-            <div className={styles.runErrorWrap}>
-              {error && <ErrorMessage message={error} />}
-            </div>
             <Button
               variant="primary-gradient"
               size="medium"

@@ -1,6 +1,6 @@
 .code-editor-container {
     display: flex;
-    height: 400px;
+    height: 100%;
     background-color: #ffffff;
     overflow: hidden;
 }
@@ -20,7 +20,7 @@
 
 .file-explorer h3 {
     margin: 0 0 10px 6px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     color: #495057;
     text-transform: uppercase;
@@ -29,6 +29,8 @@
 
 .file-tree {
     font-size: 11px;
+    overflow-y: auto;
+    max-height: calc(100vh - 180px);
 }
 
 .file-item {
@@ -45,7 +47,8 @@
 }
 
 .file-item:hover {
-    background-color: #e9ecef;
+    background: #f3f6ff;
+    color: #357ae8;
 }
 
 .file-item:active {
@@ -68,6 +71,7 @@
     font-size: 11px;
     line-height: 1.4;
     padding: 1px 0;
+    max-width: 110px;
 }
 
 .file-children {
@@ -94,6 +98,8 @@
     flex-direction: column;
     background-color: #ffffff;
     min-width: 0;
+    height: 100%;
+    min-height: 0;
 }
 
 .editor-toolbar {
@@ -106,6 +112,7 @@
     height: 32px;
     flex-shrink: 0;
 }
+
 .language-select {
     background-color: #ffffff;
     color: #495057;
@@ -126,6 +133,8 @@
 .monaco-editor {
     border-radius: 0;
     flex: 1;
+    height: 100% !important;
+    min-height: 0;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -143,6 +152,229 @@
 
 .sidebar::-webkit-scrollbar-thumb:hover {
     background: #adb5bd;
+}
+
+.file-item.activeFile {
+    border-left: 3px solid #4f8cff;
+    background: #eaf2ff;
+    color: #357ae8;
+    font-weight: 700;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.file-explorer {
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
+.fileExtDot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* Snapshot name display */
+.snapshotName {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 2px;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+.snapshotDefault {
+    font-size: 0.85rem;
+    color: #b0b8c1;
+    margin-left: 4px;
+    font-weight: 500;
+}
+
+/* Save as Snapshot Modal Tabs */
+.snapshotTabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+.snapshotTab {
+    padding: 8px 18px;
+    border-radius: 7px 7px 0 0;
+    background: #f3f6fa;
+    color: #4f8cff;
+    font-weight: 500;
+    font-size: 1rem;
+    border: 1.5px solid #e3e8f0;
+    border-bottom: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.snapshotTab:hover {
+    background: #eaf2ff;
+    color: #2563eb;
+}
+.snapshotTabActive {
+    background: #fff;
+    color: #2563eb;
+    border-bottom: 2.5px solid #fff;
+    font-weight: 700;
+    z-index: 2;
+}
+
+/* Modal input */
+.snapshotInput {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+    margin-bottom: 6px;
+    background: #ffffff;
+    color: #374151;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.snapshotInput:focus {
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Modal buttons */
+.snapshotModalBtns {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 0;
+    align-items: stretch;
+}
+
+/* 새로운 깔끔한 버튼 스타일 */
+.snapshotBtn {
+    min-width: 0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 10px 16px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid transparent;
+
+    /* 기본 Primary 버튼 */
+    background-color: var(--color-blue);
+    color: white;
+    box-shadow: 0 1px 2px var(--color-shadow-light);
+}
+
+.snapshotBtn:hover:not(:disabled) {
+    background-color: var(--color-blue-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--color-shadow-focus);
+}
+
+.snapshotBtn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px var(--color-shadow-light);
+}
+
+.snapshotBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: var(--color-gray-300);
+    color: #ffffff;
+    transform: none;
+    box-shadow: none;
+}
+
+.snapshotBtn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Secondary 버튼 스타일 (overwrite) */
+.snapshotBtn.overwrite {
+    background-color: #ffffff;
+    color: var(--color-blue);
+    border: 1px solid var(--color-blue);
+    box-shadow: 0 1px 2px var(--color-shadow-light);
+}
+
+.snapshotBtn.overwrite:hover:not(:disabled) {
+    background-color: var(--color-blue-light);
+    border-color: var(--color-blue-dark);
+    color: var(--color-blue-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--color-shadow-focus);
+}
+
+.snapshotBtn.overwrite:disabled {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-400);
+    border-color: var(--color-gray-200);
+    transform: none;
+    box-shadow: none;
+}
+
+/* Cancel 버튼 */
+.snapshotBtn.cancel {
+    min-width: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: none;
+    color: #6b7280;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    transition: all 0.2s ease;
+}
+
+.snapshotBtn.cancel:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.snapshotBtn.cancel:active {
+    background-color: #e5e7eb;
+}
+
+/* Modal container tweaks */
+.snapshotModalContent {
+    padding: 20px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    min-width: 320px;
+}
+
+.snapshotSidebarBtnsWrap {
+    width: 100%;
+    margin-top: 20px;
+    padding: 0 8px 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* 사이드바 내부 버튼 스타일 조정 */
+.snapshotSidebarBtnsWrap .snapshotBtn {
+    font-size: 0.85rem;
+    padding: 8px 12px;
 }
 
 @media (max-width: 768px) {
