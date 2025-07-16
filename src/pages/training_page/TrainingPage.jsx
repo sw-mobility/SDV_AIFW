@@ -8,7 +8,7 @@ import CodeEditor from '../../components/common/CodeEditor.jsx';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import pageStyles from '../index_page/IndexPage.module.css';
 import styles from './TrainingPage.module.css';
-import { PlayCircle } from 'lucide-react';
+import { PlayCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 const mockSnapshots = [
   { id: 'snap1', name: 'MyTrainerSnapshot1', description: 'Default trainer snapshot' },
@@ -41,6 +41,70 @@ export default function TrainingPage() {
   const [status, setStatus] = useState('Idle');
   const [logs, setLogs] = useState([]);
   const [error, setError] = useState(null);
+
+  // Algorithm
+  const algorithmOptions = [
+    { value: 'yolov8', label: 'YOLOv8' },
+    { value: 'algorithm1', label: 'Algorithm 1' },
+    { value: 'algorithm2', label: 'Algorithm 2' },
+  ];
+  const yolov8ParamGroups = [
+    {
+      group: 'Data Split',
+      params: [
+        { key: 'train_ratio', label: 'Train Ratio', type: 'number', min: 0, max: 1, step: 0.01, default: 0.7 },
+        { key: 'val_ratio', label: 'Val Ratio', type: 'number', min: 0, max: 1, step: 0.01, default: 0.2 },
+        { key: 'test_ratio', label: 'Test Ratio', type: 'number', min: 0, max: 1, step: 0.01, default: 0.1 },
+      ],
+    },
+    {
+      group: 'Training',
+      params: [
+        { key: 'epochs', label: 'Epochs', type: 'number', min: 1, max: 1000, step: 1, default: 20 },
+        { key: 'batch_size', label: 'Batch Size', type: 'number', min: 1, max: 1024, step: 1, default: 32 },
+        { key: 'imgsz', label: 'Image Size', type: 'number', min: 32, max: 4096, step: 32, default: 640 },
+        { key: 'device', label: 'Device', type: 'text', default: 'cpu' },
+        { key: 'patience', label: 'Patience', type: 'number', min: 0, max: 100, step: 1, default: 50 },
+        { key: 'augment', label: 'Augment', type: 'checkbox', default: true },
+        { key: 'pretrained', label: 'Pretrained', type: 'checkbox', default: true },
+      ],
+    },
+    {
+      group: 'Optimization',
+      params: [
+        { key: 'optimizer', label: 'Optimizer', type: 'select', options: ['SGD', 'Adam', 'AdamW'], default: 'SGD' },
+        { key: 'lr0', label: 'Initial LR', type: 'number', min: 0.00001, max: 1, step: 0.00001, default: 0.01 },
+        { key: 'lrf', label: 'LR Final', type: 'number', min: 0.00001, max: 1, step: 0.00001, default: 0.01 },
+        { key: 'momentum', label: 'Momentum', type: 'number', min: 0, max: 1, step: 0.01, default: 0.937 },
+        { key: 'weight_decay', label: 'Weight Decay', type: 'number', min: 0, max: 1, step: 0.0001, default: 0.0005 },
+        { key: 'warmup_epochs', label: 'Warmup Epochs', type: 'number', min: 0, max: 100, step: 1, default: 3 },
+        { key: 'warmup_momentum', label: 'Warmup Momentum', type: 'number', min: 0, max: 1, step: 0.01, default: 0.8 },
+        { key: 'warmup_bias_lr', label: 'Warmup Bias LR', type: 'number', min: 0, max: 1, step: 0.0001, default: 0.1 },
+      ],
+    },
+    {
+      group: 'Model/Experiment Management',
+      params: [
+        { key: 'model', label: 'Model', type: 'text', default: 'yolov8n.pt' },
+        { key: 'project', label: 'Project', type: 'text', default: 'runs/train' },
+        { key: 'name', label: 'Name', type: 'text', default: '' },
+      ],
+    },
+  ];
+  const algorithm1Params = [
+    { key: 'paramA', label: 'Param A', type: 'number', min: 0, max: 100, step: 1, default: 10 },
+    { key: 'paramB', label: 'Param B', type: 'text', default: '' },
+  ];
+  const algorithm2Params = [
+    { key: 'alpha', label: 'Alpha', type: 'number', min: 0, max: 1, step: 0.01, default: 0.5 },
+  ];
+
+  // Algorithm state
+  const [algorithm, setAlgorithm] = useState('yolov8');
+  const [algoParams, setAlgoParams] = useState({});
+
+  // Accordion open state
+  const [openParamGroup, setOpenParamGroup] = useState(0);
 
   // Fetch labeled datasets on mount
   useEffect(() => {
@@ -94,11 +158,11 @@ export default function TrainingPage() {
   const validateParam = (key, value) => {
     let error = '';
     if (key === 'epochs') {
-      if (value < 1 || value > 1000) error = 'Epochs는 1~1000 사이여야 합니다.';
+      if (value < 1 || value > 1000) error = 'Epochs must be between 1 and 1000.';
     } else if (key === 'lr') {
-      if (value <= 0 || value > 1) error = 'Learning Rate는 0보다 크고 1 이하이어야 합니다.';
+      if (value <= 0 || value > 1) error = 'Learning Rate must be greater than 0 and less than or equal to 1.';
     } else if (key === 'batchSize') {
-      if (value < 1 || value > 1024) error = 'Batch Size는 1~1024 사이여야 합니다.';
+      if (value < 1 || value > 1024) error = 'Batch Size must be between 1 and 1024.';
     }
     setParamErrors(prev => ({ ...prev, [key]: error }));
     return error === '';
@@ -109,25 +173,16 @@ export default function TrainingPage() {
     validateParam(key, value);
   };
 
+  // 기존 handleParamChange와 validateParam는 no-code용이므로, 알고리즘 파라미터용 핸들러 추가
+  const handleAlgoParamChange = (key, value) => {
+    setAlgoParams(p => ({ ...p, [key]: value }));
+  };
+
   return (
     <div className={styles.container}>
       <div style={{ fontSize: 28, fontWeight: 700, color: "#222", marginBottom: "10px"}}>Training</div>
-      <div className={styles.tabNavigation}>
-        <button
-          className={`${pageStyles.tabButton} ${trainingType === 'standard' ? pageStyles.activeTab : ''}`}
-          onClick={() => setTrainingType('standard')}
-        >
-          Standard Training
-        </button>
-        <button
-          className={`${pageStyles.tabButton} ${trainingType === 'continual' ? pageStyles.activeTab : ''}`}
-          onClick={() => setTrainingType('continual')}
-        >
-          Continual Training
-        </button>
-      </div>
-      <hr className={styles.tabDivider} />
-      {/* Mode toggle for No-Code/IDE */}
+      {/* Mode Toggle */}
+      <div className={styles.sectionCard}>
       <div className={pageStyles.dataTypeToggle}>
         <button
           className={`${pageStyles.dataTypeButton} ${mode === 'no-code' ? pageStyles.activeDataType : ''}`}
@@ -142,9 +197,32 @@ export default function TrainingPage() {
           IDE Mode
         </button>
       </div>
-      <div className={styles.bodySection}>
-        {mode === 'no-code' ? (
-          <>
+      </div>
+      {/* Algorithm Selector */}
+      {mode === 'no-code' && (
+        <div className={styles.sectionCard}>
+          <div className={styles.selectorGroup}>
+            <div className={styles.selectorBox}>
+              <select
+                className={styles.select}
+                value={algorithm}
+                onChange={e => {
+                  setAlgorithm(e.target.value);
+                  setAlgoParams({});
+                  setOpenParamGroup(0); // reset accordion to first group
+                }}
+              >
+                {algorithmOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Dataset & Snapshot */}
+      {mode === 'no-code' && (
+        <div className={styles.sectionCard}>
             <div className={styles.selectorGroup}>
               <div className={styles.selectorBox}>
                 {datasetLoading && <Loading />}
@@ -208,63 +286,147 @@ export default function TrainingPage() {
                 </Modal>
               </div>
             </div>
-            <div className={styles.paramCard}>
-              <div className={styles.paramGrid}>
-                <label>
-                  Epochs
+        </div>
+      )}
+      {/* Parameters - Accordion UI */}
+      {mode === 'no-code' && (
+        <div className={styles.paramCardWrap}>
+          {algorithm === 'yolov8' ? (
+            yolov8ParamGroups.map((group, idx) => (
+              <div key={group.group} className={styles.accordionCard}>
+                <div
+                  className={styles.accordionHeader + ' ' + (openParamGroup === idx ? styles.accordionOpen : '')}
+                  onClick={() => setOpenParamGroup(openParamGroup === idx ? -1 : idx)}
+                  tabIndex={0}
+                  role="button"
+                  aria-expanded={openParamGroup === idx}
+                >
+                  <span>{group.group}</span>
+                  <span className={styles.accordionArrow}>{openParamGroup === idx ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+                </div>
+                {openParamGroup === idx && (
+                  <div className={styles.accordionContent}>
+                    {group.params.map(param => (
+                      <div className={styles.paramRow} key={param.key}>
+                        <label className={styles.paramLabel}>{param.label}</label>
+                        {param.type === 'select' ? (
+                          <select
+                            className={styles.paramInput}
+                            value={algoParams[param.key] ?? param.default}
+                            onChange={e => handleAlgoParamChange(param.key, e.target.value)}
+                            disabled={isTraining}
+                          >
+                            {param.options.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        ) : param.type === 'checkbox' ? (
                   <input
-                    type="number"
-                    className={styles.input + (paramErrors.epochs ? ' ' + styles.inputError : '')}
-                    value={params.epochs}
-                    min={1}
-                    max={1000}
-                    step={1}
-                    placeholder="예: 20"
+                            type="checkbox"
+                            className={styles.paramInput}
+                            checked={algoParams[param.key] ?? param.default}
+                            onChange={e => handleAlgoParamChange(param.key, e.target.checked)}
                     disabled={isTraining}
-                    onChange={e => handleParamChange('epochs', Number(e.target.value))}
                   />
-                  {paramErrors.epochs && <div className={styles.inputErrorMsg}>{paramErrors.epochs}</div>}
-                </label>
-                <label>
-                  Learning Rate
+                        ) : (
                   <input
-                    type="number"
-                    className={styles.input + (paramErrors.lr ? ' ' + styles.inputError : '')}
-                    value={params.lr}
-                    min={0.0001}
-                    max={1}
-                    step={0.0001}
-                    placeholder="예: 0.01"
+                            type={param.type}
+                            className={styles.paramInput}
+                            value={algoParams[param.key] ?? param.default}
+                            min={param.min}
+                            max={param.max}
+                            step={param.step}
+                            placeholder={param.label}
                     disabled={isTraining}
-                    onChange={e => handleParamChange('lr', Number(e.target.value))}
+                            onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
                   />
-                  {paramErrors.lr && <div className={styles.inputErrorMsg}>{paramErrors.lr}</div>}
-                </label>
-                <label>
-                  Batch Size
-                  <input
-                    type="number"
-                    className={styles.input + (paramErrors.batchSize ? ' ' + styles.inputError : '')}
-                    value={params.batchSize}
-                    min={1}
-                    max={1024}
-                    step={1}
-                    placeholder="예: 32"
-                    disabled={isTraining}
-                    onChange={e => handleParamChange('batchSize', Number(e.target.value))}
-                  />
-                  {paramErrors.batchSize && <div className={styles.inputErrorMsg}>{paramErrors.batchSize}</div>}
-                </label>
+                        )}
+                        {param.desc && <span className={styles.paramDesc}>{param.desc}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+            ))
+          ) : algorithm === 'algorithm1' ? (
+            <div className={styles.accordionCard}>
+              <div
+                className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
+                onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
+                tabIndex={0}
+                role="button"
+                aria-expanded={openParamGroup === 0}
+              >
+                <span>Algorithm 1</span>
+                <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+              </div>
+              {openParamGroup === 0 && (
+                <div className={styles.accordionContent}>
+                  {algorithm1Params.map(param => (
+                    <div className={styles.paramRow} key={param.key}>
+                      <label className={styles.paramLabel}>{param.label}</label>
+                  <input
+                        type={param.type}
+                        className={styles.paramInput}
+                        value={algoParams[param.key] ?? param.default}
+                        min={param.min}
+                        max={param.max}
+                        step={param.step}
+                        placeholder={param.label}
+                    disabled={isTraining}
+                        onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
+                  />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </>
-        ) : (
-          <>
+          ) : algorithm === 'algorithm2' ? (
+            <div className={styles.accordionCard}>
+              <div
+                className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
+                onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
+                tabIndex={0}
+                role="button"
+                aria-expanded={openParamGroup === 0}
+              >
+                <span>Algorithm 2</span>
+                <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
+              </div>
+              {openParamGroup === 0 && (
+                <div className={styles.accordionContent}>
+                  {algorithm2Params.map(param => (
+                    <div className={styles.paramRow} key={param.key}>
+                      <label className={styles.paramLabel}>{param.label}</label>
+                      <input
+                        type={param.type}
+                        className={styles.paramInput}
+                        value={algoParams[param.key] ?? param.default}
+                        min={param.min}
+                        max={param.max}
+                        step={param.step}
+                        placeholder={param.label}
+                        disabled={isTraining}
+                        onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+      )}
+      {/* IDE Mode */}
+      {mode === 'ide' && (
+        <div className={styles.sectionCard}>
             <div className={styles.editorCard + ' ' + styles.editorWide}>
               <CodeEditor />
             </div>
-          </>
+        </div>
         )}
+      {/* Run Section */}
+      <div className={styles.sectionCard}>
         <div className={styles.runCard}>
           <div className={styles.runRow}>
             <div className={styles.runErrorWrap}>
@@ -275,14 +437,13 @@ export default function TrainingPage() {
               size="medium"
               onClick={handleRunTraining}
               disabled={isTraining}
-              icon={<PlayCircle size={20} style={{ marginRight: 6 }} />}
-              style={{ minWidth: 150 }}
+              icon={isTraining ? <span className={styles.spinner}></span> : <PlayCircle size={20} style={{ marginRight: 6 }} />}
+              style={{ minWidth: 150, opacity: isTraining ? 0.6 : 1, cursor: isTraining ? 'not-allowed' : 'pointer' }}
             >
-              Run Training
+              {isTraining ? 'Running...' : 'Run Training'}
             </Button>
           </div>
         </div>
-        <h3 className={styles.sectionSubheading}>State and Log</h3>
         <div className={styles.statusCard}>
           <div>
             <ProgressBar percentage={progress} />
