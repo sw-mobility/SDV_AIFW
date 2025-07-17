@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import Modal from '../common/Modal.jsx';
-import styles from './DatasetDrawer.module.css';
+import styles from './Dataset.module.css';
 import Button from '../common/Button.jsx';
 import { uploadDataset } from '../../api/datasets.js';
 import Loading from '../common/Loading.jsx';

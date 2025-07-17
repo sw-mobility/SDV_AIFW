@@ -10,7 +10,7 @@ import StatusChip from '../common/StatusChip.jsx';
 import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';
 import EmptyState from '../common/EmptyState.jsx';
-import styles from './DatasetDrawer.module.css';
+import styles from './Dataset.module.css';
 import { downloadDataset, deleteDataset } from '../../api/datasets.js';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
 
