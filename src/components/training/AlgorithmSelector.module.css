@@ -1,0 +1,54 @@
+.sectionCard {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 28px 28px;
+  margin-bottom: 24px;
+  transition: all 0.2s ease;
+}
+
+.sectionCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.selectorGroup {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-xl);
+}
+
+.selectorBox {
+  flex: 1 1 320px;
+  min-width: 280px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+  margin-bottom: var(--spacing-base);
+}
+
+.select:focus {
+  border-color: #3b82f6;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.paramLabel {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+  line-height: 1.4;
+} 
