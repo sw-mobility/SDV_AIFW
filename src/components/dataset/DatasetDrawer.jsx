@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import { Download, Trash2, Upload, Database, Tag, Calendar } from 'lucide-react';
-import { useDatasetContext } from '../../context/DatasetContext';
+import { useDatasetContext } from '../../context/DatasetContext.jsx';
 import StatusChip from '../common/StatusChip.jsx';
 import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';

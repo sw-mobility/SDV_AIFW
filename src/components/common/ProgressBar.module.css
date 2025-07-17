@@ -19,10 +19,27 @@
     background: var(--color-blue);
     height: 100%;
     border-radius: var(--radius-full);
+    transition: width 0.3s, background 0.3s;
 }
 
 .progress-bar-text {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     margin-top: var(--spacing-xs);
+}
+
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2.5px solid #c7d2fe;
+    border-top: 2.5px solid #4f8cff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 2px;
+    vertical-align: middle;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {Plus, FolderOpen, ChevronDown, Trash2, Pencil} from 'lucide-react';
-import Card, { CardGrid } from '../../components/common/Card.jsx';
-import styles from './IndexPage.module.css';
+import Card, { CardGrid } from '../../../components/common/Card.jsx';
+import styles from '../IndexPage.module.css';
 import { Calendar } from 'lucide-react';
-import { fetchProjects, createProject, deleteProject, updateProject } from '../../api/projects.js';
-import StatusChip from '../../components/common/StatusChip.jsx';
-import Loading from '../../components/common/Loading.jsx';
-import ErrorMessage from '../../components/common/ErrorMessage.jsx';
-import EmptyState from '../../components/common/EmptyState.jsx';
-import ShowMoreGrid from '../../components/common/ShowMoreGrid.jsx';
-import CreateModal from './CreateModal.jsx';
+import { fetchProjects, createProject, deleteProject, updateProject } from '../../../api/projects.js';
+import StatusChip from '../../../components/common/StatusChip.jsx';
+import Loading from '../../../components/common/Loading.jsx';
+import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
+import EmptyState from '../../../components/common/EmptyState.jsx';
+import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
+import CreateModal from '../../../components/common/CreateModal.jsx';
 /**
  * ProjectsTab 컴포넌트
  *

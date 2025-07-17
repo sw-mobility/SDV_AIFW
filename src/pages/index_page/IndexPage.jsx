@@ -4,8 +4,8 @@ import Footer from '../../components/layout/Footer.jsx';
 import TabNavigation from '../../components/common/TabNavigation.jsx';
 import styles from '../../components/layout/Layout.module.css';
 import pageStyles from './IndexPage.module.css';
-import ProjectsTab from './ProjectsTab.jsx';
-import DatasetsTab from './DatasetsTab.jsx';
+import ProjectsTab from './index_tab/ProjectsTab.jsx';
+import DatasetsTab from './index_tab/DatasetsTab.jsx';
 
 const IndexPage = ({ mockState }) => {
     const [activeTab, setActiveTab] = useState('projects'); // 'projects' or 'data'

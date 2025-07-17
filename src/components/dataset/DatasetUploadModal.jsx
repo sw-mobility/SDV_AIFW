@@ -5,7 +5,7 @@ import Button from '../common/Button.jsx';
 import { uploadDataset } from '../../api/datasets.js';
 import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';
-import { useDatasetContext } from '../../context/DatasetContext';
+import { useDatasetContext } from '../../context/DatasetContext.jsx';
 
 const DATASET_TYPES = [
   'Image', 'Text', 'Audio', 'Video', 'Tabular', 'TimeSeries', 'Graph'

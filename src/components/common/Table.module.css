@@ -1,33 +1,72 @@
 .table-container {
-    background: var(--color-bg-primary);
-    border: 1px solid var(--color-border-primary);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+.table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-thead {
-    background: var(--color-bg-secondary);
+.thead {
+  background: var(--color-bg-secondary);
 }
 
-th {
-    padding: var(--spacing-md) var(--spacing-xl);
-    text-align: left;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-secondary);
+.th {
+  padding: var(--spacing-md) var(--spacing-xl);
+  text-align: left;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
 }
 
-td {
-    padding: var(--spacing-md) var(--spacing-xl);
-    font-size: var(--font-size-sm);
-    color: var(--color-text-main);
+.td {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-tbody tr:not(:last-child) {
-    border-bottom: 1px solid var(--color-border-primary);
+.tdCreatedAt {
+  font-size: 12px;
+  color: #b6c2d6;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.tr {
+  transition: background 0.18s, box-shadow 0.18s;
+  border-radius: 8px;
+}
+
+.tr:hover:not(.selectedRow) {
+  background: #f0f7ff;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.selectedRow {
+  background: #b6e0fe !important;
+  color: var(--color-text-main);
+  font-weight: 600;
+  border-left: 4px solid #4f8cff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.10);
+  transition: background 0.15s, border 0.15s;
+}
+
+.emptyCell {
+  color: #aaa;
+  font-size: 15px;
+  font-style: italic;
+  text-align: center;
+  padding: 18px 0;
 }

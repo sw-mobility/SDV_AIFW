@@ -34,11 +34,11 @@ export const ActiveHome = {
   },
 };
 
-export const ActiveLabelling = {
+export const ActiveLabeling = {
   render: () => <Sidebar />,
   parameters: {
     reactRouter: {
-      initialEntries: ['/projects/123/labelling'],
+      initialEntries: ['/projects/123/labeling'],
     },
   },
 };

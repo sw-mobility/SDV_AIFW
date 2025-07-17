@@ -11,7 +11,7 @@ import { NavLink, useParams } from "react-router-dom";
 
 const menuItems = [
     {label: "Home", icon: Home, path: ""},
-    {label: "Labelling", icon: Tag, path: "labelling"},
+    {label: "labeling", icon: Tag, path: "labeling"},
     {label: "Training", icon: Cpu, path: "training"},
     {label: "Optimization", icon: Zap, path: "optimization"},
     {label: "Validation", icon: CheckSquare, path: "validation"},

@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import CodeEditor from '../../components/common/CodeEditor.jsx';
 import TabNavigation from '../../components/common/TabNavigation.jsx';
 import AlgorithmSelector from '../../components/training/AlgorithmSelector.jsx';
 import DatasetSelector from '../../components/training/DatasetSelector.jsx';
 import SnapshotSelector from '../../components/training/SnapshotSelector.jsx';
-import ParameterChipList from '../../components/training/ParameterChipList.jsx';
 import ParameterEditor from '../../components/training/ParameterEditor.jsx';
 import TrainingExecution from '../../components/training/TrainingExecution.jsx';
 import ContinualLearningInfo from '../../components/training/ContinualLearningInfo.jsx';
@@ -23,14 +22,14 @@ const TrainingPage = () => {
     // Training Type & Mode
     trainingType, setTrainingType,
     mode, setMode,
-    
-    // Dataset
+
+  // Dataset
     datasets, setDatasets,
     selectedDataset, setSelectedDataset,
     datasetLoading, setDatasetLoading,
     datasetError, setDatasetError,
-    
-    // Snapshot
+
+  // Snapshot
     snapshots, setSnapshots,
     selectedSnapshot, setSelectedSnapshot,
     snapshotModalOpen, setSnapshotModalOpen,
@@ -39,8 +38,8 @@ const TrainingPage = () => {
     algorithm, setAlgorithm,
     algoParams, setAlgoParams,
     paramErrors, setParamErrors,
-    
-    // Training
+
+  // Training
     isTraining, setIsTraining,
     progress, setProgress,
     status, setStatus,
@@ -125,9 +124,19 @@ const TrainingPage = () => {
   // 현재 파라미터 그룹 가져오기
   const paramGroups = getParameterGroups(algorithm);
 
+  // progress 100%시 status를 success로 자동 변경
+  useEffect(() => {
+    if (progress === 100 && status !== 'success') {
+      setStatus('success');
+    }
+  }, [progress, status, setStatus]);
+
   return (
     <div className={styles.container}>
       <div style={{ fontSize: 28, fontWeight: 700, color: "#222", marginBottom: "10px"}}>Training</div>
+      <div className={styles.pageDescription}>
+        Configure your training settings and start model training with your selected dataset.
+      </div>
       
       {/* Training Type Tabs */}
       <TabNavigation
@@ -145,7 +154,7 @@ const TrainingPage = () => {
       
       {/* Standard/Continual UI */}
       {trainingType === 'standard' ? (
-        <>
+          <>
           {/* Dataset & Snapshot (Standard) */}
           <div className={styles.sectionCard}>
             <div className={styles.selectorGroup}>
@@ -207,7 +216,7 @@ const TrainingPage = () => {
                       </span>
                     );
                   })}
-                </div>
+            </div>
               )}
               {/* 아코디언 그룹별로 렌더링 */}
               {paramGroups.map((group, gidx) => {
@@ -274,7 +283,7 @@ const TrainingPage = () => {
                   </div>
                 );
               })}
-            </div>
+                </div>
             {/* Right: 선택된 파라미터만 편집 */}
             <div className={styles.paramCardWrap}>
               {selectedParamKeys.length === 0 ? (
@@ -305,9 +314,9 @@ const TrainingPage = () => {
               )}
             </div>
           </div>
-        </>
-      ) : (
-        <>
+          </>
+        ) : (
+          <>
           {/* Continual Learning Info */}
           <ContinualLearningInfo />
           
@@ -333,15 +342,15 @@ const TrainingPage = () => {
           {/* Parameters - Only show 'Training Parameters' group for Continual */}
           <div className={styles.paramCardWrap}>
             {paramGroups.filter(g => g.group === 'Training Parameters').map((group, idx) => (
-              <div key={group.group} className={styles.accordionCard}>
-                <div
-                  className={styles.accordionHeader + ' ' + (openParamGroup === idx ? styles.accordionOpen : '')}
-                  onClick={() => setOpenParamGroup(openParamGroup === idx ? -1 : idx)}
-                  tabIndex={0}
-                  role="button"
-                  aria-expanded={openParamGroup === idx}
-                >
-                  <span>{group.group}</span>
+                <div key={group.group} className={styles.accordionCard}>
+                  <div
+                    className={styles.accordionHeader + ' ' + (openParamGroup === idx ? styles.accordionOpen : '')}
+                    onClick={() => setOpenParamGroup(openParamGroup === idx ? -1 : idx)}
+                    tabIndex={0}
+                    role="button"
+                    aria-expanded={openParamGroup === idx}
+                  >
+                    <span>{group.group}</span>
                   <span className={styles.accordionArrow}>
                     {openParamGroup === idx ? '▼' : '▶'}
                   </span>
@@ -349,8 +358,8 @@ const TrainingPage = () => {
                 {openParamGroup === idx && (
                   <div className={styles.accordionContent}>
                     {group.params.map(param => (
-                      <div className={styles.paramRow} key={param.key}>
-                        <label className={styles.paramLabel}>{param.label}</label>
+                        <div className={styles.paramRow} key={param.key}>
+                          <label className={styles.paramLabel}>{param.label}</label>
                         <ParameterEditor
                           currentParam={param}
                           algoParams={algoParams}
@@ -358,7 +367,7 @@ const TrainingPage = () => {
                           paramErrors={paramErrors}
                           isTraining={isTraining}
                         />
-                      </div>
+                        </div>
                     ))}
                   </div>
                 )}
@@ -370,22 +379,22 @@ const TrainingPage = () => {
 
       {/* Drawer for Code Editor */}
       {showCodeEditor && (
-        <>
-          <div className={styles.drawerOverlay} onClick={handleCloseDrawer}></div>
-          <div className={styles.codeDrawer}>
-            <div className={styles.drawerEditorWrap}>
-              <CodeEditor
-                snapshotName={selectedSnapshot ? selectedSnapshot.name : 'Default Snapshot'}
-                fileStructure={editorFileStructure}
-                files={editorFiles}
-                onSaveSnapshot={name => {
-                  alert(`Saved as snapshot: ${name}`);
-                }}
-                onCloseDrawer={handleCloseDrawer}
-              />
+          <>
+            <div className={styles.drawerOverlay} onClick={handleCloseDrawer}></div>
+            <div className={styles.codeDrawer}>
+              <div className={styles.drawerEditorWrap}>
+                <CodeEditor
+                    snapshotName={selectedSnapshot ? selectedSnapshot.name : 'Default Snapshot'}
+                    fileStructure={editorFileStructure}
+                    files={editorFiles}
+                    onSaveSnapshot={name => {
+                      alert(`Saved as snapshot: ${name}`);
+                    }}
+                    onCloseDrawer={handleCloseDrawer}
+                />
+              </div>
             </div>
-          </div>
-        </>
+          </>
       )}
       
       {/* Training Execution */}
@@ -394,6 +403,8 @@ const TrainingPage = () => {
         progress={progress}
         logs={logs}
         onRunTraining={handleRunTraining}
+        status={status}
+        completeText="Training completed!"
       />
     </div>
   );

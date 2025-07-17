@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, Database, Tag} from 'lucide-react';
-import Card from '../../components/common/Card.jsx';
-import styles from './IndexPage.module.css';
+import Card from '../../../components/common/Card.jsx';
+import styles from '../IndexPage.module.css';
 import { Calendar, Download, Trash2 } from 'lucide-react';
-import { fetchRawDatasets, fetchLabeledDatasets, downloadDataset } from '../../api/datasets.js';
-import StatusChip from '../../components/common/StatusChip.jsx';
-import Loading from '../../components/common/Loading.jsx';
-import ErrorMessage from '../../components/common/ErrorMessage.jsx';
-import EmptyState from '../../components/common/EmptyState.jsx';
-import ShowMoreGrid from '../../components/common/ShowMoreGrid.jsx';
-import DatasetUploadModal from '../../components/dataset/DatasetUploadModal.jsx';
+import { fetchRawDatasets, fetchLabeledDatasets, downloadDataset } from '../../../api/datasets.js';
+import StatusChip from '../../../components/common/StatusChip.jsx';
+import Loading from '../../../components/common/Loading.jsx';
+import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
+import EmptyState from '../../../components/common/EmptyState.jsx';
+import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
+import DatasetUploadModal from '../../../components/dataset/DatasetUploadModal.jsx';
 
 /**
  * DatasetsTab 컴포넌트

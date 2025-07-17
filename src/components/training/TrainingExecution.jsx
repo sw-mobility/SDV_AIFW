@@ -7,7 +7,9 @@ const TrainingExecution = ({
   isTraining, 
   progress, 
   logs, 
-  onRunTraining 
+  onRunTraining,
+  status,
+  completeText
 }) => {
   return (
     <div className={styles.sectionCard}>
@@ -27,7 +29,7 @@ const TrainingExecution = ({
       </div>
       <div className={styles.statusCard}>
         <div>
-          <ProgressBar percentage={progress} />
+          <ProgressBar percentage={progress} status={status} completeText={completeText} />
         </div>
         <div className={styles.logBox}>
           {logs.length === 0 ? (

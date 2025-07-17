@@ -280,17 +280,33 @@ label {
   z-index: auto;
 }
 
+.pageDescription {
+  color: #64748b;
+  font-size: 16px;
+  margin: 0 0 24px 0;
+  line-height: 1.4;
+}
+
 .sectionCard {
-  background: #ffffff;
+  background: #fff;
   border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   padding: 28px 28px;
   margin-bottom: 24px;
-  transition: all 0.2s ease;
+  border: 1px solid #f1f5f9;
+  transition: box-shadow 0.18s, border 0.18s;
 }
 
 .sectionCard:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  border: 1px solid #e0e7ef;
+}
+
+/* Table row hover (if any table is used here) */
+.table-container tr:hover, .table-container .tr:hover {
+  background: #f0f7ff;
+  box-shadow: none;
+  cursor: pointer;
 }
 
 .paramCardWrap {

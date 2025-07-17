@@ -18,6 +18,7 @@ export default function Button({ children, variant = 'primary', size = 'medium',
   if (variant === 'secondary') className += ' ' + styles.secondary;
   if (size === 'large') className += ' ' + styles.large;
   if (size === 'medium') className += ' ' + styles.medium;
+  if (disabled) className += ' ' + styles.disabled;
   return (
     <button className={className} onClick={onClick} disabled={disabled} style={style}>
       {icon && <span className={styles.iconWrap}>{icon}</span>}
