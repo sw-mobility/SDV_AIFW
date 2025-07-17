@@ -12,6 +12,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 const defaultSnapshot = { id: 'default', name: 'Default Snapshot', description: 'System default snapshot' };
 const mockSnapshots = [
@@ -390,6 +392,16 @@ export default function TrainingPage() {
             </select>
           </div>
         </div>
+        {/* Edit Code/Expert Mode button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+          <Button
+              variant="secondary"
+              onClick={() => setShowCodeEditor(true)}
+              style={{ minWidth: 140 }}
+          >
+            Edit Code (Expert Mode)
+          </Button>
+        </div>
       </div>
       {/* Standard/Continual UI */}
       {trainingType === 'standard' ? (
@@ -508,14 +520,14 @@ export default function TrainingPage() {
                       ))}
                     </select>
                   ) : currentParam.type === 'checkbox' ? (
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <input
-                        type="checkbox"
+                    <div className={styles.switchContainer}>
+                      <Switch
                         checked={algoParams[currentParam.key] ?? currentParam.default}
                         onChange={e => handleAlgoParamChange(currentParam.key, e.target.checked, currentParam)}
+                        color="primary"
+                        size="medium"
                       />
-                      <span style={{ fontSize: 15 }}>활성화</span>
-                    </label>
+                    </div>
                   ) : (
                     <input
                       type="text"
@@ -636,13 +648,16 @@ export default function TrainingPage() {
                                 ))}
                               </select>
                             ) : param.type === 'checkbox' ? (
-                              <input
-                                type="checkbox"
-                                className={styles.paramInput}
-                                checked={algoParams[param.key] ?? param.default}
-                                onChange={e => handleAlgoParamChange(param.key, e.target.checked, param)}
-                                disabled={isTraining}
-                              />
+                              <div className={styles.switchContainer}>
+                                <Switch
+                                  checked={algoParams[param.key] ?? param.default}
+                                  onChange={e => handleAlgoParamChange(param.key, e.target.checked, param)}
+                                  disabled={isTraining}
+                                  color="primary"
+                                  size="medium"
+                                />
+                                <span className={styles.switchLabel}>활성화</span>
+                              </div>
                             ) : isNumber ? (
                               <TextField
                                 type="number"
@@ -857,16 +872,7 @@ export default function TrainingPage() {
           </div>
         </>
       )}
-      {/* Edit Code/Expert Mode toggle button (always shown) */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '16px 0 0 0' }}>
-        <Button
-            variant="secondary"
-            onClick={() => setShowCodeEditor(true)}
-            style={{ minWidth: 140 }}
-        >
-          Edit Code (Expert Mode)
-        </Button>
-      </div>
+
       {/* Drawer for Code Editor */}
       {showCodeEditor && (
           <>
