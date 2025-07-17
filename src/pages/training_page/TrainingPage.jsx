@@ -6,10 +6,12 @@ import CodeEditor from '../../components/common/CodeEditor.jsx';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import pageStyles from '../index_page/IndexPage.module.css';
 import styles from './TrainingPage.module.css';
-import { PlayCircle, ChevronDown, ChevronUp, Plus, Minus } from 'lucide-react';
+import { PlayCircle, ChevronDown, ChevronUp, Plus, Minus, Edit3, HelpCircle } from 'lucide-react';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
+import Slider from '@mui/material/Slider';
+import Tooltip from '@mui/material/Tooltip';
 
 const defaultSnapshot = { id: 'default', name: 'Default Snapshot', description: 'System default snapshot' };
 const mockSnapshots = [
@@ -102,6 +104,38 @@ function ParamSummary({ paramGroups, algoParams }) {
           })}
         </div>
       ))}
+    </div>
+  );
+}
+
+// 2. ParamChipList component (replaces ParamSummary)
+function ParamChipList({ paramGroups, algoParams, selectedKey, onSelect }) {
+  if (!paramGroups) return null;
+  return (
+    <div className={styles.paramChipListWrap}>
+      {paramGroups.flatMap((group) =>
+        group.params.map((param) => {
+          const value = algoParams[param.key] ?? param.default;
+          const isChanged = value !== param.default;
+          const isSelected = selectedKey === param.key;
+          return (
+            <button
+              key={param.key}
+              className={
+                styles.paramChip +
+                (isChanged ? ' ' + styles.paramChipChanged : ' ' + styles.paramChipDefault) +
+                (isSelected ? ' ' + styles.paramChipSelected : '')
+              }
+              onClick={() => onSelect(param.key)}
+              type="button"
+              tabIndex={0}
+            >
+              <span className={styles.paramChipLabel}>{param.label}</span>
+              <span className={styles.paramChipValue}>{String(value)}</span>
+            </button>
+          );
+        })
+      )}
     </div>
   );
 }
@@ -302,6 +336,21 @@ export default function TrainingPage() {
 
   // --- 파라미터 입력 필드 렌더링 개선 (에러 UX 통일) ---
   // (yolov8, algorithm1, algorithm2 모두 동일하게 적용)
+  // Add state for selected parameter key
+  const [selectedParamKey, setSelectedParamKey] = useState(null);
+
+  // Helper to get current param definition
+  const getCurrentParam = () => {
+    const groups = algorithm === 'yolov8' ? yolov8ParamGroups : algorithm === 'algorithm1' ? [{ group: 'Algorithm 1', params: algorithm1Params }] : [{ group: 'Algorithm 2', params: algorithm2Params }];
+    for (const group of groups) {
+      for (const param of group.params) {
+        if (param.key === selectedParamKey) return { ...param, group: group.group };
+      }
+    }
+    return null;
+  };
+  const currentParam = getCurrentParam();
+
   return (
     <div className={styles.container}>
       <div style={{ fontSize: 28, fontWeight: 700, color: "#222", marginBottom: "10px"}}>Training</div>
@@ -405,265 +454,85 @@ export default function TrainingPage() {
           </div>
           {/* Parameters & Summary 2단 레이아웃 (Summary 왼쪽, 입력 오른쪽) */}
           <div className={styles.paramSectionWrap}>
+            {/* Left: ParamChipList */}
             <div className={styles.paramSummaryBox + ' ' + styles.sectionCard}>
-              <div className={styles.paramGroupTitle} style={{ fontSize: 17, marginBottom: 12 }}>Selected Parameters</div>
-              <ParamSummary paramGroups={algorithm === 'yolov8' ? yolov8ParamGroups : algorithm === 'algorithm1' ? [{ group: 'Algorithm 1', params: algorithm1Params }] : [{ group: 'Algorithm 2', params: algorithm2Params }]} algoParams={algoParams} />
+              <div className={styles.paramGroupTitle} style={{ fontSize: 17, marginBottom: 12 }}>Parameters</div>
+              <ParamChipList
+                paramGroups={algorithm === 'yolov8' ? yolov8ParamGroups : algorithm === 'algorithm1' ? [{ group: 'Algorithm 1', params: algorithm1Params }] : [{ group: 'Algorithm 2', params: algorithm2Params }]}
+                algoParams={algoParams}
+                selectedKey={selectedParamKey}
+                onSelect={setSelectedParamKey}
+              />
             </div>
+            {/* Right: Parameter Form */}
             <div className={styles.paramCardWrap}>
-              {algorithm === 'yolov8' ? (
-                yolov8ParamGroups.map((group, idx) => (
-                  <div key={group.group} className={styles.accordionCard}>
-                    <div
-                      className={styles.accordionHeader + ' ' + (openParamGroup === idx ? styles.accordionOpen : '')}
-                      onClick={() => setOpenParamGroup(openParamGroup === idx ? -1 : idx)}
-                      tabIndex={0}
-                      role="button"
-                      aria-expanded={openParamGroup === idx}
+              {currentParam ? (
+                <div className={styles.paramCard + ' ' + styles.sectionCard + ' ' + styles.paramCardActive}>
+                  <div className={styles.paramRowHeader}>
+                    <span className={styles.paramLabel}>{currentParam.label}</span>
+                    <Tooltip title={`기본값: ${currentParam.default}${currentParam.min !== undefined ? `, 범위: ${currentParam.min}~${currentParam.max}` : ''}`.trim()} placement="right">
+                      <HelpCircle size={18} color="#888" style={{ marginLeft: 6, verticalAlign: 'middle' }} />
+                    </Tooltip>
+                  </div>
+                  {/* Input field by type */}
+                  {currentParam.type === 'number' ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <Slider
+                        min={currentParam.min}
+                        max={currentParam.max}
+                        step={currentParam.step}
+                        value={algoParams[currentParam.key] ?? currentParam.default}
+                        onChange={(_, v) => handleAlgoParamChange(currentParam.key, v, currentParam)}
+                        sx={{ width: 180, color: '#4f8cff' }}
+                      />
+                      <input
+                        type="number"
+                        value={algoParams[currentParam.key] ?? currentParam.default}
+                        min={currentParam.min}
+                        max={currentParam.max}
+                        step={currentParam.step}
+                        onChange={e => handleAlgoParamChange(currentParam.key, Number(e.target.value), currentParam)}
+                        className={styles.paramInput}
+                        style={{ width: 80, marginLeft: 8 }}
+                      />
+                    </div>
+                  ) : currentParam.type === 'select' ? (
+                    <select
+                      className={styles.paramInput}
+                      value={algoParams[currentParam.key] ?? currentParam.default}
+                      onChange={e => handleAlgoParamChange(currentParam.key, e.target.value, currentParam)}
+                      style={{ width: 180 }}
                     >
-                      <span>{group.group}</span>
-                      <span className={styles.accordionArrow}>{openParamGroup === idx ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
-                    </div>
-                    {openParamGroup === idx && (
-                      <div className={styles.accordionContent}>
-                        {group.params.map(param => {
-                          const error = paramErrors[param.key];
-                          const isNumber = param.type === 'number';
-                          return (
-                            <div className={styles.paramRow} key={param.key}>
-                              <label className={styles.paramLabel}>{param.label}</label>
-                              {param.type === 'select' ? (
-                                <select
-                                  className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
-                                  value={algoParams[param.key] ?? param.default}
-                                  onChange={e => handleAlgoParamChange(param.key, e.target.value, param)}
-                                  disabled={isTraining}
-                                  style={inputSizeStyle}
-                                >
-                                  {param.options.map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
-                                  ))}
-                                </select>
-                              ) : param.type === 'checkbox' ? (
-                                <input
-                                  type="checkbox"
-                                  className={styles.paramInput}
-                                  checked={algoParams[param.key] ?? param.default}
-                                  onChange={e => handleAlgoParamChange(param.key, e.target.checked, param)}
-                                  disabled={isTraining}
-                                  style={{ width: 20, height: 20 }}
-                                />
-                              ) : isNumber ? (
-                                <TextField
-                                  type="number"
-                                  size="small"
-                                  value={algoParams[param.key] ?? param.default}
-                                  onChange={e => handleAlgoParamChange(param.key, Number(e.target.value), param)}
-                                  inputProps={{
-                                    min: param.min,
-                                    max: param.max,
-                                    step: param.step,
-                                    style: { textAlign: 'right', fontSize: 15, fontWeight: 500, padding: '6px 10px' }
-                                  }}
-                                  InputProps={{
-                                    endAdornment: (
-                                      <InputAdornment position="end" sx={{ ml: 0 }}>
-                                        <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) + (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) >= param.max}>
-                                          <Plus size={16} />
-                                        </IconButton>
-                                        <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) - (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) <= param.min}>
-                                          <Minus size={16} />
-                                        </IconButton>
-                                      </InputAdornment>
-                                    ),
-                                    sx: {
-                                      borderRadius: 2,
-                                      background: '#fff',
-                                      minWidth: 0,
-                                      maxWidth: '100%',
-                                    }
-                                  }}
-                                  sx={{ ...inputSizeStyle, ...(error ? { border: '1.5px solid #e74c3c', background: '#fff6f6' } : {}) }}
-                                  error={!!error}
-                                  disabled={isTraining}
-                                  helperText={error || ' '}
-                                  FormHelperTextProps={{ style: { marginTop: 4, minHeight: 18, fontSize: 13, fontWeight: 500, color: '#e74c3c', background: 'none' } }}
-                                />
-                              ) : (
-                                <input
-                                  type={param.type}
-                                  className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
-                                  value={algoParams[param.key] ?? param.default}
-                                  min={param.min}
-                                  max={param.max}
-                                  step={param.step}
-                                  placeholder={param.label}
-                                  disabled={isTraining}
-                                  onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value, param)}
-                                  style={inputSizeStyle}
-                                />
-                              )}
-                              {error && !isNumber && <span className={styles.inputErrorMsg}>{error}</span>}
-                              {param.desc && <span className={styles.paramDesc}>{param.desc}</span>}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                ))
-              ) : algorithm === 'algorithm1' ? (
-                <div className={styles.accordionCard}>
-                  <div
-                    className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
-                    onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
-                    tabIndex={0}
-                    role="button"
-                    aria-expanded={openParamGroup === 0}
-                  >
-                    <span>Algorithm 1</span>
-                    <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
-                  </div>
-                  {openParamGroup === 0 && (
-                    <div className={styles.accordionContent}>
-                      {algorithm1Params.map(param => {
-                        const error = paramErrors[param.key];
-                        const isNumber = param.type === 'number';
-                        return (
-                          <div className={styles.paramRow} key={param.key}>
-                            <label className={styles.paramLabel}>{param.label}</label>
-                            {isNumber ? (
-                              <TextField
-                                type="number"
-                                size="small"
-                                value={algoParams[param.key] ?? param.default}
-                                onChange={e => handleAlgoParamChange(param.key, Number(e.target.value), param)}
-                                inputProps={{
-                                  min: param.min,
-                                  max: param.max,
-                                  step: param.step,
-                                  style: { textAlign: 'right', fontSize: 15, fontWeight: 500, padding: '6px 10px' }
-                                }}
-                                InputProps={{
-                                  endAdornment: (
-                                    <InputAdornment position="end" sx={{ ml: 0 }}>
-                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) + (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) >= param.max}>
-                                        <Plus size={16} />
-                                      </IconButton>
-                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) - (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) <= param.min}>
-                                        <Minus size={16} />
-                                      </IconButton>
-                                    </InputAdornment>
-                                  ),
-                                  sx: {
-                                    borderRadius: 2,
-                                    background: '#fff',
-                                    minWidth: 0,
-                                    maxWidth: '100%',
-                                  }
-                                }}
-                                sx={{ ...inputSizeStyle, ...(error ? { border: '1.5px solid #e74c3c', background: '#fff6f6' } : {}) }}
-                                error={!!error}
-                                disabled={isTraining}
-                                helperText={error || ' '}
-                                FormHelperTextProps={{ style: { marginTop: 4, minHeight: 18, fontSize: 13, fontWeight: 500, color: '#e74c3c', background: 'none' } }}
-                              />
-                            ) : (
-                              <input
-                                type={param.type}
-                                className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
-                                value={algoParams[param.key] ?? param.default}
-                                min={param.min}
-                                max={param.max}
-                                step={param.step}
-                                placeholder={param.label}
-                                disabled={isTraining}
-                                onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value, param)}
-                                style={inputSizeStyle}
-                              />
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+                      {currentParam.options.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  ) : currentParam.type === 'checkbox' ? (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <input
+                        type="checkbox"
+                        checked={algoParams[currentParam.key] ?? currentParam.default}
+                        onChange={e => handleAlgoParamChange(currentParam.key, e.target.checked, currentParam)}
+                      />
+                      <span style={{ fontSize: 15 }}>활성화</span>
+                    </label>
+                  ) : (
+                    <input
+                      type="text"
+                      className={styles.paramInput}
+                      value={algoParams[currentParam.key] ?? currentParam.default}
+                      onChange={e => handleAlgoParamChange(currentParam.key, e.target.value, currentParam)}
+                      style={{ width: 180 }}
+                    />
                   )}
+                  {currentParam.desc && <div className={styles.paramDesc}>{currentParam.desc}</div>}
+                  {/* Reset button removed for cleaner UI */}
                 </div>
-              ) : algorithm === 'algorithm2' ? (
-                <div className={styles.accordionCard}>
-                  <div
-                    className={styles.accordionHeader + ' ' + (openParamGroup === 0 ? styles.accordionOpen : '')}
-                    onClick={() => setOpenParamGroup(openParamGroup === 0 ? -1 : 0)}
-                    tabIndex={0}
-                    role="button"
-                    aria-expanded={openParamGroup === 0}
-                  >
-                    <span>Algorithm 2</span>
-                    <span className={styles.accordionArrow}>{openParamGroup === 0 ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}</span>
-                  </div>
-                  {openParamGroup === 0 && (
-                    <div className={styles.accordionContent}>
-                      {algorithm2Params.map(param => {
-                        const error = paramErrors[param.key];
-                        const isNumber = param.type === 'number';
-                        return (
-                          <div className={styles.paramRow} key={param.key}>
-                            <label className={styles.paramLabel}>{param.label}</label>
-                            {isNumber ? (
-                              <TextField
-                                type="number"
-                                size="small"
-                                value={algoParams[param.key] ?? param.default}
-                                onChange={e => handleAlgoParamChange(param.key, Number(e.target.value), param)}
-                                inputProps={{
-                                  min: param.min,
-                                  max: param.max,
-                                  step: param.step,
-                                  style: { textAlign: 'right', fontSize: 15, fontWeight: 500, padding: '6px 10px' }
-                                }}
-                                InputProps={{
-                                  endAdornment: (
-                                    <InputAdornment position="end" sx={{ ml: 0 }}>
-                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) + (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) >= param.max}>
-                                        <Plus size={16} />
-                                      </IconButton>
-                                      <IconButton size="small" onClick={() => { const v = Number(Number((algoParams[param.key] ?? param.default) - (param.step || 1)).toFixed(getDecimalPlaces(param.step))); handleAlgoParamChange(param.key, v, param); }} disabled={isTraining || (algoParams[param.key] ?? param.default) <= param.min}>
-                                        <Minus size={16} />
-                                      </IconButton>
-                                    </InputAdornment>
-                                  ),
-                                  sx: {
-                                    borderRadius: 2,
-                                    background: '#fff',
-                                    minWidth: 0,
-                                    maxWidth: '100%',
-                                  }
-                                }}
-                                sx={{ ...inputSizeStyle, ...(error ? { border: '1.5px solid #e74c3c', background: '#fff6f6' } : {}) }}
-                                error={!!error}
-                                disabled={isTraining}
-                                helperText={error || ' '}
-                                FormHelperTextProps={{ style: { marginTop: 4, minHeight: 18, fontSize: 13, fontWeight: 500, color: '#e74c3c', background: 'none' } }}
-                              />
-                            ) : (
-                              <input
-                                type={param.type}
-                                className={styles.paramInput + (error ? ' ' + styles.inputError : '')}
-                                value={algoParams[param.key] ?? param.default}
-                                min={param.min}
-                                max={param.max}
-                                step={param.step}
-                                placeholder={param.label}
-                                disabled={isTraining}
-                                onChange={e => handleAlgoParamChange(param.key, param.type === 'number' ? Number(e.target.value) : e.target.value, param)}
-                                style={inputSizeStyle}
-                              />
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+              ) : (
+                <div className={styles.paramCard + ' ' + styles.sectionCard + ' ' + styles.paramCardEmpty}>
+                  <span style={{ color: '#aaa', fontSize: 15 }}>왼쪽에서 파라미터를 선택하세요.</span>
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
           </>
@@ -991,45 +860,45 @@ export default function TrainingPage() {
       {/* Edit Code/Expert Mode toggle button (always shown) */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '16px 0 0 0' }}>
         <Button
-          variant="secondary"
-          onClick={() => setShowCodeEditor(true)}
-          style={{ minWidth: 140 }}
+            variant="secondary"
+            onClick={() => setShowCodeEditor(true)}
+            style={{ minWidth: 140 }}
         >
           Edit Code (Expert Mode)
         </Button>
       </div>
       {/* Drawer for Code Editor */}
       {showCodeEditor && (
-        <>
-          <div className={styles.drawerOverlay} onClick={handleCloseDrawer}></div>
-          <div className={styles.codeDrawer}>
-            <div className={styles.drawerEditorWrap}>
-              <CodeEditor
-                snapshotName={selectedSnapshot ? selectedSnapshot.name : 'Default Snapshot'}
-                fileStructure={editorFileStructure}
-                files={editorFiles}
-                // activeFile, onFileChange, onFilesChange 등은 추후 필요시 추가
-                onSaveSnapshot={name => {
-                  // 실제 저장 로직은 추후 구현 (현재는 alert)
-                  alert(`Saved as snapshot: ${name}`);
-                }}
-                onCloseDrawer={handleCloseDrawer}
-              />
-            </div>
+          <>
+            <div className={styles.drawerOverlay} onClick={handleCloseDrawer}></div>
+            <div className={styles.codeDrawer}>
+              <div className={styles.drawerEditorWrap}>
+                <CodeEditor
+                    snapshotName={selectedSnapshot ? selectedSnapshot.name : 'Default Snapshot'}
+                    fileStructure={editorFileStructure}
+                    files={editorFiles}
+                    // activeFile, onFileChange, onFilesChange 등은 추후 필요시 추가
+                    onSaveSnapshot={name => {
+                      // 실제 저장 로직은 추후 구현 (현재는 alert)
+                      alert(`Saved as snapshot: ${name}`);
+                    }}
+                    onCloseDrawer={handleCloseDrawer}
+                />
+              </div>
             </div>
           </>
-        )}
+      )}
       {/* Run Section */}
       <div className={styles.sectionCard}>
         <div className={styles.runCard}>
           <div className={styles.runRow}>
             <Button
-              variant="primary-gradient"
-              size="medium"
-              onClick={handleRunTraining}
-              disabled={isTraining}
-              icon={isTraining ? <span className={styles.spinner}></span> : <PlayCircle size={20} style={{ marginRight: 6 }} />}
-              style={{ minWidth: 150, opacity: isTraining ? 0.6 : 1, cursor: isTraining ? 'not-allowed' : 'pointer' }}
+                variant="primary-gradient"
+                size="medium"
+                onClick={handleRunTraining}
+                disabled={isTraining}
+                icon={isTraining ? <span className={styles.spinner}></span> : <PlayCircle size={20} style={{ marginRight: 6 }} />}
+                style={{ minWidth: 150, opacity: isTraining ? 0.6 : 1, cursor: isTraining ? 'not-allowed' : 'pointer' }}
             >
               {isTraining ? 'Running...' : 'Run Training'}
             </Button>
@@ -1041,9 +910,9 @@ export default function TrainingPage() {
           </div>
           <div className={styles.logBox}>
             {logs.length === 0 ? (
-              <span className={styles.logEmpty}>No logs yet.</span>
+                <span className={styles.logEmpty}>No logs yet.</span>
             ) : (
-              logs.map((log, i) => <div key={i}>{log}</div>)
+                logs.map((log, i) => <div key={i}>{log}</div>)
             )}
           </div>
         </div>
