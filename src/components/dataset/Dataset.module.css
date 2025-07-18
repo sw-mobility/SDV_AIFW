@@ -73,6 +73,14 @@
     font-size: 12px;
 }
 
+.dataset-card-description {
+    font-size: 13px;
+    color: #555;
+    margin: 2px 0 4px 0;
+    word-break: break-word;
+    min-height: 18px;
+}
+
 .formGroup {
     display: flex;
     flex-direction: column;
@@ -186,4 +194,23 @@
     font-size: var(--font-size-xs);
     margin-top: 0.25rem;
     text-align: left;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.25);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    padding: 2rem 2.5rem;
+    min-width: 340px;
+    max-width: 95vw;
+    z-index: 1001;
 } 

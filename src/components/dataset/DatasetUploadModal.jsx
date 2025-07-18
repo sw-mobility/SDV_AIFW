@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import Modal from '../common/Modal.jsx';
 import styles from './Dataset.module.css';
 import Button from '../common/Button.jsx';
-import { uploadDataset } from '../../api/datasets.js';
+import { uploadDataset, createRawDataset, createLabeledDataset, uploadLabeledFiles } from '../../api/datasets.js';
 import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';
 import { useDatasetContext } from '../../context/DatasetContext.jsx';
@@ -12,56 +12,76 @@ const DATASET_TYPES = [
 ];
 const ACCEPTED_FORMATS = '.csv,.xlsx,.xls,.json,.zip';
 const MAX_FILE_SIZE_MB = 200; // 200MB 제한
+const ACCEPTED_IMAGE_FORMATS = '.jpg,.jpeg,.png,.gif';
 
-export default function DatasetUploadModal({ isOpen, onClose }) {
+const FileUploadField = ({ files, setFiles, fileError, setFileError, multiple = true }) => {
+    const fileInputRef = useRef();
+    const handleFileChange = (e) => {
+        const selected = Array.from(e.target.files);
+        const invalid = selected.find(f => !['jpg','jpeg','png','gif'].includes(f.name.split('.').pop().toLowerCase()));
+        if (invalid) {
+            setFileError('이미지 파일(jpg, jpeg, png, gif)만 업로드할 수 있습니다.');
+            setFiles([]);
+            return;
+        }
+        setFiles(selected);
+        setFileError(null);
+    };
+    return (
+        <div
+            className={styles.uploadDropZone}
+            onClick={() => fileInputRef.current && fileInputRef.current.click()}
+            style={{ cursor: 'pointer' }}
+        >
+            {files && files.length > 0 ? (
+                <div className={styles.uploadFileInfo}>
+                    <span>{files.map(f => f.name).join(', ')} ({(files.reduce((a, f) => a + f.size, 0) / (1024 * 1024)).toFixed(1)}MB)</span>
+                    <button type="button" className={styles.removeFileButton} onClick={e => { e.stopPropagation(); setFiles([]); setFileError(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>Remove</button>
+                </div>
+            ) : (
+                <>
+                    <span className={styles.uploadDropText}>여기로 이미지 파일을 드래그하거나 클릭해서 업로드 (jpg, jpeg, png, gif, 여러 개 가능)</span>
+                    <input
+                        type="file"
+                        accept={ACCEPTED_IMAGE_FORMATS}
+                        style={{ display: 'none' }}
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        multiple={multiple}
+                    />
+                </>
+            )}
+        </div>
+    );
+};
+
+export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw', editMode = false, initialData = {}, onSave }) {
   const { reload } = useDatasetContext();
-  const [name, setName] = useState('');
-  const [type, setType] = useState(DATASET_TYPES[0]);
-  const [file, setFile] = useState(null);
+  const [name, setName] = useState(initialData.name || '');
+  const [type, setType] = useState(initialData.type || DATASET_TYPES[0]);
+  const [files, setFiles] = useState([]);
   const [fileError, setFileError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const fileInputRef = useRef();
+  const [description, setDescription] = useState(initialData.description || '');
+  // Labeled dataset only
+  const [taskType, setTaskType] = useState(initialData.task_type || initialData.taskType || 'Classification');
+  const [labelFormat, setLabelFormat] = useState(initialData.label_format || initialData.labelFormat || 'COCO');
 
-  const handleFileChange = (e) => {
-    const f = e.target.files[0];
-    validateAndSetFile(f);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      validateAndSetFile(e.dataTransfer.files[0]);
+  React.useEffect(() => {
+    if (isOpen) {
+      setName(initialData.name || '');
+      setType(initialData.type || DATASET_TYPES[0]);
+      setDescription(initialData.description || '');
+      setTaskType(initialData.task_type || initialData.taskType || 'Classification');
+      setLabelFormat(initialData.label_format || initialData.labelFormat || 'COCO');
+      setFiles([]);
+      setFileError(null);
+      setError(null);
+      setSuccess(false);
     }
-  };
-
-  const validateAndSetFile = (f) => {
-    if (!f) return;
-    const ext = f.name.split('.').pop().toLowerCase();
-    if (!ACCEPTED_FORMATS.includes(ext) && !ACCEPTED_FORMATS.includes('.' + ext)) {
-      setFileError('지원하지 않는 파일 형식입니다. (csv, xlsx, xls, json, zip)');
-      setFile(null);
-      return;
-    }
-    if (f.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      setFileError(`최대 ${MAX_FILE_SIZE_MB}MB 파일만 업로드할 수 있습니다.`);
-      setFile(null);
-      return;
-    }
-    setFile(f);
-    setFileError(null);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleRemoveFile = () => {
-    setFile(null);
-    setFileError(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  }, [isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,13 +89,46 @@ export default function DatasetUploadModal({ isOpen, onClose }) {
     setError(null);
     setSuccess(false);
     try {
-      // 실제 서비스라면 FormData로 파일 업로드 필요
-      await uploadDataset({
-        name: name || (file && file.name),
-        type,
-        size: file ? `${(file.size / (1024 * 1024)).toFixed(1)}MB` : '',
-        file
-      });
+      if (editMode && onSave) {
+        await onSave({ name, type, description, taskType, labelFormat });
+      } else if (datasetType === 'labeled') {
+        // 파일이 있으면 업로드, 없으면 메타만 생성
+        if (files.length > 0) {
+          await uploadLabeledFiles({
+            files,
+            uid: '', // TODO: set uid if available
+            did: '', // TODO: set did if available (생성 직후라면 응답에서 받아야 함)
+            task_type: taskType,
+            label_format: labelFormat
+          });
+        } else {
+          await createLabeledDataset({
+            uid: '', // TODO: set uid if available
+            name,
+            description,
+            type,
+            task_type: taskType,
+            label_format: labelFormat
+          });
+        }
+      } else if (files.length === 0) {
+        // Only create dataset meta info (no file)
+        await createRawDataset({
+          uid: '', // TODO: set uid if available
+          name,
+          description,
+          type
+        });
+      } else {
+        // File upload logic (legacy/mock)
+        await uploadDataset({
+          name: name || (files[0] && files[0].name),
+          type,
+          description,
+          size: files.length > 0 ? `${(files.reduce((a, f) => a + f.size, 0) / (1024 * 1024)).toFixed(1)}MB` : '',
+          file: files[0] // TODO: support multiple file upload in real API
+        });
+      }
       setSuccess(true);
       reload();
       setTimeout(() => {
@@ -92,19 +145,16 @@ export default function DatasetUploadModal({ isOpen, onClose }) {
   const resetForm = () => {
     setName('');
     setType(DATASET_TYPES[0]);
-    setFile(null);
+    setDescription('');
+    setFiles([]);
     setFileError(null);
     setError(null);
     setSuccess(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  React.useEffect(() => {
-    if (isOpen) resetForm();
-  }, [isOpen]);
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Upload Dataset">
+    <Modal isOpen={isOpen} onClose={onClose} title={datasetType === 'labeled' ? (editMode ? 'Edit Labeled Dataset' : 'Create Labeled Dataset') : (editMode ? 'Edit Dataset' : 'Create Dataset')}>
       <form onSubmit={handleSubmit} className={styles.formGroup}>
         <label className={styles.label}>
           Name
@@ -129,35 +179,45 @@ export default function DatasetUploadModal({ isOpen, onClose }) {
             ))}
           </select>
         </label>
-        <div
-          className={styles.uploadDropZone}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onClick={() => fileInputRef.current && fileInputRef.current.click()}
-          style={{ cursor: 'pointer' }}
-        >
-          {file ? (
-            <div className={styles.uploadFileInfo}>
-              <span>{file.name} ({(file.size / (1024 * 1024)).toFixed(1)}MB)</span>
-              <button type="button" className={styles.removeFileButton} onClick={e => { e.stopPropagation(); handleRemoveFile(); }}>Remove</button>
-            </div>
-          ) : (
-            <>
-              <span className={styles.uploadDropText}>여기로 파일을 드래그하거나 클릭해서 업로드 (csv, xlsx, xls, json, zip, 최대 {MAX_FILE_SIZE_MB}MB)</span>
-              <input
-                type="file"
-                accept={ACCEPTED_FORMATS}
-                style={{ display: 'none' }}
-                ref={fileInputRef}
-                onChange={handleFileChange}
-              />
-            </>
-          )}
-        </div>
+        <label className={styles.label}>
+          Description
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            className={styles.input}
+            placeholder="Enter dataset description"
+            rows={3}
+            style={{ resize: 'vertical' }}
+          />
+        </label>
+        {datasetType === 'labeled' && (
+          <>
+            <label className={styles.label}>
+              Task Type
+              <select value={taskType} onChange={e => setTaskType(e.target.value)} className={styles.input}>
+                {['Classification', 'Detection', 'Segmentation', 'OCR', 'Other'].map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.label}>
+              Label Format
+              <select value={labelFormat} onChange={e => setLabelFormat(e.target.value)} className={styles.input}>
+                {['COCO', 'VOC', 'YOLO', 'Custom'].map(f => (
+                  <option key={f} value={f}>{f}</option>
+                ))}
+              </select>
+            </label>
+          </>
+        )}
+        {/* Only show file upload for raw or labeled dataset create mode */}
+        {((datasetType === 'raw' || datasetType === 'labeled') && !editMode) && (
+          <FileUploadField files={files} setFiles={setFiles} fileError={fileError} setFileError={setFileError} multiple />
+        )}
         {fileError && <div className={styles.fileError}>{fileError}</div>}
         {loading && <Loading />}
         {error && <ErrorMessage message={error} />}
-        {success && <div className={styles.successMessage}>Upload complete!</div>}
+        {success && <div className={styles.successMessage}>{editMode ? 'Saved!' : 'Upload complete!'}</div>}
         <div className={styles.modalActions}>
           <button
             type="button"
@@ -171,9 +231,9 @@ export default function DatasetUploadModal({ isOpen, onClose }) {
             type="submit"
             variant="primary"
             size="medium"
-            disabled={loading || !file || fileError}
+            disabled={loading || (datasetType === 'raw' && !editMode && files.length === 0 && !name) || fileError}
           >
-            Upload
+            {editMode ? 'Save' : 'Create'}
           </Button>
         </div>
       </form>
