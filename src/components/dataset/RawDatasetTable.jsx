@@ -16,7 +16,9 @@ export default function RawDatasetTable({ columns, data, onRowClick, selectedId,
     cell: (
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
         <span style={{fontWeight: 600, color: '#1e293b'}}>{row.name}</span>
-        <span style={{fontSize: 12, color: '#b6c2d6', marginTop: 2}}>{row.createdAt || row.lastModified || '-'}</span>
+        <span style={{fontSize: 12, color: '#b6c2d6', marginTop: 2}}>
+          {row.createdAt ? row.createdAt : (row.lastModified || '-')}
+        </span>
       </div>
     )
   }));

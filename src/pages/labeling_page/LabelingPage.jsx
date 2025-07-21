@@ -14,7 +14,12 @@ const LabelingPage = () => {
         setLoading(true);
         fetchRawDatasets()
             .then(res => {
-                setDatasets(res.data);
+                // created_at -> createdAt 변환
+                const camelDatasets = (res.data || []).map(ds => ({
+                    ...ds,
+                    createdAt: ds.created_at ? new Date(ds.created_at).toISOString().slice(0, 10) : undefined
+                }));
+                setDatasets(camelDatasets);
                 setError(null);
             })
             .catch(e => setError(e.message))
@@ -32,7 +37,7 @@ const LabelingPage = () => {
 
             {error && (
                 <div className={styles.errorMessage}>
-                    <span>⚠️ Error loading datasets: {error}</span>
+                    <span>Error loading datasets: {error}</span>
                 </div>
             )}
 

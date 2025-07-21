@@ -107,12 +107,18 @@
 }
 
 .selectedRow {
-  background: #e6f2ff !important;
+  background: #b6e0fe !important;
   color: #1e293b;
   font-weight: 600;
+  border-left: 4px solid #4f8cff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(59,130,246,0.10);
   transition: background 0.15s, border 0.15s;
+}
+
+/* hover와 selectedRow가 겹칠 때 hover가 selectedRow를 덮지 않도록 */
+tr.selectedRow:hover {
+  background: #b6e0fe !important;
 }
 
 @media (max-width: 768px) {

@@ -113,7 +113,20 @@ export const useTrainingState = () => {
     setDatasetLoading(true);
     fetchLabeledDatasets()
       .then(res => {
-        setDatasets(res.data);
+        // 변환: DatasetSelector가 기대하는 필드로 매핑
+        const mapped = (res.data || []).map(ds => ({
+          id: ds.did || ds._id,
+          name: ds.name,
+          type: ds.type,
+          size: ds.total,
+          labelCount: ds.total, // 실제 라벨 개수 필드가 있으면 교체
+          description: ds.description,
+          task_type: ds.task_type,
+          label_format: ds.label_format,
+          origin_raw: ds.origin_raw,
+          created_at: ds.created_at,
+        }));
+        setDatasets(mapped);
         setDatasetError(null);
       })
       .catch(e => setDatasetError(e.message))

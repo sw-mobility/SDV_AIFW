@@ -3,18 +3,29 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
-import { Download, Trash2, Upload, Database, Tag, Calendar, PlusCircle, Edit2 } from 'lucide-react';
-import { useDatasetContext } from '../../context/DatasetContext.jsx';
-import StatusChip from '../common/StatusChip.jsx';
+import {
+    Download,
+    Trash2,
+    Database,
+    Tag,
+    Calendar,
+    PlusCircle,
+    Edit2,
+    Image as ImageIcon,
+    FileText,
+    AudioLines,
+    Video
+} from 'lucide-react';
+import {useDatasetContext} from '../../context/DatasetContext.jsx';
 import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';
 import EmptyState from '../common/EmptyState.jsx';
 import styles from './Dataset.module.css';
-import { downloadDataset, deleteDataset, updateRawDataset } from '../../api/datasets.js';
+import {downloadDataset, deleteDataset, updateRawDataset} from '../../api/datasets.js';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
+import {Label} from "recharts";
 
-const DatasetEditModal = ({ open, onClose, dataset, onUpdated }) => {
+const DatasetEditModal = ({open, onClose, dataset, onUpdated}) => {
     const [name, setName] = React.useState(dataset?.name || '');
     const [type, setType] = React.useState(dataset?.type || 'Image');
     const [description, setDescription] = React.useState(dataset?.description || '');
@@ -52,10 +63,11 @@ const DatasetEditModal = ({ open, onClose, dataset, onUpdated }) => {
         <div className={styles['modal-backdrop']}>
             <div className={styles['modal']}> {/* Reuse modal styles */}
                 <form onSubmit={handleSubmit} className={styles.formGroup}>
-                    <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 12 }}>Edit Dataset</div>
+                    <div style={{fontWeight: 600, fontSize: 18, marginBottom: 12}}>Edit Dataset</div>
                     <label className={styles.label}>
                         Name
-                        <input type="text" value={name} onChange={e => setName(e.target.value)} className={styles.input} />
+                        <input type="text" value={name} onChange={e => setName(e.target.value)}
+                               className={styles.input}/>
                     </label>
                     <label className={styles.label}>
                         Type
@@ -67,11 +79,14 @@ const DatasetEditModal = ({ open, onClose, dataset, onUpdated }) => {
                     </label>
                     <label className={styles.label}>
                         Description
-                        <textarea value={description} onChange={e => setDescription(e.target.value)} className={styles.input} rows={3} style={{ resize: 'vertical' }} />
+                        <textarea value={description} onChange={e => setDescription(e.target.value)}
+                                  className={styles.input} rows={3} style={{resize: 'vertical'}}/>
                     </label>
                     {error && <div className={styles.fileError}>{error}</div>}
                     <div className={styles.modalActions}>
-                        <button type="button" onClick={onClose} className={styles.cancelButton} disabled={loading}>Cancel</button>
+                        <button type="button" onClick={onClose} className={styles.cancelButton}
+                                disabled={loading}>Cancel
+                        </button>
                         <Button type="submit" variant="primary" size="medium" disabled={loading || !name}>Save</Button>
                     </div>
                 </form>
@@ -80,19 +95,31 @@ const DatasetEditModal = ({ open, onClose, dataset, onUpdated }) => {
     );
 };
 
-const DatasetCard = ({ dataset, onDownload, onDelete, onEdit }) => (
+const typeIconMap = {
+    Image: <ImageIcon size={14}/>,
+    Text: <FileText size={14}/>,
+    Audio: <AudioLines size={14}/>,
+    Video: <Video size={14}/>,
+    Raw: <Database size={14} style={{"color": "#3498db"}}/>,
+    Graph: <Tag size={14}/>,
+    Label: <Tag size={14} style={{"color": "#cc305a"}}/>,
+};
+
+const DatasetCard = ({dataset, onDownload, onDelete, onEdit}) => (
     <div className={styles['dataset-card']}>
         <div className={styles['dataset-card-header']}>
-            <StatusChip status={dataset.status} />
+            <div>
+                {dataset.datasetType === 'raw' ? typeIconMap.Raw : typeIconMap.Label}
+            </div>
             <div className={styles['dataset-card-actions']}>
                 <IconButton size="small" title="Edit" onClick={() => onEdit(dataset)}>
-                    <Edit2 size={16} />
+                    <Edit2 size={16}/>
                 </IconButton>
                 <IconButton size="small" title="Download" onClick={() => onDownload(dataset)}>
-                    <Download size={16} />
+                    <Download size={16}/>
                 </IconButton>
                 <IconButton size="small" title="Delete" onClick={() => onDelete(dataset)}>
-                    <Trash2 size={16} />
+                    <Trash2 size={16}/>
                 </IconButton>
             </div>
         </div>
@@ -100,29 +127,26 @@ const DatasetCard = ({ dataset, onDownload, onDelete, onEdit }) => (
             {dataset.name}
         </div>
         <div className={styles['dataset-card-description']}>
-            {dataset.description || <span style={{ color: '#bbb' }}>No description</span>}
+            {dataset.description || <span style={{color: '#bbb'}}>No description</span>}
         </div>
         <div className={styles['dataset-card-info']}>
-            {dataset.type === 'Image' ? <Database size={14} /> : <Tag size={14} />}
+            {typeIconMap[dataset.type] || <Database size={14}/>}
             <span>{dataset.type}</span>
             {dataset.task_type && <span className={styles['drawer-chip']} title="Task Type">{dataset.task_type}</span>}
-            {dataset.label_format && <span className={styles['drawer-chip']} title="Label Format">{dataset.label_format}</span>}
-            {dataset.total !== undefined && <span className={styles['drawer-chip']} title="Total">총 {dataset.total}개</span>}
-        </div>
-        <div className={styles['dataset-card-info']} style={{ marginTop: 2, fontSize: 11, color: '#888' }}>
-            {dataset.did && <span title="Dataset ID">ID: {dataset.did}</span>}
-            {dataset.path && <span title="Path" style={{ marginLeft: 8 }}>경로: {dataset.path}</span>}
-            {dataset.origin_raw && <span title="Origin Raw" style={{ marginLeft: 8 }}>원본: {dataset.origin_raw}</span>}
+            {dataset.label_format &&
+                <span className={styles['drawer-chip']} title="Label Format">{dataset.label_format}</span>}
+            {dataset.total !== undefined &&
+                <span className={styles['drawer-chip']} title="Total">총 {dataset.total}개</span>}
         </div>
         <div className={styles['dataset-card-date']}>
-            <Calendar size={13} />
+            <Calendar size={13}/>
             <span>{dataset.created_at ? new Date(dataset.created_at).toLocaleDateString() : dataset.lastModified}</span>
         </div>
     </div>
 );
 
-const DatasetDrawer = ({ open, onClose }) => {
-    const { datasets, loading, error, reload } = useDatasetContext();
+const DatasetDrawer = ({open, onClose}) => {
+    const {datasets, loading, error, reload} = useDatasetContext();
     const [uploadOpen, setUploadOpen] = React.useState(false);
     const [editDataset, setEditDataset] = React.useState(null);
 
@@ -149,25 +173,25 @@ const DatasetDrawer = ({ open, onClose }) => {
     };
 
     return (
-        <Drawer 
-            anchor="right" 
-            open={open} 
-            onClose={onClose} 
-            PaperProps={{ sx: { width: 340, boxShadow: 3 } }}
+        <Drawer
+            anchor="right"
+            open={open}
+            onClose={onClose}
+            PaperProps={{sx: {width: 340, boxShadow: 3}}}
         >
             <div className={styles['drawer-header']}>
                 <div className={styles['drawer-title']}>
                     Data Management
                 </div>
                 <IconButton onClick={onClose} size="small">
-                    <span style={{ fontSize: 24, fontWeight: 700 }}>&times;</span>
+                    <span style={{fontSize: 24, fontWeight: 700}}>&times;</span>
                 </IconButton>
             </div>
-            <Divider />
+            <Divider/>
             <div className={styles['drawer-content']}>
                 <Button
                     variant="contained"
-                    startIcon={<PlusCircle size={16} />}
+                    startIcon={<PlusCircle size={16}/>}
                     fullWidth
                     sx={{
                         mb: 2,
@@ -179,12 +203,13 @@ const DatasetDrawer = ({ open, onClose }) => {
                 >
                     Create Dataset
                 </Button>
-                <DatasetUploadModal isOpen={uploadOpen} onClose={() => setUploadOpen(false)} />
-                <DatasetEditModal open={!!editDataset} onClose={() => setEditDataset(null)} dataset={editDataset} onUpdated={reload} />
-                
-                {loading && <Loading />}
-                {error && <ErrorMessage message={error.message} />}
-                
+                <DatasetUploadModal isOpen={uploadOpen} onClose={() => setUploadOpen(false)}/>
+                <DatasetEditModal open={!!editDataset} onClose={() => setEditDataset(null)} dataset={editDataset}
+                                  onUpdated={reload}/>
+
+                {loading && <Loading/>}
+                {error && <ErrorMessage message={error.message}/>}
+
                 <div className={styles['dataset-list']}>
                     {datasets.map(dataset => (
                         <DatasetCard
@@ -196,9 +221,9 @@ const DatasetDrawer = ({ open, onClose }) => {
                         />
                     ))}
                 </div>
-                
+
                 {datasets.length === 0 && !loading && (
-                    <EmptyState message="No datasets found." />
+                    <EmptyState message="No datasets found."/>
                 )}
             </div>
         </Drawer>

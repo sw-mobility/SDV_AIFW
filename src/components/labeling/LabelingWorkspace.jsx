@@ -6,7 +6,7 @@ import styles from './LabelingWorkspace.module.css';
 
 export default function LabelingWorkspace({ dataset }) {
   const [modelType, setModelType] = useState('YOLO');
-  const [metric, setMetric] = useState('mAP');
+  const [taskType, setTaskType] = useState('Object detection');
   const [status, setStatus] = useState('idle'); // idle | running | success | error
   const [progress, setProgress] = useState(0);
 
@@ -89,15 +89,17 @@ export default function LabelingWorkspace({ dataset }) {
             </div>
 
             <div className={styles.configGroup}>
-              <label className={styles.configLabel}>Metric</label>
-              <input
-                  type="text"
-                  value={metric}
-                  onChange={e => setMetric(e.target.value)}
-                  className={styles.configInput}
-                  placeholder="e.g. mAP, accuracy"
+              <label className={styles.configLabel}>Task Type</label>
+              <select
+                  value={taskType}
+                  onChange={e => setTaskType(e.target.value)}
+                  className={styles.configSelect}
                   disabled={status === 'running'}
-              />
+              >
+                <option value="Object detection">Object detection</option>
+                <option value="Image classification">Image classification</option>
+                <option value="Semantic segmentation">Semantic segmentation</option>
+              </select>
             </div>
 
             <div className={styles.configGroup}>

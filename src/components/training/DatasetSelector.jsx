@@ -17,15 +17,15 @@ const DatasetSelector = ({
       {!datasetLoading && !datasetError && (
         <select
           className={styles.select}
-          value={selectedDataset ? selectedDataset.id : ''}
+          value={selectedDataset ? String(selectedDataset.id) : ''}
           onChange={e => {
-            const ds = datasets.find(d => d.id === Number(e.target.value));
+            const ds = datasets.find(d => String(d.id) === e.target.value);
             onDatasetChange(ds);
           }}
         >
           <option value="">Select dataset</option>
           {datasets.map(ds => (
-            <option key={ds.id} value={ds.id}>
+            <option key={ds.id} value={String(ds.id)}>
               {ds.name} ({ds.type}, {ds.size})
             </option>
           ))}
