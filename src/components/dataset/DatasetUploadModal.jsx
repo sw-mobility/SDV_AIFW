@@ -6,6 +6,7 @@ import { uploadDataset, createRawDataset, createLabeledDataset, uploadLabeledFil
 import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';
 import { useDatasetContext } from '../../context/DatasetContext.jsx';
+import { uid } from '../../api/uid.js';
 
 const DATASET_TYPES = [
   'Image', 'Text', 'Audio', 'Video', 'Tabular', 'TimeSeries', 'Graph'
@@ -14,7 +15,7 @@ const ACCEPTED_FORMATS = '.csv,.xlsx,.xls,.json,.zip';
 const MAX_FILE_SIZE_MB = 200; // 200MB 제한
 const ACCEPTED_IMAGE_FORMATS = '.jpg,.jpeg,.png,.gif';
 
-const FileUploadField = ({ files, setFiles, fileError, setFileError, multiple = true }) => {
+const FileUploadField = ({ files, setFiles, setFileError, multiple = true }) => {
     const fileInputRef = useRef();
     const handleFileChange = (e) => {
         const selected = Array.from(e.target.files);
@@ -92,18 +93,17 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
       if (editMode && onSave) {
         await onSave({ name, type, description, taskType, labelFormat });
       } else if (datasetType === 'labeled') {
-        // 파일이 있으면 업로드, 없으면 메타만 생성
         if (files.length > 0) {
           await uploadLabeledFiles({
             files,
-            uid: '', // TODO: set uid if available
+            uid: uid,
             did: '', // TODO: set did if available (생성 직후라면 응답에서 받아야 함)
             task_type: taskType,
             label_format: labelFormat
           });
         } else {
           await createLabeledDataset({
-            uid: '', // TODO: set uid if available
+            uid: uid,
             name,
             description,
             type,
@@ -114,7 +114,7 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
       } else if (files.length === 0) {
         // Only create dataset meta info (no file)
         await createRawDataset({
-          uid: '', // TODO: set uid if available
+          uid: uid,
           name,
           description,
           type
@@ -210,11 +210,6 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
             </label>
           </>
         )}
-        {/* Only show file upload for raw or labeled dataset create mode */}
-        {((datasetType === 'raw' || datasetType === 'labeled') && !editMode) && (
-          <FileUploadField files={files} setFiles={setFiles} fileError={fileError} setFileError={setFileError} multiple />
-        )}
-        {fileError && <div className={styles.fileError}>{fileError}</div>}
         {loading && <Loading />}
         {error && <ErrorMessage message={error} />}
         {success && <div className={styles.successMessage}>{editMode ? 'Saved!' : 'Upload complete!'}</div>}

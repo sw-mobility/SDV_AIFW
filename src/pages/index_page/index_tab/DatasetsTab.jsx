@@ -15,6 +15,7 @@ import { deleteRawDatasets, deleteLabeledDatasets, uploadRawFiles, uploadLabeled
 import Modal from '../../../components/common/Modal.jsx';
 import modalStyles from '../../../components/common/Modal.module.css';
 import createModalStyles from '../../../components/common/CreateModal.module.css';
+import { uid } from '../../../api/uid.js';
 
 /**
  * DatasetsTab 컴포넌트
@@ -38,7 +39,6 @@ const CreateDatasetModal = ({ isOpen, onClose, datasetType, onCreated }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
-    const uid = 'mockuid'; // TODO: Replace with real user id
     const resetForm = () => {
         setName('');
         setType('Image');
@@ -57,7 +57,7 @@ const CreateDatasetModal = ({ isOpen, onClose, datasetType, onCreated }) => {
         try {
             if (datasetType === 'labeled') {
                 await createLabeledDataset({
-                    uid,
+                    uid: uid,
                     name,
                     description,
                     type,
@@ -66,7 +66,7 @@ const CreateDatasetModal = ({ isOpen, onClose, datasetType, onCreated }) => {
                 });
             } else {
                 await createRawDataset({
-                    uid,
+                    uid: uid,
                     name,
                     description,
                     type
@@ -240,7 +240,7 @@ const UploadModal = ({ isOpen, onClose, onSave }) => {
     );
 };
 
-const DatasetsTab = ({ mockState }) => {
+const DatasetsTab = () => {
     const [showMore, setShowMore] = useState(false);
     const [dataType, setDataType] = useState('raw');
     const cardsPerPage = 8;
@@ -260,18 +260,18 @@ const DatasetsTab = ({ mockState }) => {
     useEffect(() => {
         setLoading(true);
         setError(null);
-        if (dataType === 'raw') { //dataType 바뀔 때마다 fetch API 실행
-            fetchRawDatasets(mockState)
+        if (dataType === 'raw') {
+            fetchRawDatasets({ uid })
                 .then(res => setRawDatasets(res.data))
                 .catch(err => setError(err.message))
                 .finally(() => setLoading(false));
         } else {
-            fetchLabeledDatasets(mockState)
+            fetchLabeledDatasets({ uid })
                 .then(res => setLabeledDatasets(res.data))
                 .catch(err => setError(err.message))
                 .finally(() => setLoading(false));
         }
-    }, [dataType, mockState]);
+    }, [dataType]);
 
     const handleToggleShowMore = () => {
         setShowMore(!showMore);
@@ -290,9 +290,9 @@ const DatasetsTab = ({ mockState }) => {
 
     const handleCreated = () => {
         if (dataType === 'labeled') {
-            fetchLabeledDatasets().then(res => setLabeledDatasets(res.data));
+            fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
         } else {
-            fetchRawDatasets().then(res => setRawDatasets(res.data));
+            fetchRawDatasets({ uid }).then(res => setRawDatasets(res.data));
         }
     };
 
@@ -304,14 +304,14 @@ const DatasetsTab = ({ mockState }) => {
         if (dataType === 'labeled') {
             await updateLabeledDataset({
                 did: editData.did || editData.id,
-                uid: 'mockuid',
+                uid: uid,
                 name: fields.name,
                 description: fields.description,
                 type: fields.type,
                 task_type: fields.taskType,
                 label_format: fields.labelFormat
             });
-            fetchLabeledDatasets().then(res => setLabeledDatasets(res.data));
+            fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
         } else {
             await updateRawDataset({
                 did: editData.did || editData.id,
@@ -319,7 +319,7 @@ const DatasetsTab = ({ mockState }) => {
                 description: fields.description,
                 type: fields.type
             });
-            fetchRawDatasets().then(res => setRawDatasets(res.data));
+            fetchRawDatasets({ uid }).then(res => setRawDatasets(res.data));
         }
         setEditOpen(false);
         setEditData(null);
@@ -329,11 +329,11 @@ const DatasetsTab = ({ mockState }) => {
         setDeletingId(dataset.did || dataset.id);
         try {
             if (isRaw) {
-                await deleteRawDatasets({ uid: 'mockuid', target_did_list: [dataset.did || dataset.id] });
-                await fetchRawDatasets().then(res => setRawDatasets(res.data));
+                await deleteRawDatasets({ uid: uid, target_did_list: [dataset.did || dataset.id] });
+                await fetchRawDatasets({ uid }).then(res => setRawDatasets(res.data));
             } else {
-                await deleteLabeledDatasets({ uid: 'mockuid', target_did_list: [dataset.did || dataset.id] });
-                await fetchLabeledDatasets().then(res => setLabeledDatasets(res.data));
+                await deleteLabeledDatasets({ uid: uid, target_did_list: [dataset.did || dataset.id] });
+                await fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
             }
         } finally {
             setDeletingId(null);
@@ -346,9 +346,9 @@ const DatasetsTab = ({ mockState }) => {
     };
     const handleUploadSave = async (files) => {
         if (dataType === 'labeled') {
-            await uploadLabeledFiles({ files, uid: 'mockuid', did: uploadTarget.did || uploadTarget.id, task_type: uploadTarget.task_type || uploadTarget.taskType, label_format: uploadTarget.label_format || uploadTarget.labelFormat });
+            await uploadLabeledFiles({ files, uid: uid, did: uploadTarget.did || uploadTarget.id, task_type: uploadTarget.task_type || uploadTarget.taskType, label_format: uploadTarget.label_format || uploadTarget.labelFormat });
         } else {
-            await uploadRawFiles({ files, uid: 'mockuid', did: uploadTarget.did || uploadTarget.id });
+            await uploadRawFiles({ files, uid: uid, did: uploadTarget.did || uploadTarget.id });
         }
         setUploadOpen(false);
         setUploadTarget(null);
@@ -410,9 +410,34 @@ const DatasetsTab = ({ mockState }) => {
     ];
     const visibleDatasetCards = showMore ? allDatasetCards : allDatasetCards.slice(0, cardsPerPage);
 
-    if (loading || mockState?.loading) return <Loading />;
-    if (error || mockState?.error) return <ErrorMessage message={error || 'Mock error!'} />;
-    if (currentDatasets.length === 0 || mockState?.empty) return <EmptyState message="No datasets found." />;
+    if (loading) return <Loading />;
+    if (error) return <ErrorMessage message={error} />;
+    if (currentDatasets.length === 0) {
+        return (
+            <>
+                <DatasetUploadModal isOpen={createOpen} onClose={() => setCreateOpen(false)} datasetType={dataType} />
+                <div className={styles.dataTypeToggle} style={{ marginBottom: 24 }}>
+                    <button
+                        className={`${styles.dataTypeButton} ${dataType === 'raw' ? styles.activeDataType : ''}`}
+                        onClick={() => setDataType('raw')}
+                    >
+                        <Database size={16} />
+                        Raw Data
+                    </button>
+                    <button
+                        className={`${styles.dataTypeButton} ${dataType === 'labeled' ? styles.activeDataType : ''}`}
+                        onClick={() => setDataType('labeled')}
+                    >
+                        <Tag size={16} />
+                        Labeled Data
+                    </button>
+                </div>
+                <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={false} onToggleShowMore={() => {}}>
+                    <CreateDatasetCard key="create-dataset" />
+                </ShowMoreGrid>
+            </>
+        );
+    }
 
     return (
         <>

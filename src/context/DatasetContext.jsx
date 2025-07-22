@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchAllDatasets } from '../api/datasets';
+import { fetchRawDatasets, fetchLabeledDatasets } from '../api/datasets';
+import { uid } from '../api/uid';
 
 const DatasetContext = createContext();
 
@@ -14,9 +15,12 @@ export const DatasetProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await fetchAllDatasets();
-      const raw = (result.data.raw || []).map(ds => ({ ...ds, datasetType: 'raw' }));
-      const labeled = (result.data.labeled || []).map(ds => ({ ...ds, datasetType: 'labeled' }));
+      const [rawResult, labeledResult] = await Promise.all([
+        fetchRawDatasets({ uid }),
+        fetchLabeledDatasets({ uid })
+      ]);
+      const raw = (rawResult.data || []).map(ds => ({ ...ds, datasetType: 'raw' }));
+      const labeled = (labeledResult.data || []).map(ds => ({ ...ds, datasetType: 'labeled' }));
       setDatasets([...raw, ...labeled]);
     } catch (err) {
       setError(err);

@@ -5,7 +5,6 @@
     margin: 0 auto;
 }
 
-/* Tab Navigation Styles */
 .tabNavigation {
     display: flex;
     gap: var(--spacing-md);
@@ -33,10 +32,10 @@
 }
 
 .activeTab {
-    color: var(--color-text-main);
-    color: var(--color-blue);
+    color: var(--color-blue); /* 기존 activeTab의 색상 재정의 제거 */
 }
 
+/* --- Data Type Toggle Styles --- */
 .dataTypeToggle {
     display: flex;
     gap: var(--spacing-sm);
@@ -70,48 +69,43 @@
 }
 
 .activeDataType {
-    color: var(--color-text-main);
+    color: white; /* 텍스트 색상 우선 */
     background: var(--color-blue);
-    color: white;
 }
 
 .activeDataType:hover {
-    color: white;
     background: var(--color-blue-dark);
 }
 
-/* Card Styles - Unified */
+/* --- Card Base Styles (Unified) --- */
+/* 모든 카드에 공통적으로 적용될 기본 호버 효과 (원하는 경우) */
+.projectCard,
+.datasetCard {
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.projectCard:hover,
+.datasetCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* --- Create Card Specific Styles --- */
 .createCard {
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
     box-shadow: none !important;
     cursor: pointer;
+    /* createCard 자체의 transform 제거 - createCardContent에서 관리 */
 }
 
 .createCard:hover {
+    /* createCard 자체의 호버 효과에서 transform과 box-shadow 제거 */
     border: none !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(20, 20, 20, 0.08) !important;
-}
-
-.projectCard {
-    cursor: pointer;
-    transition: all var(--transition-normal);
-}
-
-.projectCard:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-.datasetCard {
-    transition: all var(--transition-normal);
-}
-
-.datasetCard:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    /* transform: translateY(-2px) !important; */ /* createCardContent에서 처리 */
+    /* box-shadow: 0 8px 25px rgba(20, 20, 20, 0.08) !important; */ /* createCardContent에서 처리 */
 }
 
 .createCardContent {
@@ -120,6 +114,7 @@
     align-items: center;
     justify-content: center;
     height: 100%;
+    min-height: 280px;
     gap: var(--spacing-md);
     background: var(--color-gray-100);
     color: var(--color-text-main);
@@ -128,6 +123,7 @@
     transition: all var(--transition-normal);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
+    box-shadow: none;
 }
 
 .createCardContent::before {
@@ -142,9 +138,11 @@
     z-index: 1;
 }
 
-.createCardContent:hover {
+.createCard:hover .createCardContent {
     background: var(--color-gray-200);
     color: var(--color-text-main);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(20, 20, 20, 0.08);
 }
 
 .createCardIcon {
@@ -156,25 +154,19 @@
     transition: color var(--transition-normal);
 }
 
-.createCard:hover .createCardIcon {
-    color: white;
-}
-
 .createCardText {
     font-weight: var(--font-weight-semibold);
     color: white;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: auto;
     z-index: 2;
-    position: relative;
     letter-spacing: 0.5px;
     transition: color var(--transition-normal);
 }
 
-.createCard:hover .createCardText {
-    color: white;
-}
-
-/* Unified Card Content */
 .cardContent {
     display: flex;
     flex-direction: column;
@@ -210,18 +202,9 @@
     margin-top: var(--spacing-sm);
 }
 
-/* Dataset 카드 전용 스타일 */
-.datasetCard .cardContent {
-    min-height: 300px; /* dataset 카드 높이 통일 */
-    display: flex;
-    flex-direction: column;
-}
-
 .datasetCard .cardName {
-    flex: 1; /* dataset 카드에서만 남은 공간 차지 */
+    flex: 1;
 }
-
-/* Dataset 카드에서 labelCount 영역 고정 높이 */
 .datasetCard .cardLabelCount {
     height: 24px;
     display: flex;
@@ -270,7 +253,6 @@
     padding-top: var(--spacing-sm);
 }
 
-/* Dataset 카드의 날짜에만 하단 여백 추가 */
 .datasetCard .cardDate {
     margin-bottom: var(--spacing-sm);
 }
@@ -410,41 +392,41 @@
         padding-left: var(--spacing-lg);
         padding-right: var(--spacing-lg);
     }
-    
+
     .tabNavigation {
         flex-direction: column;
         gap: var(--spacing-sm);
     }
-    
+
     .tabButton {
         text-align: left;
         justify-content: flex-start;
     }
-    
+
     .dataTypeToggle {
         flex-direction: column;
         gap: var(--spacing-xs);
     }
-    
+
     .dataTypeButton {
         justify-content: flex-start;
         text-align: left;
     }
-    
+
     .createCardText {
         font-size: var(--font-size-sm);
     }
-    
+
     .cardName {
         font-size: var(--font-size-sm);
     }
-    
+
     .moreButton {
         width: 100%;
         justify-content: center;
         max-width: 200px;
     }
-    
+
     .cardInfo {
         flex-direction: column;
         align-items: flex-start;
@@ -457,4 +439,4 @@
         padding-left: var(--spacing-md);
         padding-right: var(--spacing-md);
     }
-} 
+}

@@ -10,7 +10,6 @@ import {
 import { 
     fetchRawDatasets, 
     fetchLabeledDatasets, 
-    fetchAllDatasets,
     deleteDataset, 
     downloadDataset, 
     uploadDataset,
@@ -68,18 +67,13 @@ export async function exampleDatasetsAPI() {
         const labeledDatasetsResult = await fetchLabeledDatasets();
         console.log('Labeled datasets:', labeledDatasetsResult.data);
         
-        // 3. Fetch all datasets
-        console.log('\n3. Fetching all datasets...');
-        const allDatasetsResult = await fetchAllDatasets();
-        console.log('All datasets:', allDatasetsResult.data);
-        
-        // 4. Get dataset by ID
-        console.log('\n4. Getting dataset by ID...');
+        // 3. Get dataset by ID
+        console.log('\n3. Getting dataset by ID...');
         const datasetResult = await getDatasetById(1, 'raw');
         console.log('Dataset details:', datasetResult.data);
         
-        // 5. Upload new dataset
-        console.log('\n5. Uploading new dataset...');
+        // 4. Upload new dataset
+        console.log('\n4. Uploading new dataset...');
         const uploadResult = await uploadDataset({
             name: 'Test Dataset',
             type: 'Image',
@@ -87,18 +81,18 @@ export async function exampleDatasetsAPI() {
         }, 'raw');
         console.log('Uploaded dataset:', uploadResult.data);
         
-        // 6. Download dataset (will trigger browser download)
-        console.log('\n6. Downloading dataset...');
+        // 5. Download dataset (will trigger browser download)
+        console.log('\n5. Downloading dataset...');
         const downloadResult = await downloadDataset(1, 'raw');
         console.log('Download result:', downloadResult.message);
         
-        // 7. Update dataset
-        console.log('\n7. Updating dataset...');
+        // 6. Update dataset
+        console.log('\n6. Updating dataset...');
         const updateResult = await updateDataset(1, { size: '3.0GB' }, 'raw');
         console.log('Updated dataset:', updateResult.data);
         
-        // 8. Delete dataset (commented out to avoid deleting real data)
-        // console.log('\n8. Deleting dataset...');
+        // 7. Delete dataset (commented out to avoid deleting real data)
+        // console.log('\n7. Deleting dataset...');
         // const deleteResult = await deleteDataset(uploadResult.data.id, 'raw');
         // console.log('Delete result:', deleteResult.message);
         

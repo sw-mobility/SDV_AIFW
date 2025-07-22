@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   fetchRawDatasets,
   fetchLabeledDatasets,
-  fetchAllDatasets,
   uploadDataset,
   downloadDataset,
   deleteDataset,
@@ -32,9 +31,8 @@ export const Playground = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchAllDatasets();
-      setRaw(res.data.raw);
-      setLabeled(res.data.labeled);
+      const res = await fetchRawDatasets();
+      setRaw(res.data);
       setResult(res);
     } catch (e) {
       setError(e.message);

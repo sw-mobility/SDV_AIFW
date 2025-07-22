@@ -4,14 +4,15 @@ import styles from '../../pages/index_page/IndexPage.module.css';
 import { ChevronDown } from 'lucide-react';
 
 export default function ShowMoreGrid({ children, cardsPerPage = 8, showMore, onToggleShowMore }) {
-    const visibleChildren = showMore ? children : children.slice(0, cardsPerPage);
-    const remaining = children.length - cardsPerPage;
+    const childrenArray = React.Children.toArray(children);
+    const visibleChildren = showMore ? childrenArray : childrenArray.slice(0, cardsPerPage);
+    const remaining = childrenArray.length - cardsPerPage;
     return (
         <>
             <CardGrid>
                 {visibleChildren}
             </CardGrid>
-            {children.length > cardsPerPage && (
+            {childrenArray.length > cardsPerPage && (
                 <div className={styles.loadMoreContainer}>
                     <button onClick={onToggleShowMore} className={styles.moreButton}>
                         <span className={styles.moreText}>
