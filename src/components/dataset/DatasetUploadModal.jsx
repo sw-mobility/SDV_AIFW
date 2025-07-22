@@ -16,7 +16,7 @@ const ACCEPTED_FORMATS = '.csv,.xlsx,.xls,.json,.zip';
 const MAX_FILE_SIZE_MB = 200; // 200MB 제한
 const ACCEPTED_IMAGE_FORMATS = '.jpg,.jpeg,.png,.gif';
 
-export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw', editMode = false, initialData = {}, onSave }) {
+export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw', editMode = false, initialData = {}, onSave, onCreated }) {
   const { reload } = useDatasetContext();
   const [name, setName] = useState(initialData.name || '');
   const [type, setType] = useState(initialData.type || DATASET_TYPES[0]);
@@ -91,6 +91,7 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
       }
       setSuccess(true);
       reload();
+      onCreated && onCreated();
       setTimeout(() => {
         setSuccess(false);
         onClose();

@@ -1,19 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect} from 'react';
 import { Upload, Database, Tag, PlusCircle } from 'lucide-react';
 import Card from '../../../components/common/Card.jsx';
 import styles from '../IndexPage.module.css';
 import { Calendar, Download, Trash2 } from 'lucide-react';
-import { fetchRawDatasets, fetchLabeledDatasets, downloadDataset, createRawDataset, createLabeledDataset, updateRawDataset, updateLabeledDataset } from '../../../api/datasets.js';
-import StatusChip from '../../../components/common/StatusChip.jsx';
+import { fetchRawDatasets, fetchLabeledDatasets, downloadDataset, updateRawDataset, updateLabeledDataset } from '../../../api/datasets.js';
 import Loading from '../../../components/common/Loading.jsx';
 import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
-import EmptyState from '../../../components/common/EmptyState.jsx';
 import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
 import DatasetUploadModal from '../../../components/dataset/DatasetUploadModal.jsx';
 import { Edit2, Upload as UploadIcon } from 'lucide-react';
-import { deleteRawDatasets, deleteLabeledDatasets, uploadRawFiles, uploadLabeledFiles, getRawDataset, getLabeledDataset } from '../../../api/datasets.js';
+import { deleteRawDatasets, deleteLabeledDatasets, uploadRawFiles, uploadLabeledFiles } from '../../../api/datasets.js';
 import Modal from '../../../components/common/Modal.jsx';
-import modalStyles from '../../../components/common/Modal.module.css';
 import createModalStyles from '../../../components/common/CreateModal.module.css';
 import { uid } from '../../../api/uid.js';
 import FileUploadField from '../../../components/common/FileUploadField.jsx';
@@ -29,117 +26,6 @@ import FileUploadField from '../../../components/common/FileUploadField.jsx';
  *
  */
 
-
-const CreateDatasetModal = ({ isOpen, onClose, datasetType, onCreated }) => {
-    const [name, setName] = useState('');
-    const [type, setType] = useState('Image');
-    const [description, setDescription] = useState('');
-    // Labeled 전용
-    const [taskType, setTaskType] = useState('Classification');
-    const [labelFormat, setLabelFormat] = useState('COCO');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const resetForm = () => {
-        setName('');
-        setType('Image');
-        setDescription('');
-        setTaskType('Classification');
-        setLabelFormat('COCO');
-        setError(null);
-        setSuccess(false);
-    };
-    useEffect(() => { if (isOpen) resetForm(); }, [isOpen]);
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        setSuccess(false);
-        try {
-            if (datasetType === 'labeled') {
-                await createLabeledDataset({
-                    uid: uid,
-                    name,
-                    description,
-                    type,
-                    task_type: taskType,
-                    label_format: labelFormat
-                });
-            } else {
-                await createRawDataset({
-                    uid: uid,
-                    name,
-                    description,
-                    type
-                });
-            }
-            setSuccess(true);
-            onCreated && onCreated();
-            setTimeout(() => {
-                setSuccess(false);
-                onClose();
-            }, 1000);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-    if (!isOpen) return null;
-    return (
-        <div className={styles['modal-backdrop']}>
-            <div className={styles['modal']}>
-                <form onSubmit={handleSubmit} className={styles.formGroup}>
-                    <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 12 }}>
-                        {datasetType === 'labeled' ? 'Create Labeled Dataset' : 'Create Raw Dataset'}
-                    </div>
-                    <label className={styles.label}>
-                        Name
-                        <input type="text" value={name} onChange={e => setName(e.target.value)} className={styles.input} />
-                    </label>
-                    <label className={styles.label}>
-                        Type
-                        <select value={type} onChange={e => setType(e.target.value)} className={styles.input}>
-                            {['Image', 'Text', 'Audio', 'Video', 'Tabular', 'TimeSeries', 'Graph'].map(t => (
-                                <option key={t} value={t}>{t}</option>
-                            ))}
-                        </select>
-                    </label>
-                    <label className={styles.label}>
-                        Description
-                        <textarea value={description} onChange={e => setDescription(e.target.value)} className={styles.input} rows={3} style={{ resize: 'vertical' }} />
-                    </label>
-                    {datasetType === 'labeled' && (
-                        <>
-                            <label className={styles.label}>
-                                Task Type
-                                <select value={taskType} onChange={e => setTaskType(e.target.value)} className={styles.input}>
-                                    {['Classification', 'Detection', 'Segmentation', 'OCR', 'Other'].map(t => (
-                                        <option key={t} value={t}>{t}</option>
-                                    ))}
-                                </select>
-                            </label>
-                            <label className={styles.label}>
-                                Label Format
-                                <select value={labelFormat} onChange={e => setLabelFormat(e.target.value)} className={styles.input}>
-                                    {['COCO', 'VOC', 'YOLO', 'Custom'].map(f => (
-                                        <option key={f} value={f}>{f}</option>
-                                    ))}
-                                </select>
-                            </label>
-                        </>
-                    )}
-                    {error && <div className={styles.fileError}>{error}</div>}
-                    {success && <div className={styles.successMessage}>Created!</div>}
-                    <div className={styles.modalActions}>
-                        <button type="button" onClick={onClose} className={styles.cancelButton} disabled={loading}>Cancel</button>
-                        <button type="submit" className={styles.cancelButton} style={{ background: '#2563eb', color: '#fff' }} disabled={loading || !name}>Create</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
 
 const UploadModal = ({ isOpen, onClose, onSave }) => {
     const [files, setFiles] = useState([]);
@@ -330,12 +216,30 @@ const DatasetsTab = () => {
         </Card>
     );
 
-    const currentDatasets = dataType === 'raw' ? rawDatasets : labeledDatasets;
+    // 정렬 함수: created_at, createdAt, created 중 하나라도 있으면 내림차순
+    function sortByCreatedDesc(arr) {
+        return [...arr].sort((a, b) => {
+            const getTime = (d) => new Date(d.created_at || d.createdAt || d.created || 0).getTime();
+            return getTime(b) - getTime(a);
+        });
+    }
+
+    const currentDatasets = dataType === 'raw' ? sortByCreatedDesc(rawDatasets) : sortByCreatedDesc(labeledDatasets);
+    // 최신 데이터셋만 추출
+    const latestDataset = currentDatasets[0];
+    // 최신 데이터셋 카드
+    const LatestDatasetCard = latestDataset ? (
+        <DatasetCard key={latestDataset._id || latestDataset.id} dataset={latestDataset} isLabeled={dataType === 'labeled'} />
+    ) : null;
+    // 최신 데이터셋을 제외한 나머지 카드
+    const restDatasetCards = latestDataset ? currentDatasets.slice(1).map(dataset => (
+        <DatasetCard key={dataset._id || dataset.id} dataset={dataset} isLabeled={dataType === 'labeled'} />
+    )) : [];
+    // CreateDatasetCard 바로 오른쪽에 최신 데이터셋이 오도록
     const allDatasetCards = [
         <CreateDatasetCard key="create-dataset" />,
-        ...currentDatasets.map(dataset => (
-            <DatasetCard key={dataset._id || dataset.id} dataset={dataset} isLabeled={dataType === 'labeled'} />
-        ))
+        ...(LatestDatasetCard ? [LatestDatasetCard] : []),
+        ...restDatasetCards
     ];
     const visibleDatasetCards = showMore ? allDatasetCards : allDatasetCards.slice(0, cardsPerPage);
 
@@ -344,7 +248,7 @@ const DatasetsTab = () => {
     if (currentDatasets.length === 0) {
         return (
             <>
-                <DatasetUploadModal isOpen={createOpen} onClose={() => setCreateOpen(false)} datasetType={dataType} />
+                <DatasetUploadModal isOpen={createOpen} onClose={() => setCreateOpen(false)} datasetType={dataType} onCreated={handleCreated} />
                 <div className={styles.dataTypeToggle} style={{ marginBottom: 24 }}>
                     <button
                         className={`${styles.dataTypeButton} ${dataType === 'raw' ? styles.activeDataType : ''}`}
@@ -370,7 +274,7 @@ const DatasetsTab = () => {
 
     return (
         <>
-            <DatasetUploadModal isOpen={createOpen} onClose={() => setCreateOpen(false)} datasetType={dataType} />
+            <DatasetUploadModal isOpen={createOpen} onClose={() => setCreateOpen(false)} datasetType={dataType} onCreated={handleCreated} />
             {editOpen && (
                 <DatasetUploadModal
                     isOpen={editOpen}
@@ -379,6 +283,7 @@ const DatasetsTab = () => {
                     editMode
                     initialData={editData}
                     onSave={handleEditSave}
+                    onCreated={handleCreated}
                 />
             )}
             <UploadModal isOpen={uploadOpen} onClose={() => { setUploadOpen(false); setUploadTarget(null); }} onSave={handleUploadSave} />
