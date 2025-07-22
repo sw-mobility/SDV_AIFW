@@ -7,6 +7,7 @@ import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';
 import { useDatasetContext } from '../../context/DatasetContext.jsx';
 import { uid } from '../../api/uid.js';
+import FileUploadField from '../common/FileUploadField.jsx';
 
 const DATASET_TYPES = [
   'Image', 'Text', 'Audio', 'Video', 'Tabular', 'TimeSeries', 'Graph'
@@ -14,47 +15,6 @@ const DATASET_TYPES = [
 const ACCEPTED_FORMATS = '.csv,.xlsx,.xls,.json,.zip';
 const MAX_FILE_SIZE_MB = 200; // 200MB 제한
 const ACCEPTED_IMAGE_FORMATS = '.jpg,.jpeg,.png,.gif';
-
-const FileUploadField = ({ files, setFiles, setFileError, multiple = true }) => {
-    const fileInputRef = useRef();
-    const handleFileChange = (e) => {
-        const selected = Array.from(e.target.files);
-        const invalid = selected.find(f => !['jpg','jpeg','png','gif'].includes(f.name.split('.').pop().toLowerCase()));
-        if (invalid) {
-            setFileError('이미지 파일(jpg, jpeg, png, gif)만 업로드할 수 있습니다.');
-            setFiles([]);
-            return;
-        }
-        setFiles(selected);
-        setFileError(null);
-    };
-    return (
-        <div
-            className={styles.uploadDropZone}
-            onClick={() => fileInputRef.current && fileInputRef.current.click()}
-            style={{ cursor: 'pointer' }}
-        >
-            {files && files.length > 0 ? (
-                <div className={styles.uploadFileInfo}>
-                    <span>{files.map(f => f.name).join(', ')} ({(files.reduce((a, f) => a + f.size, 0) / (1024 * 1024)).toFixed(1)}MB)</span>
-                    <button type="button" className={styles.removeFileButton} onClick={e => { e.stopPropagation(); setFiles([]); setFileError(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>Remove</button>
-                </div>
-            ) : (
-                <>
-                    <span className={styles.uploadDropText}>여기로 이미지 파일을 드래그하거나 클릭해서 업로드 (jpg, jpeg, png, gif, 여러 개 가능)</span>
-                    <input
-                        type="file"
-                        accept={ACCEPTED_IMAGE_FORMATS}
-                        style={{ display: 'none' }}
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        multiple={multiple}
-                    />
-                </>
-            )}
-        </div>
-    );
-};
 
 export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw', editMode = false, initialData = {}, onSave }) {
   const { reload } = useDatasetContext();

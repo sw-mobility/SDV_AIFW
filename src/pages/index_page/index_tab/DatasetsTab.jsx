@@ -16,6 +16,7 @@ import Modal from '../../../components/common/Modal.jsx';
 import modalStyles from '../../../components/common/Modal.module.css';
 import createModalStyles from '../../../components/common/CreateModal.module.css';
 import { uid } from '../../../api/uid.js';
+import FileUploadField from '../../../components/common/FileUploadField.jsx';
 
 /**
  * DatasetsTab 컴포넌트
@@ -140,78 +141,6 @@ const CreateDatasetModal = ({ isOpen, onClose, datasetType, onCreated }) => {
     );
 };
 
-// Reusable file upload field
-const ACCEPTED_IMAGE_FORMATS = '.jpg,.jpeg,.png,.gif';
-const FileUploadField = ({ files, setFiles, fileError, setFileError, multiple = true }) => {
-    const fileInputRef = useRef();
-    const handleFileChange = (e) => {
-        const selected = Array.from(e.target.files);
-        const invalid = selected.find(f => !['jpg','jpeg','png','gif'].includes(f.name.split('.').pop().toLowerCase()));
-        if (invalid) {
-            setFileError('이미지 파일(jpg, jpeg, png, gif)만 업로드할 수 있습니다.');
-            return;
-        }
-        // 누적 추가
-        setFiles(prev => {
-            // 중복 제거 (이름+사이즈 기준)
-            const all = [...prev, ...selected];
-            const unique = all.filter((f, idx, arr) => arr.findIndex(ff => ff.name === f.name && ff.size === f.size) === idx);
-            return unique;
-        });
-        setFileError(null);
-    };
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const dropped = Array.from(e.dataTransfer.files).filter(f => ['jpg','jpeg','png','gif'].includes(f.name.split('.').pop().toLowerCase()));
-        if (dropped.length === 0) {
-            setFileError('이미지 파일(jpg, jpeg, png, gif)만 업로드할 수 있습니다.');
-            return;
-        }
-        setFiles(prev => {
-            const all = [...prev, ...dropped];
-            const unique = all.filter((f, idx, arr) => arr.findIndex(ff => ff.name === f.name && ff.size === f.size) === idx);
-            return unique;
-        });
-        setFileError(null);
-    };
-    const handleDragOver = (e) => { e.preventDefault(); };
-    const removeFile = (idx) => {
-        setFiles(prev => prev.filter((_, i) => i !== idx));
-    };
-    return (
-        <div
-            className={createModalStyles.input}
-            style={{ minHeight: 80, background: '#f8fafc', border: '2px dashed #cbd5e1', cursor: 'pointer', padding: 16, marginBottom: 8 }}
-            onClick={() => fileInputRef.current && fileInputRef.current.click()}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-        >
-            {files && files.length > 0 ? (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    {files.map((f, idx) => (
-                        <li key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                            <span style={{ fontSize: 13, color: '#222', flex: 1 }}>{f.name} ({(f.size / (1024 * 1024)).toFixed(1)}MB)</span>
-                            <button type="button" style={{ marginLeft: 8, color: '#e11d48', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16 }} onClick={e => { e.stopPropagation(); removeFile(idx); }}>×</button>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <span style={{ color: '#888', fontSize: 13 }}>
-                    여기에 이미지 파일을 드래그하거나 클릭해서 업로드 (jpg, jpeg, png, gif, 여러 개 가능)
-                </span>
-            )}
-            <input
-                type="file"
-                accept={ACCEPTED_IMAGE_FORMATS}
-                style={{ display: 'none' }}
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                multiple={multiple}
-            />
-        </div>
-    );
-};
-
 const UploadModal = ({ isOpen, onClose, onSave }) => {
     const [files, setFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
@@ -228,7 +157,7 @@ const UploadModal = ({ isOpen, onClose, onSave }) => {
         <Modal isOpen={isOpen} onClose={onClose} title="Upload Files">
             <form onSubmit={handleSubmit} className={createModalStyles.formGroup} style={{margin:0}}>
                 <label className={createModalStyles.label}>
-                    <FileUploadField files={files} setFiles={setFiles} fileError={fileError} setFileError={setFileError} multiple />
+                    <FileUploadField files={files} setFiles={setFiles} fileError={fileError} setFileError={setFileError} accept={'.jpg,.jpeg,.png,.gif'} multiple />
                 </label>
                 {fileError && <div className={createModalStyles.fileError}>{fileError}</div>}
                 <div className={createModalStyles.modalActions}>
