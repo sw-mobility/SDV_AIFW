@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchLabeledDatasets } from '../api/datasets.js';
+import {uid} from "../api/uid.js";
 
 // 스냅샷 관련 상수
 export const defaultSnapshot = { id: 'default', name: 'Default Snapshot', description: 'System default snapshot' };
@@ -111,7 +112,7 @@ export const useTrainingState = () => {
   // Fetch labeled datasets on mount
   useEffect(() => {
     setDatasetLoading(true);
-    fetchLabeledDatasets()
+    fetchLabeledDatasets({uid})
       .then(res => {
         // 변환: DatasetSelector가 기대하는 필드로 매핑
         const mapped = (res.data || []).map(ds => ({

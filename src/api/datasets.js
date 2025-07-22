@@ -1,4 +1,4 @@
-import { uid } from './uid.js';
+import {uid} from "./uid.js";
 
 const BASE_URL = 'http://localhost:5002';
 

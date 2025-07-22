@@ -3,7 +3,7 @@ import styles from './LabelingPage.module.css';
 import DatasetTablePanel from '../../components/labeling/DatasetTablePanel.jsx';
 import LabelingWorkspace from '../../components/labeling/LabelingWorkspace.jsx';
 import { fetchRawDatasets } from '../../api/datasets.js';
-
+import {uid} from '../../api/uid';
 const LabelingPage = () => {
     const [datasets, setDatasets] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -12,9 +12,8 @@ const LabelingPage = () => {
 
     useEffect(() => {
         setLoading(true);
-        fetchRawDatasets()
+        fetchRawDatasets({uid})
             .then(res => {
-                // created_at -> createdAt 변환
                 const camelDatasets = (res.data || []).map(ds => ({
                     ...ds,
                     createdAt: ds.created_at ? new Date(ds.created_at).toISOString().slice(0, 10) : undefined

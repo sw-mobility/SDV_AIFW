@@ -14,86 +14,18 @@ import {
     Image as ImageIcon,
     FileText,
     AudioLines,
-    Video
+    Video,
+    Upload
 } from 'lucide-react';
 import {useDatasetContext} from '../../context/DatasetContext.jsx';
 import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';
 import EmptyState from '../common/EmptyState.jsx';
 import styles from './Dataset.module.css';
-import {downloadDataset, deleteDataset, updateRawDataset} from '../../api/datasets.js';
+import {downloadDataset, deleteDataset, updateRawDataset, deleteRawDatasets, deleteLabeledDatasets, uploadRawFiles} from '../../api/datasets.js';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
+import UploadFilesModal from './DatasetUploadFilesModal.jsx';
 import {Label} from "recharts";
-
-const DatasetEditModal = ({open, onClose, dataset, onUpdated}) => {
-    const [name, setName] = React.useState(dataset?.name || '');
-    const [type, setType] = React.useState(dataset?.type || 'Image');
-    const [description, setDescription] = React.useState(dataset?.description || '');
-    const [loading, setLoading] = React.useState(false);
-    const [error, setError] = React.useState(null);
-    React.useEffect(() => {
-        if (open) {
-            setName(dataset?.name || '');
-            setType(dataset?.type || 'Image');
-            setDescription(dataset?.description || '');
-            setError(null);
-        }
-    }, [open, dataset]);
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        try {
-            await updateRawDataset({
-                did: dataset.did || dataset._id || dataset.id,
-                name,
-                description,
-                type
-            });
-            onUpdated && onUpdated();
-            onClose();
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-    if (!open) return null;
-    return (
-        <div className={styles['modal-backdrop']}>
-            <div className={styles['modal']}> {/* Reuse modal styles */}
-                <form onSubmit={handleSubmit} className={styles.formGroup}>
-                    <div style={{fontWeight: 600, fontSize: 18, marginBottom: 12}}>Edit Dataset</div>
-                    <label className={styles.label}>
-                        Name
-                        <input type="text" value={name} onChange={e => setName(e.target.value)}
-                               className={styles.input}/>
-                    </label>
-                    <label className={styles.label}>
-                        Type
-                        <select value={type} onChange={e => setType(e.target.value)} className={styles.input}>
-                            {['Image', 'Text', 'Audio', 'Video', 'Tabular', 'TimeSeries', 'Graph'].map(t => (
-                                <option key={t} value={t}>{t}</option>
-                            ))}
-                        </select>
-                    </label>
-                    <label className={styles.label}>
-                        Description
-                        <textarea value={description} onChange={e => setDescription(e.target.value)}
-                                  className={styles.input} rows={3} style={{resize: 'vertical'}}/>
-                    </label>
-                    {error && <div className={styles.fileError}>{error}</div>}
-                    <div className={styles.modalActions}>
-                        <button type="button" onClick={onClose} className={styles.cancelButton}
-                                disabled={loading}>Cancel
-                        </button>
-                        <Button type="submit" variant="primary" size="medium" disabled={loading || !name}>Save</Button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
 
 const typeIconMap = {
     Image: <ImageIcon size={14}/>,
@@ -105,7 +37,7 @@ const typeIconMap = {
     Label: <Tag size={14} style={{"color": "#cc305a"}}/>,
 };
 
-const DatasetCard = ({dataset, onDownload, onDelete, onEdit}) => (
+const DatasetCard = ({dataset, onDownload, onDelete, onEdit, onUpload}) => (
     <div className={styles['dataset-card']}>
         <div className={styles['dataset-card-header']}>
             <div>
@@ -121,6 +53,11 @@ const DatasetCard = ({dataset, onDownload, onDelete, onEdit}) => (
                 <IconButton size="small" title="Delete" onClick={() => onDelete(dataset)}>
                     <Trash2 size={16}/>
                 </IconButton>
+                {dataset.datasetType === 'raw' && (
+                    <IconButton size="small" title="Upload" onClick={() => onUpload(dataset)}>
+                        <Upload size={16}/>
+                    </IconButton>
+                )}
             </div>
         </div>
         <div className={styles['dataset-card-name']}>
@@ -148,7 +85,11 @@ const DatasetCard = ({dataset, onDownload, onDelete, onEdit}) => (
 const DatasetDrawer = ({open, onClose}) => {
     const {datasets, loading, error, reload} = useDatasetContext();
     const [uploadOpen, setUploadOpen] = React.useState(false);
-    const [editDataset, setEditDataset] = React.useState(null);
+    const [uploadTarget, setUploadTarget] = React.useState(null);
+    const [createOpen, setCreateOpen] = React.useState(false);
+    // edit modal 상태 추가
+    const [editOpen, setEditOpen] = React.useState(false);
+    const [editTarget, setEditTarget] = React.useState(null);
 
     const handleDownload = async (dataset) => {
         try {
@@ -156,20 +97,71 @@ const DatasetDrawer = ({open, onClose}) => {
             console.log('Download started for:', dataset.name);
         } catch (error) {
             console.error('Download failed:', error.message);
-            // TODO: Show error notification
         }
     };
 
     const handleDelete = async (dataset) => {
         try {
-            await deleteDataset(dataset.id, dataset.type === 'Image' ? 'raw' : 'labeled');
-            console.log('Dataset deleted:', dataset.name);
-            // Refresh the dataset list
+            if (dataset.datasetType === 'raw') {
+                await deleteRawDatasets({ uid: dataset.uid || '', target_did_list: [dataset.did || dataset._id || dataset.id] });
+            } else if (dataset.datasetType === 'labeled') {
+                await deleteLabeledDatasets({ uid: dataset.uid || '', target_did_list: [dataset.did || dataset._id || dataset.id] });
+            } else {
+                await deleteDataset(dataset.id, dataset.type === 'Image' ? 'raw' : 'labeled');
+            }
             reload();
         } catch (error) {
             console.error('Delete failed:', error.message);
-            // TODO: Show error notification
         }
+    };
+
+    // 업로드 핸들러 (파일 업로드용)
+    const handleUpload = (dataset) => {
+        setUploadTarget(dataset);
+        setUploadOpen(true);
+    };
+    // 업로드 저장 핸들러 (실제 API 호출)
+    const handleUploadSave = async (files) => {
+        if (uploadTarget?.datasetType === 'labeled') {
+            await uploadLabeledFiles({ files, uid: uploadTarget.uid || '', did: uploadTarget.did || uploadTarget.id, task_type: uploadTarget.task_type, label_format: uploadTarget.label_format });
+        } else {
+            await uploadRawFiles({ files, uid: uploadTarget.uid || '', did: uploadTarget.did || uploadTarget.id });
+        }
+        setUploadOpen(false);
+        setUploadTarget(null);
+        reload();
+    };
+
+    // edit 버튼 클릭 시
+    const handleEdit = (dataset) => {
+        setEditTarget(dataset);
+        setEditOpen(true);
+    };
+
+    // edit 저장 핸들러 (실제 API 호출)
+    const handleEditSave = async (fields) => {
+        const did = editTarget.did || editTarget._id || editTarget.id;
+        if (editTarget?.datasetType === 'labeled') {
+            await updateLabeledDataset({
+                did,
+                uid: editTarget.uid || '',
+                name: fields.name,
+                description: fields.description,
+                type: fields.type,
+                task_type: fields.taskType,
+                label_format: fields.labelFormat
+            });
+        } else {
+            await updateRawDataset({
+                did,
+                name: fields.name,
+                description: fields.description,
+                type: fields.type
+            });
+        }
+        setEditOpen(false);
+        setEditTarget(null);
+        reload();
     };
 
     return (
@@ -191,7 +183,7 @@ const DatasetDrawer = ({open, onClose}) => {
             <div className={styles['drawer-content']}>
                 <Button
                     variant="contained"
-                    startIcon={<PlusCircle size={16}/>}
+                    startIcon={<PlusCircle size={16}/>} 
                     fullWidth
                     sx={{
                         mb: 2,
@@ -199,13 +191,11 @@ const DatasetDrawer = ({open, onClose}) => {
                         fontWeight: 600,
                         textTransform: 'none'
                     }}
-                    onClick={() => setUploadOpen(true)}
+                    onClick={() => setCreateOpen(true)}
                 >
                     Create Dataset
                 </Button>
-                <DatasetUploadModal isOpen={uploadOpen} onClose={() => setUploadOpen(false)}/>
-                <DatasetEditModal open={!!editDataset} onClose={() => setEditDataset(null)} dataset={editDataset}
-                                  onUpdated={reload}/>
+                <DatasetUploadModal isOpen={createOpen} onClose={() => setCreateOpen(false)} />
 
                 {loading && <Loading/>}
                 {error && <ErrorMessage message={error.message}/>}
@@ -217,7 +207,8 @@ const DatasetDrawer = ({open, onClose}) => {
                             dataset={dataset}
                             onDownload={handleDownload}
                             onDelete={handleDelete}
-                            onEdit={setEditDataset}
+                            onEdit={handleEdit}
+                            onUpload={handleUpload}
                         />
                     ))}
                 </div>
@@ -226,6 +217,21 @@ const DatasetDrawer = ({open, onClose}) => {
                     <EmptyState message="No datasets found."/>
                 )}
             </div>
+            <UploadFilesModal
+                isOpen={uploadOpen}
+                onClose={() => { setUploadOpen(false); setUploadTarget(null); }}
+                onSave={handleUploadSave}
+            />
+            {/* edit 모달도 DatasetUploadModal로 통일 */}
+            <DatasetUploadModal
+                isOpen={editOpen}
+                onClose={() => setEditOpen(false)}
+                editMode={true}
+                datasetType={editTarget?.datasetType || 'raw'}
+                initialData={editTarget || {}}
+                onSave={handleEditSave}
+                onCreated={reload}
+            />
         </Drawer>
     );
 };

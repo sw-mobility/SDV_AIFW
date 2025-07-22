@@ -116,9 +116,11 @@ const DatasetsTab = () => {
         setEditOpen(true);
     };
     const handleEditSave = async (fields) => {
+        // id 우선순위: did > _id > id
+        const did = editData.did || editData._id || editData.id;
         if (dataType === 'labeled') {
             await updateLabeledDataset({
-                did: editData.did || editData.id,
+                did,
                 uid: uid,
                 name: fields.name,
                 description: fields.description,
@@ -129,7 +131,7 @@ const DatasetsTab = () => {
             fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
         } else {
             await updateRawDataset({
-                did: editData.did || editData.id,
+                did,
                 name: fields.name,
                 description: fields.description,
                 type: fields.type
@@ -188,7 +190,9 @@ const DatasetsTab = () => {
                     {isLabeled ? <Tag size={18} color="var(--color-text-secondary)" /> : <Database size={18} color="var(--color-text-secondary)" />}
                 </div>
                 <div className={styles.cardName}>{dataset.name}</div>
-                {dataset.description && <div className={styles.cardDescription}>{dataset.description}</div>}
+                <div className={styles.cardDescription}>
+                    {dataset.description ? dataset.description : <span style={{ color: '#bbb' }}>No description</span>}
+                </div>
                 <div className={styles.cardType}>
                     {dataset.type}
                     {isLabeled && dataset.task_type && <> / {dataset.task_type}</>}
