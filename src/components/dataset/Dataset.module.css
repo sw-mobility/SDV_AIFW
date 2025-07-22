@@ -213,4 +213,16 @@
     min-width: 340px;
     max-width: 95vw;
     z-index: 1001;
+}
+
+.wideModal {
+  max-width: 900px !important;
+  width: 90vw !important;
+  min-width: 600px;
+}
+
+.confirmModal {
+  max-width: 360px !important;
+  width: 95vw !important;
+  min-width: 280px;
 } 

@@ -8,6 +8,8 @@ import Loading from '../../../components/common/Loading.jsx';
 import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
 import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
 import DatasetUploadModal from '../../../components/dataset/DatasetUploadModal.jsx';
+import UploadFilesModal from '../../../components/dataset/DatasetUploadFilesModal.jsx';
+import DatasetDataPanel from '../../../components/dataset/DatasetDataPanel.jsx';
 import { Edit2, Upload as UploadIcon } from 'lucide-react';
 import { deleteRawDatasets, deleteLabeledDatasets, uploadRawFiles, uploadLabeledFiles } from '../../../api/datasets.js';
 import Modal from '../../../components/common/Modal.jsx';
@@ -71,6 +73,14 @@ const DatasetsTab = () => {
     const [deletingId, setDeletingId] = useState(null);
     const [uploadOpen, setUploadOpen] = useState(false);
     const [uploadTarget, setUploadTarget] = useState(null);
+    // 데이터셋 상세/데이터 패널 상태
+    const [dataPanelOpen, setDataPanelOpen] = useState(false);
+    const [dataPanelTarget, setDataPanelTarget] = useState(null);
+    // 카드 클릭 핸들러
+    const handleCardClick = (dataset) => {
+        setDataPanelTarget(dataset);
+        setDataPanelOpen(true);
+    };
 
     useEffect(() => {
         setLoading(true);
@@ -184,7 +194,7 @@ const DatasetsTab = () => {
     );
     // Unified DatasetCard for both raw and labeled
     const DatasetCard = ({ dataset, isLabeled }) => (
-        <Card className={styles.projectCard}>
+        <Card className={styles.projectCard} onClick={() => handleCardClick({ ...dataset, datasetType: isLabeled ? 'labeled' : 'raw' })}>
             <div className={styles.cardContent}>
                 <div className={styles.cardIcon}>
                     {isLabeled ? <Tag size={18} color="var(--color-text-secondary)" /> : <Database size={18} color="var(--color-text-secondary)" />}
@@ -291,6 +301,12 @@ const DatasetsTab = () => {
                 />
             )}
             <UploadModal isOpen={uploadOpen} onClose={() => { setUploadOpen(false); setUploadTarget(null); }} onSave={handleUploadSave} />
+            <DatasetDataPanel
+                open={dataPanelOpen}
+                onClose={() => setDataPanelOpen(false)}
+                dataset={dataPanelTarget}
+                datasetType={dataPanelTarget?.datasetType || dataType}
+            />
             <div className={styles.dataTypeToggle} style={{ marginBottom: 24 }}>
                 <button
                     className={`${styles.dataTypeButton} ${dataType === 'raw' ? styles.activeDataType : ''}`}

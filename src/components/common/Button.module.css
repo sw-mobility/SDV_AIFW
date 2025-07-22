@@ -62,14 +62,14 @@
 }
 
 .danger {
-  background-color: var(--color-error);
-  color: white;
-  border: 1px solid var(--color-error);
+  background-color: #E63946;
+  color: #fff;
+  border: 1px solid #E63946;
 }
 
 .danger:hover:not(.disabled) {
-  background-color: var(--color-red);
-  border-color: var(--color-red);
+  background-color: #b71c1c;
+  border-color: #b71c1c;
 }
 
 .small {

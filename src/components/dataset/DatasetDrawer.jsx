@@ -25,7 +25,7 @@ import styles from './Dataset.module.css';
 import {downloadDataset, deleteDataset, updateRawDataset, deleteRawDatasets, deleteLabeledDatasets, uploadRawFiles} from '../../api/datasets.js';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
 import UploadFilesModal from './DatasetUploadFilesModal.jsx';
-import {Label} from "recharts";
+import DatasetDataPanel from './DatasetDataPanel.jsx';
 
 const typeIconMap = {
     Image: <ImageIcon size={14}/>,
@@ -37,7 +37,7 @@ const typeIconMap = {
     Label: <Tag size={14} style={{"color": "#cc305a"}}/>,
 };
 
-const DatasetCard = ({dataset, onDownload, onDelete, onEdit, onUpload}) => (
+const DatasetCard = ({dataset, onDownload, onDelete, onEdit, onUpload, onClick}) => (
     <div className={styles['dataset-card']}>
         <div className={styles['dataset-card-header']}>
             <div>
@@ -90,6 +90,14 @@ const DatasetDrawer = ({open, onClose}) => {
     // edit modal 상태 추가
     const [editOpen, setEditOpen] = React.useState(false);
     const [editTarget, setEditTarget] = React.useState(null);
+    // 데이터셋 상세/데이터 패널 상태
+    const [dataPanelOpen, setDataPanelOpen] = React.useState(false);
+    const [dataPanelTarget, setDataPanelTarget] = React.useState(null);
+    // 카드 클릭 핸들러
+    const handleCardClick = (dataset) => {
+        setDataPanelTarget(dataset);
+        setDataPanelOpen(true);
+    };
 
     const handleDownload = async (dataset) => {
         try {
@@ -209,6 +217,7 @@ const DatasetDrawer = ({open, onClose}) => {
                             onDelete={handleDelete}
                             onEdit={handleEdit}
                             onUpload={handleUpload}
+                            onClick={handleCardClick}
                         />
                     ))}
                 </div>
@@ -231,6 +240,11 @@ const DatasetDrawer = ({open, onClose}) => {
                 initialData={editTarget || {}}
                 onSave={handleEditSave}
                 onCreated={reload}
+            />
+            <DatasetDataPanel
+                open={dataPanelOpen}
+                onClose={() => setDataPanelOpen(false)}
+                dataset={dataPanelTarget}
             />
         </Drawer>
     );

@@ -16,6 +16,7 @@ export default function Button({ children, variant = 'primary', size = 'medium',
   let className = styles.button;
   if (variant === 'primary' || variant === 'primary-gradient') className += ' ' + styles.primary;
   if (variant === 'secondary') className += ' ' + styles.secondary;
+  if (variant === 'danger') className += ' ' + styles.danger;
   if (size === 'large') className += ' ' + styles.large;
   if (size === 'medium') className += ' ' + styles.medium;
   if (disabled) className += ' ' + styles.disabled;
