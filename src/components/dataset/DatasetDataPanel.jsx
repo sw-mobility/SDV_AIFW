@@ -27,8 +27,8 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         setError(null);
         const isLabeled = dataset.datasetType === 'labeled' || dataset.type === 'labeled';
         const fetchData = isLabeled
-          ? getLabeledDataset({ did: dataset.did || dataset._id || dataset.id, uid: dataset.uid || '' })
-          : getRawDataset({ did: dataset.did || dataset._id || dataset.id, uid: dataset.uid || '' });
+          ? getLabeledDataset({ did: dataset.did || dataset._id || dataset.id, id: dataset._id || dataset.id, uid: dataset.uid || '' })
+          : getRawDataset({ did: dataset.did || dataset._id || dataset.id, id: dataset._id || dataset.id, uid: dataset.uid || '' });
         fetchData
             .then(res => setData(res))
             .catch(err => setError(err.message))

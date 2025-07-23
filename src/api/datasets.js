@@ -70,8 +70,8 @@ export async function uploadLabeledFiles({ files, uid, id}) {
     return await response.json();
 }
 
-export async function getLabeledDataset({ did, uid }) {
-    const response = await fetch(`${BASE_URL}/datasets/labeled/${encodeURIComponent(did)}?uid=${encodeURIComponent(uid)}`);
+export async function getLabeledDataset({ id, uid }) {
+    const response = await fetch(`${BASE_URL}/datasets/labeled/single/?id=${encodeURIComponent(id)}&uid=${encodeURIComponent(uid)}`);
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to get labeled dataset');
@@ -161,8 +161,8 @@ export async function uploadRawFiles({ files, uid, did }) {
     return await response.json();
 }
 
-export async function getRawDataset({ did, uid }) {
-    const response = await fetch(`${BASE_URL}/datasets/raw/${encodeURIComponent(did)}?uid=${encodeURIComponent(uid)}`);
+export async function getRawDataset({ id, uid }) {
+    const response = await fetch(`${BASE_URL}/datasets/raw/?id=${encodeURIComponent(id)}&uid=${encodeURIComponent(uid)}`);
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to get raw dataset');
