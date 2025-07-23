@@ -213,7 +213,7 @@
     min-width: 340px;
     max-width: 95vw;
     z-index: 1001;
-}
+} 
 
 .wideModal {
   max-width: 900px !important;

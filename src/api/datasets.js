@@ -24,25 +24,41 @@ export async function fetchLabeledDatasets({ uid }) {
     return { success: true, data, message: 'Labeled datasets fetched successfully' };
 }
 
-export async function deleteLabeledDatasets({ uid, target_did_list }) {
-    const response = await fetch(`${BASE_URL}/datasets/labeled/`, {
+export async function deleteDatasets({ uid, target_id_list = [], target_path_list = [] }) {
+    const response = await fetch(`${BASE_URL}/datasets/`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, target_did_list }),
+        body: JSON.stringify({ uid, target_id_list, target_path_list }),
     });
+
     if (!response.ok) {
         const error = await response.text();
-        throw new Error(error || 'Failed to delete labeled datasets');
+        throw new Error(error || 'Failed to delete datasets');
     }
+
+    return { success: true, message: 'Datasets deleted successfully' };
 }
 
-export async function uploadLabeledFiles({ files, uid, did, task_type, label_format }) {
+export async function deleteData({ uid, target_id_list = [], target_path_list = [] }) {
+    const response = await fetch(`${BASE_URL}/datasets/data`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, target_id_list, target_path_list }),
+    });
+
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to delete data');
+    }
+
+    return { success: true, message: 'Data deleted successfully' };
+}
+
+export async function uploadLabeledFiles({ files, uid, id}) {
     const formData = new FormData();
     for (const file of files) formData.append('files', file);
     formData.append('uid', uid);
-    formData.append('did', did);
-    formData.append('task_type', task_type);
-    formData.append('label_format', label_format);
+    formData.append('id', id);
     const response = await fetch(`${BASE_URL}/datasets/labeled/upload`, {
         method: 'POST',
         body: formData,
@@ -59,29 +75,6 @@ export async function getLabeledDataset({ did, uid }) {
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to get labeled dataset');
-    }
-    return await response.json();
-}
-
-export async function deleteLabeledData({ uid, did, target_id_list }) {
-    const response = await fetch(`${BASE_URL}/datasets/labeled/data`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, did, target_id_list }),
-    });
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to delete labeled data');
-    }
-}
-
-export async function deleteDataset(datasetId, type = 'raw') {
-    const response = await fetch(`${BASE_URL}/datasets/${type}/?id=${encodeURIComponent(datasetId)}`, {
-        method: 'DELETE',
-    });
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to delete dataset');
     }
     return await response.json();
 }
@@ -126,19 +119,6 @@ export async function getDatasetById(datasetId, type = 'raw') {
     return await response.json();
 }
 
-export async function updateDataset(datasetId, updateData, type = 'raw') {
-    const response = await fetch(`${BASE_URL}/datasets/${type}/?id=${encodeURIComponent(datasetId)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData),
-    });
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to update dataset');
-    }
-    return await response.json();
-}
-
 export async function createRawDataset({ uid, name, description, type }) {
     const response = await fetch(`${BASE_URL}/datasets/raw/`, {
         method: 'POST',
@@ -163,18 +143,6 @@ export async function updateRawDataset({ did, name, description, type }) {
         throw new Error(error || 'Failed to update raw dataset');
     }
     return await response.json();
-}
-
-export async function deleteRawDatasets({ uid, target_did_list }) {
-    const response = await fetch(`${BASE_URL}/datasets/raw/`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, target_did_list }),
-    });
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to delete raw datasets');
-    }
 }
 
 export async function uploadRawFiles({ files, uid, did }) {
@@ -202,18 +170,6 @@ export async function getRawDataset({ did, uid }) {
     return await response.json();
 }
 
-export async function deleteRawData({ uid, target_id_list }) {
-    const response = await fetch(`${BASE_URL}/datasets/raw/data`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, target_id_list }),
-    });
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to delete raw data');
-    }
-}
-
 export async function createLabeledDataset({ uid, name, description, type, task_type, label_format }) {
     const response = await fetch(`${BASE_URL}/datasets/labeled/`, {
         method: 'POST',
@@ -227,11 +183,14 @@ export async function createLabeledDataset({ uid, name, description, type, task_
     return await response.json();
 }
 
-export async function updateLabeledDataset({ did, uid, name, description, type, task_type, label_format }) {
-    const response = await fetch(`${BASE_URL}/datasets/labeled/?did=${encodeURIComponent(did)}`, {
+export async function updateLabeledDataset({ id, uid, name, description, type, task_type, label_format }) {
+    if (!id || !uid) {
+        throw new Error('updateLabeledDataset: id와 uid는 필수입니다. (id: ' + id + ', uid: ' + uid + ')');
+    }
+    const response = await fetch(`${BASE_URL}/datasets/labeled/?uid=${encodeURIComponent(uid)}&id=${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, name, description, type, task_type, label_format }),
+        body: JSON.stringify({ name, description, type, task_type, label_format }),
     });
     if (!response.ok) {
         const error = await response.text();

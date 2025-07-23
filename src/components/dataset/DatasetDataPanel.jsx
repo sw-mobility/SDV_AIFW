@@ -7,7 +7,7 @@ import ErrorMessage from '../common/ErrorMessage.jsx';
 import EmptyState from '../common/EmptyState.jsx';
 import Table from '../common/Table.jsx';
 import FileUploadField from '../common/FileUploadField.jsx';
-import { getRawDataset, deleteRawData, uploadRawFiles, getLabeledDataset, deleteLabeledData, uploadLabeledFiles } from '../../api/datasets.js';
+import {getRawDataset, uploadRawFiles, getLabeledDataset, uploadLabeledFiles, deleteData} from '../../api/datasets.js';
 import { Trash2 } from 'lucide-react';
 
 const DatasetDataPanel = ({ open, onClose, dataset }) => {
@@ -30,9 +30,9 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
           ? getLabeledDataset({ did: dataset.did || dataset._id || dataset.id, uid: dataset.uid || '' })
           : getRawDataset({ did: dataset.did || dataset._id || dataset.id, uid: dataset.uid || '' });
         fetchData
-          .then(res => setData(res))
-          .catch(err => setError(err.message))
-          .finally(() => setLoading(false));
+            .then(res => setData(res))
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false));
     }, [open, dataset, refreshKey]);
 
     // 체크박스 핸들러
@@ -48,11 +48,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
     const handleDelete = async () => {
         if (!selected.length) return;
         setShowDeleteConfirm(false);
-        if (isLabeled) {
-            await deleteLabeledData({ uid: dataset.uid || '', did: dataset.did || dataset._id || dataset.id, target_id_list: selected });
-        } else {
-            await deleteRawData({ uid: dataset.uid || '', target_id_list: selected });
-        }
+        await deleteData({ uid: dataset.uid || '', id: dataset._id , target_id_list: selected });
         setSelected([]);
         setRefreshKey(k => k + 1);
     };
@@ -63,9 +59,9 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         setUploadError(null);
         try {
             if (isLabeled) {
-                await uploadLabeledFiles({ files: uploadFiles, uid: dataset.uid || '', did: dataset.did || dataset._id || dataset.id, task_type: dataset.task_type || dataset.taskType, label_format: dataset.label_format || dataset.labelFormat });
+                await uploadLabeledFiles({ files: uploadFiles, uid: dataset.uid || '', id: dataset._id, task_type: dataset.task_type || dataset.taskType, label_format: dataset.label_format || dataset.labelFormat });
             } else {
-                await uploadRawFiles({ files: uploadFiles, uid: dataset.uid || '', did: dataset.did || dataset._id || dataset.id });
+            await uploadRawFiles({ files: uploadFiles, uid: dataset.uid || '', did: dataset.did || dataset._id || dataset.id });
             }
             setUploadFiles([]);
             setRefreshKey(k => k + 1);
@@ -154,17 +150,17 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                         </Button>
                     </div>
                     <div style={{ overflowX: 'auto', width: '100%' }}>
-                        <Table
-                            columns={columns}
-                            data={tableData.map(row => row.cells)}
-                            rowKey="_id"
-                            onRowClick={(_, idx) => {
-                                if (!data.data_list || !data.data_list[idx]) return;
-                                handleSelect(data.data_list[idx]);
-                            }}
-                            selectedId={null}
-                            selectedRowClassName={styles.selectedRow}
-                        />
+                    <Table
+                        columns={columns}
+                        data={tableData.map(row => row.cells)}
+                        rowKey="_id"
+                        onRowClick={(_, idx) => {
+                            if (!data.data_list || !data.data_list[idx]) return;
+                            handleSelect(data.data_list[idx]);
+                        }}
+                        selectedId={null}
+                        selectedRowClassName={styles.selectedRow}
+                    />
                     </div>
                     {(data.data_list && data.data_list.length === 0) && <EmptyState message="No data in this dataset." />}
                     {showDeleteConfirm && (
@@ -186,4 +182,4 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
     );
 };
 
-export default DatasetDataPanel;
+export default DatasetDataPanel; 

@@ -57,7 +57,7 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
           await uploadLabeledFiles({
             files,
             uid: uid,
-            did: '', // TODO: set did if available (생성 직후라면 응답에서 받아야 함)
+            id: initialData._id || '', // 생성 직후라면 빈 문자열
             task_type: taskType,
             label_format: labelFormat
           });

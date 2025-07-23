@@ -3,7 +3,7 @@ import { Upload, Database, Tag, PlusCircle } from 'lucide-react';
 import Card from '../../../components/common/Card.jsx';
 import styles from '../IndexPage.module.css';
 import { Calendar, Download, Trash2 } from 'lucide-react';
-import { fetchRawDatasets, fetchLabeledDatasets, downloadDataset, updateRawDataset, updateLabeledDataset } from '../../../api/datasets.js';
+import { fetchRawDatasets, fetchLabeledDatasets, downloadDataset, updateRawDataset, updateLabeledDataset, deleteDatasets, uploadRawFiles, uploadLabeledFiles } from '../../../api/datasets.js';
 import Loading from '../../../components/common/Loading.jsx';
 import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
 import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
@@ -11,7 +11,6 @@ import DatasetUploadModal from '../../../components/dataset/DatasetUploadModal.j
 import UploadFilesModal from '../../../components/dataset/DatasetUploadFilesModal.jsx';
 import DatasetDataPanel from '../../../components/dataset/DatasetDataPanel.jsx';
 import { Edit2, Upload as UploadIcon } from 'lucide-react';
-import { deleteRawDatasets, deleteLabeledDatasets, uploadRawFiles, uploadLabeledFiles } from '../../../api/datasets.js';
 import Modal from '../../../components/common/Modal.jsx';
 import createModalStyles from '../../../components/common/CreateModal.module.css';
 import { uid } from '../../../api/uid.js';
@@ -126,11 +125,9 @@ const DatasetsTab = () => {
         setEditOpen(true);
     };
     const handleEditSave = async (fields) => {
-        // id 우선순위: did > _id > id
-        const did = editData.did || editData._id || editData.id;
         if (dataType === 'labeled') {
             await updateLabeledDataset({
-                did,
+                id: editData._id, // fields._id -> editData._id로 수정
                 uid: uid,
                 name: fields.name,
                 description: fields.description,
@@ -141,7 +138,7 @@ const DatasetsTab = () => {
             fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
         } else {
             await updateRawDataset({
-                did,
+                id:fields._id,
                 name: fields.name,
                 description: fields.description,
                 type: fields.type
@@ -152,14 +149,19 @@ const DatasetsTab = () => {
         setEditData(null);
     };
 
-    const handleDelete = async (dataset, isRaw) => {
+    const handleDelete = async (dataset) => {
         setDeletingId(dataset.did || dataset.id);
         try {
-            if (isRaw) {
-                await deleteRawDatasets({ uid: uid, target_did_list: [dataset.did || dataset.id] });
+            const id = dataset._id;
+            const path = dataset.file_path || dataset.path;
+            await deleteDatasets({
+                uid: uid,
+                target_id_list: [id],
+                target_path_list: path ? [path] : []
+            });
+            if (dataType === 'raw') {
                 await fetchRawDatasets({ uid }).then(res => setRawDatasets(res.data));
             } else {
-                await deleteLabeledDatasets({ uid: uid, target_did_list: [dataset.did || dataset.id] });
                 await fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
             }
         } finally {
@@ -173,7 +175,7 @@ const DatasetsTab = () => {
     };
     const handleUploadSave = async (files) => {
         if (dataType === 'labeled') {
-            await uploadLabeledFiles({ files, uid: uid, did: uploadTarget.did || uploadTarget.id, task_type: uploadTarget.task_type || uploadTarget.taskType, label_format: uploadTarget.label_format || uploadTarget.labelFormat });
+            await uploadLabeledFiles({ files, uid: uid, id: uploadTarget._id});
         } else {
             await uploadRawFiles({ files, uid: uid, did: uploadTarget.did || uploadTarget.id });
         }
@@ -213,16 +215,16 @@ const DatasetsTab = () => {
                     {dataset.created_at && new Date(dataset.created_at).toLocaleDateString()}
                 </div>
                 <div className={styles.cardActions}>
-                    <button className={styles.actionButton} title="Edit" onClick={() => handleEdit(dataset)}>
+                    <button className={styles.actionButton} title="Edit" onClick={e => { e.stopPropagation(); handleEdit(dataset); }}>
                         <Edit2 size={16} />
                     </button>
-                    <button className={styles.actionButton} title="Upload" onClick={() => handleUpload(dataset)}>
+                    <button className={styles.actionButton} title="Upload" onClick={e => { e.stopPropagation(); handleUpload(dataset); }}>
                         <UploadIcon size={14} />
                     </button>
-                    <button className={styles.actionButton} title="Download" onClick={() => handleDownload(dataset)} disabled={downloadingId === dataset._id}>
+                    <button className={styles.actionButton} title="Download" onClick={e => { e.stopPropagation(); handleDownload(dataset); }} disabled={downloadingId === dataset._id}>
                         {downloadingId === dataset._id ? <span>...</span> : <Download size={14} />}
                     </button>
-                    <button className={styles.actionButton} title="Delete" onClick={() => handleDelete(dataset, !isLabeled)} disabled={deletingId === dataset._id}>
+                    <button className={styles.actionButton} title="Delete" onClick={e => { e.stopPropagation(); handleDelete(dataset); }} disabled={deletingId === dataset._id}>
                         <Trash2 size={14} />
                     </button>
                 </div>

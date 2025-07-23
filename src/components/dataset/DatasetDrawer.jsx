@@ -22,7 +22,8 @@ import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';
 import EmptyState from '../common/EmptyState.jsx';
 import styles from './Dataset.module.css';
-import {downloadDataset, deleteDataset, updateRawDataset, deleteRawDatasets, deleteLabeledDatasets, uploadRawFiles} from '../../api/datasets.js';
+import {downloadDataset, updateLabeledDataset, updateRawDataset, uploadRawFiles, deleteDatasets} from '../../api/datasets.js';
+import { uid } from '../../api/uid.js';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
 import UploadFilesModal from './DatasetUploadFilesModal.jsx';
 import DatasetDataPanel from './DatasetDataPanel.jsx';
@@ -87,7 +88,6 @@ const DatasetDrawer = ({open, onClose}) => {
     const [uploadOpen, setUploadOpen] = React.useState(false);
     const [uploadTarget, setUploadTarget] = React.useState(null);
     const [createOpen, setCreateOpen] = React.useState(false);
-    // edit modal 상태 추가
     const [editOpen, setEditOpen] = React.useState(false);
     const [editTarget, setEditTarget] = React.useState(null);
     // 데이터셋 상세/데이터 패널 상태
@@ -110,13 +110,13 @@ const DatasetDrawer = ({open, onClose}) => {
 
     const handleDelete = async (dataset) => {
         try {
-            if (dataset.datasetType === 'raw') {
-                await deleteRawDatasets({ uid: dataset.uid || '', target_did_list: [dataset.did || dataset._id || dataset.id] });
-            } else if (dataset.datasetType === 'labeled') {
-                await deleteLabeledDatasets({ uid: dataset.uid || '', target_did_list: [dataset.did || dataset._id || dataset.id] });
-            } else {
-                await deleteDataset(dataset.id, dataset.type === 'Image' ? 'raw' : 'labeled');
-            }
+            const id = dataset._id;
+            const path = dataset.file_path || dataset.path;
+            await deleteDatasets({
+                uid: uid,
+                target_id_list: [id],
+                target_path_list: path ? [path] : []
+            });
             reload();
         } catch (error) {
             console.error('Delete failed:', error.message);
@@ -131,7 +131,7 @@ const DatasetDrawer = ({open, onClose}) => {
     // 업로드 저장 핸들러 (실제 API 호출)
     const handleUploadSave = async (files) => {
         if (uploadTarget?.datasetType === 'labeled') {
-            await uploadLabeledFiles({ files, uid: uploadTarget.uid || '', did: uploadTarget.did || uploadTarget.id, task_type: uploadTarget.task_type, label_format: uploadTarget.label_format });
+            await uploadLabeledFiles({ files, uid: uploadTarget.uid || '', id: uploadTarget._id, task_type: uploadTarget.task_type, label_format: uploadTarget.label_format });
         } else {
             await uploadRawFiles({ files, uid: uploadTarget.uid || '', did: uploadTarget.did || uploadTarget.id });
         }
@@ -146,13 +146,11 @@ const DatasetDrawer = ({open, onClose}) => {
         setEditOpen(true);
     };
 
-    // edit 저장 핸들러 (실제 API 호출)
     const handleEditSave = async (fields) => {
-        const did = editTarget.did || editTarget._id || editTarget.id;
         if (editTarget?.datasetType === 'labeled') {
             await updateLabeledDataset({
-                did,
-                uid: editTarget.uid || '',
+                id: editTarget._id,
+                uid: uid,
                 name: fields.name,
                 description: fields.description,
                 type: fields.type,
@@ -161,7 +159,7 @@ const DatasetDrawer = ({open, onClose}) => {
             });
         } else {
             await updateRawDataset({
-                did,
+                id:editTarget._id,
                 name: fields.name,
                 description: fields.description,
                 type: fields.type

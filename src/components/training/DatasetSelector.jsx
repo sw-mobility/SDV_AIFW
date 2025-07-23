@@ -35,7 +35,6 @@ const DatasetSelector = ({
         <div className={styles.datasetInfo}>
           <div><b>Name:</b> {selectedDataset.name}</div>
           <div><b>Type:</b> {selectedDataset.type}</div>
-          <div><b>Size:</b> {selectedDataset.size}</div>
           <div><b>Label Count:</b> {selectedDataset.labelCount}</div>
         </div>
       )}

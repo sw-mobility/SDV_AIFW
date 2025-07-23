@@ -4,7 +4,6 @@ import {
   fetchLabeledDatasets,
   uploadDataset,
   downloadDataset,
-  deleteDataset,
   getDatasetById,
   updateDataset
 } from '../api/datasets.js';
