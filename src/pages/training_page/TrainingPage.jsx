@@ -21,18 +21,17 @@ const TrainingPage = () => {
   const {
     // Training Type & Mode
     trainingType, setTrainingType,
-    mode, setMode,
+    mode,
 
   // Dataset
-    datasets, setDatasets,
+    datasets,
     selectedDataset, setSelectedDataset,
-    datasetLoading, setDatasetLoading,
-    datasetError, setDatasetError,
+    datasetLoading,
+    datasetError,
 
   // Snapshot
-    snapshots, setSnapshots,
+    snapshots,
     selectedSnapshot, setSelectedSnapshot,
-    snapshotModalOpen, setSnapshotModalOpen,
     
     // Algorithm
     algorithm, setAlgorithm,
@@ -49,8 +48,8 @@ const TrainingPage = () => {
     openParamGroup, setOpenParamGroup,
     showCodeEditor, setShowCodeEditor,
     selectedParamKeys, setSelectedParamKeys,
-    editorFileStructure, setEditorFileStructure,
-    editorFiles, setEditorFiles,
+    editorFileStructure,
+    editorFiles
   } = useTrainingState();
 
   // Training 타입 탭 설정
