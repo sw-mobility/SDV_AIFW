@@ -132,11 +132,11 @@ export async function createRawDataset({ uid, name, description, type }) {
     return await response.json();
 }
 
-export async function updateRawDataset({ did, name, description, type }) {
-    const response = await fetch(`${BASE_URL}/datasets/raw/?did=${encodeURIComponent(did)}`, {
+export async function updateRawDataset({ uid, id, name, description, type }) {
+    const response = await fetch(`${BASE_URL}/datasets/raw/?uid=${encodeURIComponent(uid)}&id=${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description, type }),
+        body: JSON.stringify({ name, description, type}),
     });
     if (!response.ok) {
         const error = await response.text();
@@ -145,11 +145,11 @@ export async function updateRawDataset({ did, name, description, type }) {
     return await response.json();
 }
 
-export async function uploadRawFiles({ files, uid, did }) {
+export async function uploadRawFiles({ files, uid, id }) {
     const formData = new FormData();
     for (const file of files) formData.append('files', file);
     formData.append('uid', uid);
-    formData.append('did', did);
+    formData.append('id', id);
     const response = await fetch(`${BASE_URL}/datasets/raw/upload`, {
         method: 'POST',
         body: formData,
@@ -162,7 +162,7 @@ export async function uploadRawFiles({ files, uid, did }) {
 }
 
 export async function getRawDataset({ id, uid }) {
-    const response = await fetch(`${BASE_URL}/datasets/raw/?id=${encodeURIComponent(id)}&uid=${encodeURIComponent(uid)}`);
+    const response = await fetch(`${BASE_URL}/datasets/raw/single/?id=${encodeURIComponent(id)}&uid=${encodeURIComponent(uid)}`);
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to get raw dataset');

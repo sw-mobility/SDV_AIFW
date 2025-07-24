@@ -8,7 +8,6 @@ import Loading from '../../../components/common/Loading.jsx';
 import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
 import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
 import DatasetUploadModal from '../../../components/dataset/DatasetUploadModal.jsx';
-import UploadFilesModal from '../../../components/dataset/DatasetUploadFilesModal.jsx';
 import DatasetDataPanel from '../../../components/dataset/DatasetDataPanel.jsx';
 import { Edit2, Upload as UploadIcon } from 'lucide-react';
 import Modal from '../../../components/common/Modal.jsx';
@@ -127,8 +126,8 @@ const DatasetsTab = () => {
     const handleEditSave = async (fields) => {
         if (dataType === 'labeled') {
             await updateLabeledDataset({
-                id: editData._id, // fields._id -> editData._id로 수정
-                uid: uid,
+                id: editData._id,
+                uid: editData.uid || uid,
                 name: fields.name,
                 description: fields.description,
                 type: fields.type,
@@ -138,7 +137,8 @@ const DatasetsTab = () => {
             fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
         } else {
             await updateRawDataset({
-                id:fields._id,
+                id: editData._id || editData.id,
+                uid: editData.uid || uid,
                 name: fields.name,
                 description: fields.description,
                 type: fields.type
@@ -177,7 +177,7 @@ const DatasetsTab = () => {
         if (dataType === 'labeled') {
             await uploadLabeledFiles({ files, uid: uid, id: uploadTarget._id});
         } else {
-            await uploadRawFiles({ files, uid: uid, did: uploadTarget.did || uploadTarget.id });
+            await uploadRawFiles({ files, uid: uid, id: uploadTarget._id});
         }
         setUploadOpen(false);
         setUploadTarget(null);
@@ -196,7 +196,7 @@ const DatasetsTab = () => {
     );
     // Unified DatasetCard for both raw and labeled
     const DatasetCard = ({ dataset, isLabeled }) => (
-        <Card className={styles.projectCard} onClick={() => handleCardClick({ ...dataset, datasetType: isLabeled ? 'labeled' : 'raw' })}>
+        <Card className={styles.projectCard} onClick={() => handleCardClick({ ...dataset, _id: dataset._id || dataset.id, uid: uid, datasetType: isLabeled ? 'labeled' : 'raw' })}>
             <div className={styles.cardContent}>
                 <div className={styles.cardIcon}>
                     {isLabeled ? <Tag size={18} color="var(--color-text-secondary)" /> : <Database size={18} color="var(--color-text-secondary)" />}
@@ -235,7 +235,7 @@ const DatasetsTab = () => {
     // 정렬 함수: created_at, createdAt, created 중 하나라도 있으면 내림차순
     function sortByCreatedDesc(arr) {
         return [...arr].sort((a, b) => {
-            const getTime = (d) => new Date(d.created_at || d.createdAt || d.created || 0).getTime();
+            const getTime = (d) => new Date(d.created_at || 0).getTime();
             return getTime(b) - getTime(a);
         });
     }

@@ -22,7 +22,14 @@ import Loading from '../common/Loading.jsx';
 import ErrorMessage from '../common/ErrorMessage.jsx';
 import EmptyState from '../common/EmptyState.jsx';
 import styles from './Dataset.module.css';
-import {downloadDataset, updateLabeledDataset, updateRawDataset, uploadRawFiles, deleteDatasets} from '../../api/datasets.js';
+import {
+    downloadDataset,
+    updateLabeledDataset,
+    updateRawDataset,
+    uploadRawFiles,
+    deleteDatasets,
+    uploadLabeledFiles
+} from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
 import UploadFilesModal from './DatasetUploadFilesModal.jsx';
@@ -133,7 +140,7 @@ const DatasetDrawer = ({open, onClose}) => {
         if (uploadTarget?.datasetType === 'labeled') {
             await uploadLabeledFiles({ files, uid: uploadTarget.uid || '', id: uploadTarget._id, task_type: uploadTarget.task_type, label_format: uploadTarget.label_format });
         } else {
-            await uploadRawFiles({ files, uid: uploadTarget.uid || '', did: uploadTarget.did || uploadTarget.id });
+            await uploadRawFiles({ files, uid: uploadTarget.uid || '', id: uploadTarget._id });
         }
         setUploadOpen(false);
         setUploadTarget(null);
@@ -159,6 +166,7 @@ const DatasetDrawer = ({open, onClose}) => {
             });
         } else {
             await updateRawDataset({
+                uid: editTarget.uid,
                 id:editTarget._id,
                 name: fields.name,
                 description: fields.description,

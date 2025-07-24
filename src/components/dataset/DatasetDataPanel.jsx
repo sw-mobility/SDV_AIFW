@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from '../common/Modal.jsx';
 import styles from './Dataset.module.css';
 import Button from '../common/Button.jsx';
@@ -61,7 +61,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
             if (isLabeled) {
                 await uploadLabeledFiles({ files: uploadFiles, uid: dataset.uid || '', id: dataset._id, task_type: dataset.task_type || dataset.taskType, label_format: dataset.label_format || dataset.labelFormat });
             } else {
-            await uploadRawFiles({ files: uploadFiles, uid: dataset.uid || '', did: dataset.did || dataset._id || dataset.id });
+            await uploadRawFiles({ files: uploadFiles, uid: dataset.uid || '', id:dataset._id});
             }
             setUploadFiles([]);
             setRefreshKey(k => k + 1);
