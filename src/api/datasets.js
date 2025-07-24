@@ -198,3 +198,47 @@ export async function updateLabeledDataset({ id, uid, name, description, type, t
     }
     return await response.json();
 }
+
+export async function downloadDatasetById({ uid, target_id }) {
+    const response = await fetch(`${BASE_URL}/datasets/download-dataset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, target_id })
+    });
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to download dataset');
+    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${target_id}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    return true;
+}
+
+export async function downloadDataByPaths({ uid, target_path_list }) {
+    const response = await fetch(`${BASE_URL}/datasets/download-data`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, target_path_list })
+    });
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to download data');
+    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `data.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    return true;
+}

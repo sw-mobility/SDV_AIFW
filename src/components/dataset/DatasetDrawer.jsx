@@ -23,7 +23,7 @@ import ErrorMessage from '../common/ErrorMessage.jsx';
 import EmptyState from '../common/EmptyState.jsx';
 import styles from './Dataset.module.css';
 import {
-    downloadDataset,
+    downloadDatasetById,
     updateLabeledDataset,
     updateRawDataset,
     uploadRawFiles,
@@ -108,7 +108,7 @@ const DatasetDrawer = ({open, onClose}) => {
 
     const handleDownload = async (dataset) => {
         try {
-            await downloadDataset(dataset.id, dataset.type === 'Image' ? 'raw' : 'labeled');
+            await downloadDatasetById({ uid: dataset.uid || uid, target_id: dataset._id || dataset.id });
             console.log('Download started for:', dataset.name);
         } catch (error) {
             console.error('Download failed:', error.message);

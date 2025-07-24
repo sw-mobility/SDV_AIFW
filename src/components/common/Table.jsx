@@ -33,7 +33,7 @@ export default function Table({ columns, data, onRowClick, selectedId, rowKey = 
                 {data.length === 0 ? (
                     <tr>
                         <td colSpan={columns.length} className={styles.td} style={{ color: '#aaa', textAlign: 'center' }}>
-                            No datasets found.
+                            Not found.
                         </td>
                     </tr>
                 ) : (

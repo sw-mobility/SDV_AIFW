@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../training/AlgorithmSelector.module.css';
+import Selector from '../common/Selector.jsx';
 
 const testDatasets = [
   { value: 'test1', label: 'Test Dataset 1' },
@@ -7,20 +7,15 @@ const testDatasets = [
   { value: 'test3', label: 'Test Dataset 3' },
 ];
 
-const TestDatasetSelector = ({ value, onChange }) => (
-  <div className={styles.selectorBox} style={{ marginBottom: 20 }}>
-    <label className={styles.paramLabel} style={{ marginBottom: 4 }}>Test Dataset</label>
-    <select
-      className={styles.select}
-      value={value || ''}
-      onChange={e => onChange(e.target.value)}
-    >
-      <option value='' disabled>Select Test Dataset</option>
-      {testDatasets.map(d => (
-        <option key={d.value} value={d.value}>{d.label}</option>
-      ))}
-    </select>
-  </div>
-);
-
-export default TestDatasetSelector; 
+export default function TestDatasetSelector({ value, onChange, disabled }) {
+  return (
+    <Selector
+      label="Test Dataset"
+      options={testDatasets}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      placeholder="Select Test Dataset"
+    />
+  );
+} 

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../training/AlgorithmSelector.module.css';
+import Selector from '../common/Selector.jsx';
 
 const boards = [
   { value: 'board1', label: 'Board 1' },
@@ -7,20 +7,15 @@ const boards = [
   { value: 'board3', label: 'Board 3' },
 ];
 
-const TargetBoardSelector = ({ value, onChange }) => (
-  <div className={styles.selectorBox} style={{ marginBottom: 20 }}>
-    <label className={styles.paramLabel} style={{ marginBottom: 4 }}>Target Board</label>
-    <select
-      className={styles.select}
-      value={value || ''}
-      onChange={e => onChange(e.target.value)}
-    >
-      <option value='' disabled>Select Board</option>
-      {boards.map(b => (
-        <option key={b.value} value={b.value}>{b.label}</option>
-      ))}
-    </select>
-  </div>
-);
-
-export default TargetBoardSelector; 
+export default function TargetBoardSelector({ value, onChange, disabled }) {
+  return (
+    <Selector
+      label="Target Board"
+      options={boards}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      placeholder="Select Board"
+    />
+  );
+} 

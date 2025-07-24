@@ -7,8 +7,8 @@ import ErrorMessage from '../common/ErrorMessage.jsx';
 import EmptyState from '../common/EmptyState.jsx';
 import Table from '../common/Table.jsx';
 import FileUploadField from '../common/FileUploadField.jsx';
-import {getRawDataset, uploadRawFiles, getLabeledDataset, uploadLabeledFiles, deleteData} from '../../api/datasets.js';
-import { Trash2 } from 'lucide-react';
+import {getRawDataset, uploadRawFiles, getLabeledDataset, uploadLabeledFiles, deleteData, downloadDatasetById, downloadDataByPaths} from '../../api/datasets.js';
+import { Trash2, Download } from 'lucide-react';
 
 const DatasetDataPanel = ({ open, onClose, dataset }) => {
     const [data, setData] = useState(null);
@@ -20,6 +20,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
     const [uploadFiles, setUploadFiles] = useState([]);
     const [refreshKey, setRefreshKey] = useState(0);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
         if (!open || !dataset) return;
@@ -71,6 +72,30 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
             setUploading(false);
         }
     };
+    const handleDownloadDataset = async () => {
+        if (!dataset?._id || !dataset?.uid) return;
+        setDownloading(true);
+        try {
+            await downloadDatasetById({ uid: dataset.uid, target_id: dataset._id });
+        } catch (e) {
+            alert('Download failed: ' + e.message);
+        } finally {
+            setDownloading(false);
+        }
+    };
+    const handleDownloadSelected = async () => {
+        if (!selected.length || !data?.data_list) return;
+        setDownloading(true);
+        try {
+            const selectedPaths = data.data_list.filter(d => selected.includes(d._id) && d.path).map(d => d.path);
+            if (selectedPaths.length === 0) throw new Error('No valid data paths');
+            await downloadDataByPaths({ uid: dataset.uid, target_path_list: selectedPaths });
+        } catch (e) {
+            alert('Download failed: ' + e.message);
+        } finally {
+            setDownloading(false);
+        }
+    };
 
     // Table columns/data 변환
     const columns = [
@@ -113,7 +138,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                             setFiles={setUploadFiles}
                             fileError={uploadError}
                             setFileError={setUploadError}
-                            accept={'.jpg,.jpeg,.png,.gif,.csv,.json,.zip'}
+                            accept={'.jpg,.jpeg,.png,.gif'}
                             multiple={true}
                         />
                         <Button
@@ -132,21 +157,23 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                         }
                         `}</style>
                     </form>
-                    <div style={{ marginBottom: 8, fontWeight: 600, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        Data List
-                        <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            {renderSelectAll()}
-                            <span style={{ fontWeight: 400, fontSize: 14, color: '#444' }}>Select All</span>
-                        </span>
-                    </div>
-                    <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'flex-end' }}>
+                    <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                         <Button
                             size="medium"
                             variant="danger"
-                            disabled={!selected.length}
+                            disabled={!selected.length || downloading}
                             onClick={() => setShowDeleteConfirm(true)}
                         >
                             Delete Selected{selected.length > 0 ? ` (${selected.length})` : ''}
+                        </Button>
+                        <Button
+                            size="medium"
+                            variant="secondary"
+                            disabled={!selected.length || downloading}
+                            onClick={handleDownloadSelected}
+                        >
+                            <Download size={16} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                            {downloading ? 'Downloading...' : 'Download Selected'}
                         </Button>
                     </div>
                     <div style={{ overflowX: 'auto', width: '100%' }}>

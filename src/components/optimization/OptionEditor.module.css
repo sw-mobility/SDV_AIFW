@@ -1,0 +1,74 @@
+.paramCard {
+  width: 100%;
+  max-width: 100%;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-radius: 16px;
+  padding: 32px 36px 28px 36px;
+  box-sizing: border-box;
+  position: relative;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.paramRowHeader {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.optionsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.paramLabel {
+  min-width: 110px;
+  margin-bottom: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+}
+.paramInput {
+  width: 120px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #d1d5db;
+  font-size: 15px;
+  font-weight: 500;
+  background: #fff;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+.paramInput:focus {
+  outline: none;
+  border-color: #4f8cff;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+.paramInput:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+.infoIcon {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 4px;
+}
+.buttonRow {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: auto;
+} 

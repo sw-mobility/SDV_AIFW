@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../training/AlgorithmSelector.module.css';
+import Selector from '../common/Selector.jsx';
 
 const models = [
   { value: 'modelA', label: 'Model A' },
@@ -7,20 +7,15 @@ const models = [
   { value: 'modelC', label: 'Model C' },
 ];
 
-const ModelSelector = ({ value, onChange }) => (
-  <div className={styles.selectorBox} style={{ marginBottom: 20 }}>
-    <label className={styles.paramLabel} style={{ marginBottom: 4 }}>Model</label>
-    <select
-      className={styles.select}
-      value={value || ''}
-      onChange={e => onChange(e.target.value)}
-    >
-      <option value='' disabled>Select Model</option>
-      {models.map(m => (
-        <option key={m.value} value={m.value}>{m.label}</option>
-      ))}
-    </select>
-  </div>
-);
-
-export default ModelSelector; 
+export default function ModelSelector({ value, onChange, disabled }) {
+  return (
+    <Selector
+      label="Model"
+      options={models}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      placeholder="Select Model"
+    />
+  );
+} 

@@ -3,7 +3,7 @@ import { Upload, Database, Tag, PlusCircle } from 'lucide-react';
 import Card from '../../../components/common/Card.jsx';
 import styles from '../IndexPage.module.css';
 import { Calendar, Download, Trash2 } from 'lucide-react';
-import { fetchRawDatasets, fetchLabeledDatasets, downloadDataset, updateRawDataset, updateLabeledDataset, deleteDatasets, uploadRawFiles, uploadLabeledFiles } from '../../../api/datasets.js';
+import { fetchRawDatasets, fetchLabeledDatasets, downloadDatasetById, updateRawDataset, updateLabeledDataset, deleteDatasets, uploadRawFiles, uploadLabeledFiles } from '../../../api/datasets.js';
 import Loading from '../../../components/common/Loading.jsx';
 import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
 import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
@@ -101,9 +101,9 @@ const DatasetsTab = () => {
     };
 
     const handleDownload = async (dataset) => {
-        setDownloadingId(dataset.id);
+        setDownloadingId(dataset._id || dataset.id);
         try {
-            await downloadDataset(dataset.id, dataType);
+            await downloadDatasetById({ uid: dataset.uid || uid, target_id: dataset._id || dataset.id });
         } catch (err) {
             alert('Download failed: ' + err.message);
         } finally {

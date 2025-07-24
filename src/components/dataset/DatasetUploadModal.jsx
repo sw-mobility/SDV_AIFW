@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState,  } from 'react';
 import Modal from '../common/Modal.jsx';
 import styles from './Dataset.module.css';
 import Button from '../common/Button.jsx';
@@ -12,9 +12,6 @@ import FileUploadField from '../common/FileUploadField.jsx';
 const DATASET_TYPES = [
   'Image', 'Text', 'Audio', 'Video', 'Tabular', 'TimeSeries', 'Graph'
 ];
-const ACCEPTED_FORMATS = '.csv,.xlsx,.xls,.json,.zip';
-const MAX_FILE_SIZE_MB = 200; // 200MB 제한
-const ACCEPTED_IMAGE_FORMATS = '.jpg,.jpeg,.png,.gif';
 
 export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw', editMode = false, initialData = {}, onSave, onCreated }) {
   const { reload } = useDatasetContext();
