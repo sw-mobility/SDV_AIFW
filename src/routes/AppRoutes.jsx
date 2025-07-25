@@ -6,7 +6,7 @@ import ProjectHomePage from '../pages/ProjectHomePage';
 import TrainingPage from '../pages/training_page/TrainingPage.jsx';
 import LabelingPage from '../pages/labeling_page/LabelingPage.jsx';
 import OptimizationPage from '../pages/optimization_page/OptimizationPage.jsx';
-import ValidationPage from '../pages/ValidationPage';
+import ValidationPage from '../pages/validation_page/ValidationPage.jsx';
 import DeploymentPage from '../pages/DeploymentPage';
 import ServiceProcessPage from '../pages/ServiceProcessPage';
 import MainLayout from '../components/layout/MainLayout';

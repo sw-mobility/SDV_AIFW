@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ValidationPage.module.css';
-import dsStyles from '../components/training/DatasetSelector.module.css';
-import ModelSelector from '../components/optimization/ModelSelector.jsx';
-import DatasetSelector from '../components/training/DatasetSelector.jsx';
-import ProgressBar from '../components/common/ProgressBar.jsx';
-import Button from '../components/common/Button.jsx';
-import { fetchLabeledDatasets } from '../api/datasets.js';
-import { uid } from '../api/uid.js';
+import dsStyles from '../../components/training/DatasetSelector.module.css';
+import ModelSelector from '../../components/optimization/ModelSelector.jsx';
+import DatasetSelector from '../../components/training/DatasetSelector.jsx';
+import ProgressBar from '../../components/common/ProgressBar.jsx';
+import Button from '../../components/common/Button.jsx';
+import { fetchLabeledDatasets } from '../../api/datasets.js';
+import { uid } from '../../api/uid.js';
 
 const metricOptions = [
   { value: 'accuracy', label: 'Accuracy' },
@@ -137,7 +137,7 @@ const ValidationPage = () => {
             <div style={{ margin: '32px 0 24px 0', display: 'flex', justifyContent: 'flex-end' }}>
               <Button
                 variant="primary"
-                size="large"
+                size="medium"
                 onClick={handleRunValidation}
                 disabled={
                   !selectedModel || !selectedMetric || !selectedDataset || status === 'running'

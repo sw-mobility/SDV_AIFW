@@ -1,5 +1,5 @@
 import React from 'react';
-import Selector from '../common/Selector.jsx';
+import dsStyles from '../training/DatasetSelector.module.css';
 
 const boards = [
   { value: 'board1', label: 'Board 1' },
@@ -9,13 +9,19 @@ const boards = [
 
 export default function TargetBoardSelector({ value, onChange, disabled }) {
   return (
-    <Selector
-      label="Target Board"
-      options={boards}
-      value={value}
-      onChange={onChange}
-      disabled={disabled}
-      placeholder="Select Board"
-    />
+    <div className={dsStyles.selectorBox}>
+      <label className={dsStyles.paramLabel} style={{marginBottom: 4}}>Target Board</label>
+      <select
+        className={dsStyles.select}
+        value={value || ''}
+        onChange={e => onChange(e.target.value)}
+        disabled={disabled}
+      >
+        <option value="">Select board</option>
+        {boards.map(opt => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    </div>
   );
 } 

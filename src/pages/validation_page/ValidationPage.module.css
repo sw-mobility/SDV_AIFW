@@ -168,6 +168,11 @@
   transform: none;
 }
 
+/* 결과 표 스타일 */
+table th, table td {
+  font-weight: 400;
+}
+
 @media (max-width: 1024px) {
   .container {
     padding: 0 20px;
