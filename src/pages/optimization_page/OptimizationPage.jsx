@@ -60,21 +60,17 @@ const OptimizationPage = () => {
           <div className={styles.selectorBlock}>
             <TargetBoardSelector value={targetBoard} onChange={setTargetBoard} disabled={isRunning} />
           </div>
-          <div className={styles.selectorBlock}>
             <DatasetTablePanel
               datasets={rawDatasets}
               selectedId={calibrationDataset?.id}
               onSelect={setCalibrationDataset}
               loading={loadingRaw}
-              title="Calibration Dataset"
             />
-          </div>
-          <div className={styles.selectorBlock}>
+          <div className={styles.selectorBlock} style={{marginTop: '24px'}}>
             <ModelSelector value={model} onChange={setModel} disabled={isRunning} />
           </div>
         </div>
         <div className={styles.rightPanel}>
-          <div className={styles.optionCardContainer}>
             <OptionEditor
               options={options}
               onChange={setOptions}
@@ -111,7 +107,6 @@ const OptimizationPage = () => {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 };
