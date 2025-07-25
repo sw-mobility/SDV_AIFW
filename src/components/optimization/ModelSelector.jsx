@@ -1,5 +1,5 @@
 import React from 'react';
-import Selector from '../common/Selector.jsx';
+import dsStyles from '../training/DatasetSelector.module.css';
 
 const models = [
   { value: 'modelA', label: 'Model A' },
@@ -9,13 +9,19 @@ const models = [
 
 export default function ModelSelector({ value, onChange, disabled }) {
   return (
-    <Selector
-      label="Model"
-      options={models}
-      value={value}
-      onChange={onChange}
-      disabled={disabled}
-      placeholder="Select Model"
-    />
+    <div className={dsStyles.selectorBox}>
+      <label className={dsStyles.paramLabel} style={{marginBottom: 4}}>Model</label>
+      <select
+        className={dsStyles.select}
+        value={value || ''}
+        onChange={e => onChange(e.target.value)}
+        disabled={disabled}
+      >
+        <option value="">Select model</option>
+        {models.map(opt => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    </div>
   );
 } 
