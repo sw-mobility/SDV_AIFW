@@ -1,5 +1,5 @@
 import React from "react";
-import Table from "../components/common/Table.jsx";
+import Table from "../../components/common/Table.jsx";
 import styles from "./ProjectHomePage.module.css";
 import { Box, Typography, Grid, Card, CardContent } from '@mui/material';
 import { Doughnut } from 'react-chartjs-2';

@@ -1,5 +1,3 @@
-import {uid} from "./uid.js";
-
 const BASE_URL = 'http://localhost:5002';
 
 export async function fetchRawDatasets({ uid }) {

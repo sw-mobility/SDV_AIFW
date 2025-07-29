@@ -2,7 +2,7 @@ import React from 'react';
 import {BrowserRouter as Router, Routes, Route, Navigate, Outlet} from 'react-router-dom';
 
 import IndexPage from '../pages/index_page/IndexPage.jsx';
-import ProjectHomePage from '../pages/ProjectHomePage';
+import ProjectHomePage from '../pages/project_home/ProjectHomePage.jsx';
 import TrainingPage from '../pages/training_page/TrainingPage.jsx';
 import LabelingPage from '../pages/labeling_page/LabelingPage.jsx';
 import OptimizationPage from '../pages/optimization_page/OptimizationPage.jsx';

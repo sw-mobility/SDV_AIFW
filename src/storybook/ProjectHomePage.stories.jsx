@@ -1,4 +1,4 @@
-import ProjectHomePage from '../pages/ProjectHomePage.jsx';
+import ProjectHomePage from '../pages/project_home/ProjectHomePage.jsx';
 
 export default {
   title: 'Pages/ProjectHomePage',
