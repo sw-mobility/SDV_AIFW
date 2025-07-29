@@ -7,7 +7,7 @@ import pageStyles from './IndexPage.module.css';
 import ProjectsTab from './index_tab/ProjectsTab.jsx';
 import DatasetsTab from './index_tab/DatasetsTab.jsx';
 
-const IndexPage = ({ mockState }) => {
+const IndexPage = () => {
     const [activeTab, setActiveTab] = useState('projects'); // 'projects' or 'data'
 
     // 탭 설정
@@ -30,10 +30,10 @@ const IndexPage = ({ mockState }) => {
 
                         <div className={pageStyles.tabContent}>
                             <div className={pageStyles.tabPanel} style={{ display: activeTab === 'projects' ? 'block' : 'none' }}>
-                                <ProjectsTab mockState={mockState} />
+                                <ProjectsTab />
                             </div>
                             <div className={pageStyles.tabPanel} style={{ display: activeTab === 'data' ? 'block' : 'none' }}>
-                                <DatasetsTab mockState={mockState} />
+                                <DatasetsTab />
                             </div>
                         </div>
                     </div>

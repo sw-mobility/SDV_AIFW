@@ -91,17 +91,11 @@
 }
 
 /* --- Card Base Styles (Unified) --- */
-/* 모든 카드에 공통적으로 적용될 기본 호버 효과 (원하는 경우) */
+/* 프로젝트와 데이터셋 카드의 추가 스타일링 */
 .projectCard,
 .datasetCard {
     cursor: pointer;
     transition: all var(--transition-normal);
-}
-
-.projectCard:hover,
-.datasetCard:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
 }
 
 /* --- Create Card Specific Styles --- */

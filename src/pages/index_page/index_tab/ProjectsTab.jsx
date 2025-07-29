@@ -4,6 +4,7 @@ import Card, { CardGrid } from '../../../components/common/Card.jsx';
 import styles from '../IndexPage.module.css';
 import { Calendar } from 'lucide-react';
 import { fetchProjects, createProject, deleteProject, updateProject } from '../../../api/projects.js';
+import { uid } from '../../../api/uid.js';
 import StatusChip from '../../../components/common/StatusChip.jsx';
 import Loading from '../../../components/common/Loading.jsx';
 import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
@@ -24,7 +25,7 @@ import CreateModal from '../../../components/common/CreateModal.jsx';
  * - Show More 카드 UI 처리
  */
 
-const ProjectsTab = ({ mockState }) => {
+const ProjectsTab = () => {
     const [showMore, setShowMore] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
@@ -38,15 +39,14 @@ const ProjectsTab = ({ mockState }) => {
     useEffect(() => {
         setLoading(true);
         setError(null);
-        fetchProjects(mockState)
+        fetchProjects({ uid })
             .then(res => setProjects(res.data))
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
-    }, [mockState]);
+    }, []);
 
-    if (loading || mockState?.loading) return <Loading fullHeight={true} />;
-    if (error || mockState?.error) return <ErrorMessage message={error || 'Mock error!'} fullHeight={true} />;
-    if (projects.length === 0 || mockState?.empty) return <EmptyState message="No projects found." fullHeight={true} />;
+    if (loading) return <Loading fullHeight={true} />;
+    if (error) return <ErrorMessage message={error} fullHeight={true} />;
 
     const handleCreateProject = () => {
         setIsModalOpen(true);
@@ -56,16 +56,24 @@ const ProjectsTab = ({ mockState }) => {
         setIsModalOpen(false);
     };
 
-    const handleCreateProjectSubmit = (projectName) => {
-        const newProject = {
-            id: Date.now(),
-            name: projectName,
-            status: 'Active',
-            lastModified: new Date().toISOString().slice(0, 10),
-        };
-        setProjects(prev => [newProject, ...prev]);
+    const handleCreateProjectSubmit = async (projectData) => {
+        try {
+            setLoading(true);
+            setError(null);
+            console.log('Creating project with:', { uid, name: projectData.name, description: projectData.description });
+            
+            const result = await createProject({ uid, name: projectData.name, description: projectData.description });
+            console.log('Project created successfully:', result);
+            
+            setProjects(prev => [result.data, ...prev]);
         setIsModalOpen(false);
-        window.location.href = `/projects/${newProject.id}`;
+            window.location.href = `/projects/${result.data._id || result.data.id}`;
+        } catch (err) {
+            console.error('Project creation error:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleProjectClick = (projectId) => {
@@ -76,7 +84,7 @@ const ProjectsTab = ({ mockState }) => {
     const reloadProjects = () => {
         setLoading(true);
         setError(null);
-        fetchProjects(mockState)
+        fetchProjects({ uid })
             .then(res => setProjects(res.data))
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
@@ -87,7 +95,7 @@ const ProjectsTab = ({ mockState }) => {
         setLoading(true);
         setError(null);
         try {
-            await deleteProject(projectId);
+            await deleteProject({ id: projectId, uid });
             reloadProjects();
         } catch (e) {
             setError(e.message);
@@ -106,11 +114,19 @@ const ProjectsTab = ({ mockState }) => {
         setEditProject(null);
     };
     // 편집 저장
-    const handleEditProjectSubmit = async (newName) => {
+    const handleEditProjectSubmit = async (projectData) => {
         setLoading(true);
         setError(null);
         try {
-            await updateProject(editProject.id, { name: newName });
+            const name = typeof projectData === 'string' ? projectData : projectData.name;
+            const description = typeof projectData === 'string' ? (editProject.description || '') : projectData.description;
+            
+            await updateProject({ 
+                id: editProject._id || editProject.id, 
+                uid, 
+                name: name, 
+                description: description
+            });
             reloadProjects();
             setEditModalOpen(false);
             setEditProject(null);
@@ -136,7 +152,7 @@ const ProjectsTab = ({ mockState }) => {
     );
 
     const ProjectCard = ({ project }) => (
-        <Card onClick={() => handleProjectClick(project.id)} className={styles.projectCard}>
+        <Card onClick={() => handleProjectClick(project._id || project.id)} className={styles.projectCard}>
             <div className={styles.cardContent}>
                 <StatusChip status={project.status} className={styles.statusChip} />
 
@@ -148,9 +164,13 @@ const ProjectsTab = ({ mockState }) => {
                     {project.name}
                 </div>
 
+                <div className={styles.cardDescription}>
+                    {project.description ? project.description : <span style={{ color: '#bbb' }}>No description</span>}
+                </div>
+
                 <div className={styles.cardDate}>
                     <Calendar size={14} />
-                    {project.lastModified}
+                    {project.created_at ? new Date(project.created_at).toLocaleDateString() : project.lastModified}
                 </div>
 
                 <div className={styles.cardActions}>
@@ -165,7 +185,7 @@ const ProjectsTab = ({ mockState }) => {
                     <button 
                         className={styles.actionButton} 
                         title="Delete"
-                        onClick={e => { e.stopPropagation(); handleDeleteProject(project.id); }}
+                        onClick={e => { e.stopPropagation(); handleDeleteProject(project._id || project.id); }}
                     >
                         <Trash2 size={14} />
                     </button>
@@ -177,7 +197,7 @@ const ProjectsTab = ({ mockState }) => {
     const allProjectCards = [
         <CreateProjectCard key="create" />,
         ...projects.map(project => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project._id || project.id} project={project} />
         ))
     ];
     
@@ -185,9 +205,18 @@ const ProjectsTab = ({ mockState }) => {
 
     return (
         <>
+            {projects.length === 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+                    <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
+                        {allProjectCards}
+                    </ShowMoreGrid>
+                    <EmptyState message="No projects found." fullHeight={false} />
+                </div>
+            ) : (
             <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
                 {allProjectCards}
             </ShowMoreGrid>
+            )}
 
             <CreateModal
                 isOpen={isModalOpen}
@@ -198,17 +227,20 @@ const ProjectsTab = ({ mockState }) => {
                 label="Project Name"
                 placeholder="Enter project name"
                 inputName="projectName"
+                showDescription={true}
             />
             <CreateModal
                 isOpen={editModalOpen}
                 onClose={handleEditModalClose}
                 onSubmit={handleEditProjectSubmit}
                 initialValue={editProject?.name || ''}
+                initialDescription={editProject?.description || ''}
                 title="Edit Project"
                 submitLabel="Save Changes"
                 label="Project Name"
                 placeholder="Enter project name"
                 inputName="projectNameEdit"
+                showDescription={true}
             />
         </>
     );

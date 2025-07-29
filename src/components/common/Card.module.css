@@ -15,8 +15,10 @@
 
 .card:hover {
     border-color: var(--color-border-focus);
-    transform: translateY(-2px);
+    transform: translateY(-1px); /* translateY 값을 줄여서 더 부드럽게 */
     box-shadow: var(--shadow-md);
+    z-index: 1; /* hover된 카드가 다른 카드 위에 표시되도록 */
+    position: relative; /* z-index가 작동하려면 position이 필요 */
 }
 
 .card:focus-visible {
@@ -30,6 +32,7 @@
     gap: 1.5rem;
     /* 기본적으로 4개씩 표시되도록 설정 */
     grid-template-columns: repeat(4, 1fr);
+    padding: 4px 0; /* hover 효과를 위한 상하 패딩 추가 */
 }
 
 /* 1400px 이상: 4개씩 */

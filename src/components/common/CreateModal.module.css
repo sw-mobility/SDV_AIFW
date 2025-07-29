@@ -33,6 +33,31 @@
     font-size: var(--font-size-sm);
 }
 
+.textarea {
+    width: 100%;
+    padding: var(--spacing-lg);
+    border: 2px solid var(--color-border-primary);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-normal);
+    box-sizing: border-box;
+    background: var(--color-bg-primary);
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: var(--color-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: white;
+}
+
+.textarea::placeholder {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
 .modalActions {
     display: flex;
     gap: var(--spacing-md);

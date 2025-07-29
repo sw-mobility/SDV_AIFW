@@ -65,6 +65,7 @@ const DatasetsTab = () => {
     const [labeledDatasets, setLabeledDatasets] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [initialLoading, setInitialLoading] = useState(true);
     const [createOpen, setCreateOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
     const [editData, setEditData] = useState(null);
@@ -82,20 +83,26 @@ const DatasetsTab = () => {
     };
 
     useEffect(() => {
-        setLoading(true);
+        setInitialLoading(true);
         setError(null);
-        if (dataType === 'raw') {
-            fetchRawDatasets({ uid })
-                .then(res => setRawDatasets(res.data))
-                .catch(err => setError(err.message))
-                .finally(() => setLoading(false));
-        } else {
+        
+        // raw data와 labeled data를 모두 병렬로 로드
+        Promise.all([
+            fetchRawDatasets({ uid }),
             fetchLabeledDatasets({ uid })
-                .then(res => setLabeledDatasets(res.data))
-                .catch(err => setError(err.message))
-                .finally(() => setLoading(false));
-        }
-    }, [dataType]);
+        ])
+            .then(([rawRes, labeledRes]) => {
+                setRawDatasets(rawRes.data || []);
+                setLabeledDatasets(labeledRes.data || []);
+            })
+            .catch(err => {
+                console.error('DatasetsTab: Error fetching datasets:', err);
+                setError(err.message || 'Failed to fetch datasets');
+            })
+            .finally(() => {
+                setInitialLoading(false);
+            });
+    }, []); // dataType 의존성 제거
 
     const handleToggleShowMore = () => {
         setShowMore(!showMore);
@@ -260,32 +267,8 @@ const DatasetsTab = () => {
     ];
     const visibleDatasetCards = showMore ? allDatasetCards : allDatasetCards.slice(0, cardsPerPage);
 
-    if (loading) return <Loading fullHeight={true} />;
+    if (initialLoading) return <Loading fullHeight={true} />;
     if (error) return <ErrorMessage message={error} fullHeight={true} />;
-    if (currentDatasets.length === 0) {
-        return (
-            <>
-                <DatasetUploadModal isOpen={createOpen} onClose={() => setCreateOpen(false)} datasetType={dataType} onCreated={handleCreated} />
-                <div className={styles.dataTypeToggle} style={{ marginBottom: 24 }}>
-                    <button
-                        className={`${styles.dataTypeButton} ${dataType === 'raw' ? styles.activeDataType : ''}`}
-                        onClick={() => setDataType('raw')}
-                    >
-                        <Database size={16} />
-                        Raw Data
-                    </button>
-                    <button
-                        className={`${styles.dataTypeButton} ${dataType === 'labeled' ? styles.activeDataType : ''}`}
-                        onClick={() => setDataType('labeled')}
-                    >
-                        <Tag size={16} />
-                        Labeled Data
-                    </button>
-                </div>
-                <EmptyState message="No datasets found." fullHeight={true} />
-            </>
-        );
-    }
 
     return (
         <>
@@ -324,9 +307,18 @@ const DatasetsTab = () => {
                     Labeled Data
                 </button>
             </div>
-            <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
-                {allDatasetCards}
-            </ShowMoreGrid>
+            {currentDatasets.length === 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+                    <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
+                        {allDatasetCards}
+                    </ShowMoreGrid>
+                    <EmptyState message="No datasets found." fullHeight={false} />
+                </div>
+            ) : (
+                <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
+                    {allDatasetCards}
+                </ShowMoreGrid>
+            )}
         </>
     );
 };

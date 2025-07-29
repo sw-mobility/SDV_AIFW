@@ -22,16 +22,29 @@ const donutChartData = (label, value, color) => ({
         '#e5e7eb',
       ],
       borderWidth: 0,
-      cutout: '75%',
-      hoverOffset: 4,
+      cutout: '70%',
+      hoverOffset: 8,
     },
   ],
 });
 
 const donutChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
-    tooltip: { enabled: true },
+    tooltip: { 
+      enabled: true,
+      position: 'nearest',
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      titleColor: '#fff',
+      bodyColor: '#fff',
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+      borderWidth: 1,
+      cornerRadius: 8,
+      displayColors: false,
+      padding: 12,
+    },
   },
   animation: {
     animateRotate: true,
@@ -40,6 +53,14 @@ const donutChartOptions = {
   interaction: {
     intersect: false,
     mode: 'nearest',
+  },
+  layout: {
+    padding: {
+      top: 20,
+      bottom: 20,
+      left: 20,
+      right: 20,
+    },
   },
 };
 
@@ -79,7 +100,7 @@ const ProjectHomePage = () => {
       </div>
       <Grid container spacing={3} justifyContent="center">
         {/* Resource Utilization */}
-        <Grid item xs={12} md={10}>
+        <Grid column={{ xs: 12, md: 10 }}>
           <div className={styles.card}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
               <div>
@@ -107,7 +128,7 @@ const ProjectHomePage = () => {
           </div>
         </Grid>
         {/* Pod Status & Alerts */}
-        <Grid item xs={12} md={5}>
+        <Grid column={{ xs: 12, md: 5 }}>
           <div className={styles.card}>
             <div className={styles.cardTitle}>Pod Status Distribution</div>
             <Box sx={{ width: 180, mx: 'auto' }}>
@@ -130,7 +151,7 @@ const ProjectHomePage = () => {
           </div>
         </Grid>
         {/* Dataset & Code Tables */}
-        <Grid item xs={12} md={5}>
+        <Grid column={{ xs: 12, md: 5 }}>
           <div className={styles.card}>
             <div className={styles.cardTitle}>Recent Dataset List</div>
             <Table
