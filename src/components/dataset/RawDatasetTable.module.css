@@ -106,8 +106,12 @@
   font-weight: 500;
 }
 
+/* 이전에 추가한 헤더/td 관련 스타일 제거 */
+/* .thead th { padding-left: 20px; } */
+/* .thead th:first-child, tbody td:first-child { border-left: 4px solid transparent; } */
+
 .selectedRow {
-  background: #b6e0fe !important;
+  background: #f0f7ff !important; /* hover와 동일한 연하늘색 */
   color: #1e293b;
   font-weight: 600;
   border-left: 4px solid #4f8cff;
@@ -118,7 +122,7 @@
 
 /* hover와 selectedRow가 겹칠 때 hover가 selectedRow를 덮지 않도록 */
 tr.selectedRow:hover {
-  background: #b6e0fe !important;
+  background: #f0f7ff !important;
 }
 
 @media (max-width: 768px) {

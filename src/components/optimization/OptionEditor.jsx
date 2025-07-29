@@ -6,67 +6,76 @@ import { Info } from 'lucide-react';
 import Button from '../common/Button.jsx';
 import styles from './OptionEditor.module.css';
 
-const optionDefs = [
-  { key: 'quantization', label: 'Quantization', type: 'checkbox', tooltip: 'Enable quantization to reduce model size and improve inference speed.' },
-  { key: 'batchSize', label: 'Batch Size', type: 'number', min: 1, max: 256, step: 1, default: 32 },
-  { key: 'optLevel', label: 'Optimization Level', type: 'select', options: ['O1', 'O2', 'O3'] },
-];
-
-export default function OptionEditor({ options = {}, onChange, onRun, isRunning }) {
+export default function OptionEditor({
+  options = {},
+  onChange,
+  onRun,
+  isRunning,
+  parameterDefs = [],
+  targetBoard,
+  model
+}) {
   return (
     <div className={styles.paramCard}>
-      <div className={styles.paramRowHeader}>Options</div>
+      <div className={styles.paramRowHeader}>Parameters</div>
+      <div style={{marginBottom: 12, color: '#64748b', fontSize: 14}}>
+        선택된 Target Board: <b>{targetBoard || '-'}</b> / Model: <b>{model || '-'}</b>
+      </div>
       <div className={styles.optionsGrid}>
-        {/* Quantization */}
-        <div className={styles.optionRow}>
-          <label className={styles.paramLabel}>
-            Quantization
-          </label>
-          <Checkbox
-            checked={!!options.quantization}
-            onChange={e => onChange({ ...options, quantization: e.target.checked })}
-            disabled={isRunning}
-            sx={{ '& .MuiSvgIcon-root': { fontSize: 24 }, padding: '4px' }}
-          />
-        </div>
-        {/* Optimization Level */}
-        <div className={styles.optionRow}>
-          <label className={styles.paramLabel}>Optimization Level</label>
-          <select
-            className={styles.paramInput}
-            value={options.optLevel || ''}
-            onChange={e => onChange({ ...options, optLevel: e.target.value })}
-            disabled={isRunning}
-          >
-            <option value='' disabled>Select</option>
-            {optionDefs[2].options.map(o => (
-              <option key={o} value={o}>{o}</option>
-            ))}
-          </select>
-        </div>
-        {/* Batch Size */}
-        <div className={styles.optionRow} style={{ gridColumn: '1 / span 2' }}>
-          <label className={styles.paramLabel}>Batch Size</label>
-          <Slider
-            min={optionDefs[1].min}
-            max={optionDefs[1].max}
-            step={optionDefs[1].step}
-            value={options.batchSize ?? optionDefs[1].default}
-            onChange={(_, v) => onChange({ ...options, batchSize: v })}
-            sx={{ width: 180, color: '#4f8cff' }}
-            disabled={isRunning}
-          />
-          <input
-            type="number"
-            className={styles.paramInput}
-            value={options.batchSize ?? optionDefs[1].default}
-            min={optionDefs[1].min}
-            max={optionDefs[1].max}
-            step={optionDefs[1].step}
-            onChange={e => onChange({ ...options, batchSize: Number(e.target.value) })}
-            disabled={isRunning}
-          />
-        </div>
+        {parameterDefs.length === 0 && (
+          <div style={{gridColumn: '1 / span 2', color: '#b91c1c'}}>이 조합에 맞는 파라미터가 없습니다.</div>
+        )}
+        {parameterDefs.map(def => {
+          if (def.type === 'checkbox') {
+            return (
+              <div className={styles.optionRow} key={def.key}>
+                <label className={styles.paramLabel}>{def.label}</label>
+                <Checkbox
+                  checked={!!options[def.key]}
+                  onChange={e => onChange({ ...options, [def.key]: e.target.checked })}
+                  disabled={isRunning}
+                  sx={{ '& .MuiSvgIcon-root': { fontSize: 24 }, padding: '4px' }}
+                />
+              </div>
+            );
+          }
+          if (def.type === 'select') {
+            return (
+              <div className={styles.optionRow} key={def.key}>
+                <label className={styles.paramLabel}>{def.label}</label>
+                <select
+                  className={styles.paramInput}
+                  value={options[def.key] || ''}
+                  onChange={e => onChange({ ...options, [def.key]: e.target.value })}
+                  disabled={isRunning}
+                >
+                  <option value='' disabled>Select</option>
+                  {def.options.map(o => (
+                    <option key={o} value={o}>{o}</option>
+                  ))}
+                </select>
+              </div>
+            );
+          }
+          if (def.type === 'number') {
+            return (
+              <div className={styles.optionRow} key={def.key}>
+                <label className={styles.paramLabel}>{def.label}</label>
+                <input
+                  type="number"
+                  className={styles.paramInput}
+                  value={options[def.key] ?? def.default ?? ''}
+                  min={def.min}
+                  max={def.max}
+                  step={def.step}
+                  onChange={e => onChange({ ...options, [def.key]: Number(e.target.value) })}
+                  disabled={isRunning}
+                />
+              </div>
+            );
+          }
+          return null;
+        })}
       </div>
       <div className={styles.buttonRow}>
         <Button

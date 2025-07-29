@@ -11,6 +11,7 @@ export default function RawDatasetTable({ columns, data, onRowClick, selectedId,
     return data.filter(row => row.name?.toLowerCase().includes(search.toLowerCase()));
   }, [data, search]);
 
+  // Restore: always render a single Name column with name + createdAt in one cell
   const tableData = filtered.map(row => ({
     id: row.id,
     cell: (

@@ -5,10 +5,16 @@
     --color-text-muted: #9ca3af;
     --color-text-disabled: #6b7280;
 
+    /* Custom Primary Colors for Dashboard */
+    --color-primary-blue: #4f8cff;
+    --color-primary-green: #22c55e;
+    --color-primary-orange: #f59e42;
+
     /* Colors - Blue Theme */
     --color-blue-light: #E5F6FD;
     --color-blue: #0288D1;
     --color-blue-dark: #014361;
+    --color-background-blue: #f8fafc;
 
     /* Colors - Red Theme */
     --color-red: #E63946;

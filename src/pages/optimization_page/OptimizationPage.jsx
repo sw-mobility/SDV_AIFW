@@ -10,12 +10,27 @@ import { fetchLabeledDatasets, fetchRawDatasets } from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';
 import useOptimizationState from '../../hooks/useOptimizationState.js';
 
-const parameterDefs = [
-  { key: 'learning_rate', label: 'Learning Rate', type: 'number', default: 0.001 },
-  { key: 'batch_size', label: 'Batch Size', type: 'number', default: 16 },
-  { key: 'optimizer', label: 'Optimizer', type: 'select', options: ['QAT', 'Adam', 'SGD'] },
-  { key: 'use_int8', label: 'Use INT8', type: 'checkbox' }
-];
+const parameterDefsMap = {
+  'board1:modelA': [
+    { key: 'learning_rate', label: 'Learning Rate', type: 'number', default: 0.001 },
+    { key: 'batch_size', label: 'Batch Size', type: 'number', default: 16 },
+    { key: 'optimizer', label: 'Optimizer', type: 'select', options: ['QAT', 'Adam', 'SGD'] },
+    { key: 'use_int8', label: 'Use INT8', type: 'checkbox' }
+  ],
+  'board2:modelB': [
+    { key: 'momentum', label: 'Momentum', type: 'number', default: 0.9 },
+    { key: 'weight_decay', label: 'Weight Decay', type: 'number', default: 0.0005 }
+  ],
+  'default': [
+    { key: 'learning_rate', label: 'Learning Rate', type: 'number', default: 0.001 },
+    { key: 'batch_size', label: 'Batch Size', type: 'number', default: 16 }
+  ]
+};
+
+const getParameterDefs = (board, model) => {
+  if (parameterDefsMap[`${board}:${model}`]) return parameterDefsMap[`${board}:${model}`];
+  return parameterDefsMap['default'];
+};
 
 const OptimizationPage = () => {
   const {
@@ -24,7 +39,7 @@ const OptimizationPage = () => {
     options, setOptions,
     isRunning, progress, logs, status,
     runOptimization,
-    trials
+    trials, setTestDataset
   } = useOptimizationState();
 
   const [labeledDatasets, setLabeledDatasets] = useState([]);
@@ -32,6 +47,15 @@ const OptimizationPage = () => {
   const [rawDatasets, setRawDatasets] = useState([]);
   const [loadingRaw, setLoadingRaw] = useState(false);
   const [calibrationDataset, setCalibrationDataset] = useState(null);
+
+  // calibrationDataset이 바뀔 때마다 testDataset도 동기화
+  useEffect(() => {
+    if (calibrationDataset && calibrationDataset.id) {
+      setTestDataset(calibrationDataset.id);
+    } else {
+      setTestDataset('');
+    }
+  }, [calibrationDataset, setTestDataset]);
 
   useEffect(() => {
     setLoadingLabeled(true);
@@ -43,9 +67,23 @@ const OptimizationPage = () => {
   useEffect(() => {
     setLoadingRaw(true);
     fetchRawDatasets({ uid }).then(res => {
-      setRawDatasets(res.data || []);
+      const camelDatasets = (res.data || []).map(ds => ({
+        ...ds,
+        id: ds.id || ds._id, // id 필드 보장
+        createdAt: ds.created_at ? new Date(ds.created_at).toISOString().slice(0, 10) : undefined
+      }));
+      setRawDatasets(camelDatasets);
     }).finally(() => setLoadingRaw(false));
   }, []);
+
+  const handleRunOptimization = () => {
+    if (!targetBoard || !model || !calibrationDataset) {
+      // logs 상태를 직접 set
+      setOptions(prev => ({ ...prev })); // 강제 리렌더
+      return;
+    }
+    runOptimization();
+  };
 
   return (
     <div className={styles.container}>
@@ -60,28 +98,29 @@ const OptimizationPage = () => {
           <div className={styles.selectorBlock}>
             <TargetBoardSelector value={targetBoard} onChange={setTargetBoard} disabled={isRunning} />
           </div>
-          <div className={styles.selectorBlock}>
             <DatasetTablePanel
               datasets={rawDatasets}
               selectedId={calibrationDataset?.id}
               onSelect={setCalibrationDataset}
               loading={loadingRaw}
-              title="Calibration Dataset"
             />
-          </div>
-          <div className={styles.selectorBlock}>
+          <div className={styles.selectorBlock} style={{marginTop: '24px'}}>
             <ModelSelector value={model} onChange={setModel} disabled={isRunning} />
           </div>
         </div>
         <div className={styles.rightPanel}>
-          <div className={styles.optionCardContainer}>
+          <div className={styles.card}>
             <OptionEditor
               options={options}
               onChange={setOptions}
-              onRun={runOptimization}
+              onRun={handleRunOptimization}
               isRunning={isRunning}
-              parameterDefs={parameterDefs}
+              parameterDefs={getParameterDefs(targetBoard, model)}
+              targetBoard={targetBoard}
+              model={model}
             />
+          </div>
+          <div className={styles.card}>
             <div className={styles.progressSection}>
               <div className={styles.statusBadge}>
                 {status === 'idle' && <span className={styles.statusIdle}>Ready</span>}
@@ -90,7 +129,7 @@ const OptimizationPage = () => {
                 {status === 'error' && <span className={styles.statusError}>Error</span>}
               </div>
               <div style={{ margin: '16px 0' }}>
-                <ProgressBar value={progress} status={status} />
+                <ProgressBar percentage={progress} status={status} />
               </div>
               {logs && logs.length > 0 && (
                 <div className={styles.logSection}>
@@ -102,12 +141,6 @@ const OptimizationPage = () => {
                   </div>
                 </div>
               )}
-            </div>
-            <div className={styles.trialSection}>
-              <Table
-                columns={['Trial', 'Metric', 'Params']}
-                data={(trials || []).map((t, i) => [i+1, t.metric, t.paramSummary])}
-              />
             </div>
           </div>
         </div>

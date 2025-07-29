@@ -16,6 +16,7 @@ const LabelingPage = () => {
             .then(res => {
                 const camelDatasets = (res.data || []).map(ds => ({
                     ...ds,
+                    id: ds.id || ds._id, // id 필드 보장
                     createdAt: ds.created_at ? new Date(ds.created_at).toISOString().slice(0, 10) : undefined
                 }));
                 setDatasets(camelDatasets);
