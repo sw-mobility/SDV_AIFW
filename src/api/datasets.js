@@ -133,10 +133,10 @@ export async function createRawDataset({ uid, name, description, type }) {
 }
 
 export async function updateRawDataset({ uid, id, name, description, type }) {
-    const response = await fetch(`${BASE_URL}/datasets/raw/?uid=${encodeURIComponent(uid)}&id=${encodeURIComponent(id)}`, {
+    const response = await fetch(`${BASE_URL}/datasets/raw/?id=${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description, type}),
+        body: JSON.stringify({ uid, name, description, type}),
     });
     if (!response.ok) {
         const error = await response.text();
@@ -187,10 +187,10 @@ export async function updateLabeledDataset({ id, uid, name, description, type, t
     if (!id || !uid) {
         throw new Error('updateLabeledDataset: id와 uid는 필수입니다. (id: ' + id + ', uid: ' + uid + ')');
     }
-    const response = await fetch(`${BASE_URL}/datasets/labeled/?uid=${encodeURIComponent(uid)}&id=${encodeURIComponent(id)}`, {
+    const response = await fetch(`${BASE_URL}/datasets/labeled/?id=${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description, type, task_type, label_format }),
+        body: JSON.stringify({ uid, name, description, type, task_type, label_format }),
     });
     if (!response.ok) {
         const error = await response.text();
