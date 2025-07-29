@@ -6,6 +6,7 @@ import { Calendar, Download, Trash2 } from 'lucide-react';
 import { fetchRawDatasets, fetchLabeledDatasets, downloadDatasetById, updateRawDataset, updateLabeledDataset, deleteDatasets, uploadRawFiles, uploadLabeledFiles } from '../../../api/datasets.js';
 import Loading from '../../../components/common/Loading.jsx';
 import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
+import EmptyState from '../../../components/common/EmptyState.jsx';
 import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
 import DatasetUploadModal from '../../../components/dataset/DatasetUploadModal.jsx';
 import DatasetDataPanel from '../../../components/dataset/DatasetDataPanel.jsx';
@@ -259,8 +260,8 @@ const DatasetsTab = () => {
     ];
     const visibleDatasetCards = showMore ? allDatasetCards : allDatasetCards.slice(0, cardsPerPage);
 
-    if (loading) return <Loading />;
-    if (error) return <ErrorMessage message={error} />;
+    if (loading) return <Loading fullHeight={true} />;
+    if (error) return <ErrorMessage message={error} fullHeight={true} />;
     if (currentDatasets.length === 0) {
         return (
             <>
@@ -281,9 +282,7 @@ const DatasetsTab = () => {
                         Labeled Data
                     </button>
                 </div>
-                <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={false} onToggleShowMore={() => {}}>
-                    <CreateDatasetCard key="create-dataset" />
-                </ShowMoreGrid>
+                <EmptyState message="No datasets found." fullHeight={true} />
             </>
         );
     }

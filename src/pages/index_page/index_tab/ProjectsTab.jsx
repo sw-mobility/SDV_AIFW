@@ -44,9 +44,9 @@ const ProjectsTab = ({ mockState }) => {
             .finally(() => setLoading(false));
     }, [mockState]);
 
-    if (loading || mockState?.loading) return <Loading />;
-    if (error || mockState?.error) return <ErrorMessage message={error || 'Mock error!'} />;
-    if (projects.length === 0 || mockState?.empty) return <EmptyState message="No projects found." />;
+    if (loading || mockState?.loading) return <Loading fullHeight={true} />;
+    if (error || mockState?.error) return <ErrorMessage message={error || 'Mock error!'} fullHeight={true} />;
+    if (projects.length === 0 || mockState?.empty) return <EmptyState message="No projects found." fullHeight={true} />;
 
     const handleCreateProject = () => {
         setIsModalOpen(true);

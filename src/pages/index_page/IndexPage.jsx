@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header.jsx';
 import Footer from '../../components/layout/Footer.jsx';
 import TabNavigation from '../../components/common/TabNavigation.jsx';
@@ -28,11 +28,14 @@ const IndexPage = ({ mockState }) => {
                             onTabChange={setActiveTab}
                         />
 
-                        {activeTab === 'projects' ? (
-                            <ProjectsTab mockState={mockState} />
-                        ) : (
-                            <DatasetsTab mockState={mockState} />
-                        )}
+                        <div className={pageStyles.tabContent}>
+                            <div className={pageStyles.tabPanel} style={{ display: activeTab === 'projects' ? 'block' : 'none' }}>
+                                <ProjectsTab mockState={mockState} />
+                            </div>
+                            <div className={pageStyles.tabPanel} style={{ display: activeTab === 'data' ? 'block' : 'none' }}>
+                                <DatasetsTab mockState={mockState} />
+                            </div>
+                        </div>
                     </div>
                 </main>
             </div>

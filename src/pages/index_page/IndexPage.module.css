@@ -5,6 +5,19 @@
     margin: 0 auto;
 }
 
+.tabContent {
+    height: calc(100vh - 200px);
+    min-height: 600px;
+    position: relative;
+    overflow: hidden;
+}
+
+.tabPanel {
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
 .tabNavigation {
     display: flex;
     gap: var(--spacing-md);

@@ -3,13 +3,13 @@ import styles from './FileUploadField.module.css';
 import { Upload } from 'lucide-react';
 
 // 공용 파일 업로드 필드 (UI/UX 강화, CSS 분리)
-export default function FileUploadField({ files, setFiles, fileError, setFileError, accept = '.jpg,.jpeg,.png,.gif', multiple = true, maxFiles = 20, maxSizeMB = 100 }) {
+export default function FileUploadField({ files, setFiles, fileError, setFileError, accept = '*', multiple = true, maxFiles = 20, maxSizeMB = 100 }) {
     const fileInputRef = useRef();
     const [dragActive, setDragActive] = useState(false);
 
     // 파일 확장자 및 용량 체크
     const validateFiles = (selected) => {
-        if (accept) {
+        if (accept && accept !== '*') {
             const allowed = accept.split(',').map(s => s.replace('.', '').toLowerCase());
             const invalid = selected.find(f => !allowed.includes(f.name.split('.').pop().toLowerCase()));
             if (invalid) {
@@ -96,7 +96,7 @@ export default function FileUploadField({ files, setFiles, fileError, setFileErr
                 <span className={styles.iconWrap}><Upload size={22} /></span>
                 <span className={styles.title}>Drag or click multiple files to upload</span>
                 <span className={styles.info}>
-                    ({accept.replace(/\./g, '').replace(/,/g, ', ')}, max {maxFiles}, {maxSizeMB}MB)
+                    (max {maxFiles}, {maxSizeMB}MB)
                 </span>
             </div>
             {files && files.length > 0 ? (
@@ -117,7 +117,7 @@ export default function FileUploadField({ files, setFiles, fileError, setFileErr
             )}
             <input
                 type="file"
-                accept={accept}
+                accept={accept === '*' ? undefined : accept}
                 style={{ display: 'none' }}
                 ref={fileInputRef}
                 onChange={handleFileChange}
