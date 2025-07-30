@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {Plus, FolderOpen, ChevronDown, Trash2, Pencil} from 'lucide-react';
-import Card, { CardGrid } from '../../../components/common/Card.jsx';
+import Card, { CardGrid } from '../../../shared/common/Card.jsx';
 import styles from '../IndexPage.module.css';
 import { Calendar } from 'lucide-react';
 import { fetchProjects, createProject, deleteProject, updateProject } from '../../../api/projects.js';
 import { uid } from '../../../api/uid.js';
-import StatusChip from '../../../components/common/StatusChip.jsx';
-import Loading from '../../../components/common/Loading.jsx';
-import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
-import EmptyState from '../../../components/common/EmptyState.jsx';
-import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
-import CreateModal from '../../../components/common/CreateModal.jsx';
+import StatusChip from '../../../shared/common/StatusChip.jsx';
+import Loading from '../../../shared/common/Loading.jsx';
+import ErrorMessage from '../../../shared/common/ErrorMessage.jsx';
+import EmptyState from '../../../shared/common/EmptyState.jsx';
+import ShowMoreGrid from '../../../shared/common/ShowMoreGrid.jsx';
+import CreateModal from '../../../shared/common/CreateModal.jsx';
 /**
  * ProjectsTab 컴포넌트
  *
@@ -67,7 +67,7 @@ const ProjectsTab = () => {
             
             setProjects(prev => [result.data, ...prev]);
         setIsModalOpen(false);
-            window.location.href = `/projects/${result.data._id || result.data.id}`;
+            window.location.href = `/projects/${encodeURIComponent(result.data.name)}`;
         } catch (err) {
             console.error('Project creation error:', err);
             setError(err.message);
@@ -76,8 +76,8 @@ const ProjectsTab = () => {
         }
     };
 
-    const handleProjectClick = (projectId) => {
-        window.location.href = `/projects/${projectId}`;
+    const handleProjectClick = (project) => {
+        window.location.href = `/projects/${encodeURIComponent(project.name)}`;
     };
 
     // 프로젝트 목록 새로고침
@@ -152,7 +152,7 @@ const ProjectsTab = () => {
     );
 
     const ProjectCard = ({ project }) => (
-        <Card onClick={() => handleProjectClick(project._id || project.id)} className={styles.projectCard}>
+        <Card onClick={() => handleProjectClick(project)} className={styles.projectCard}>
             <div className={styles.cardContent}>
                 <StatusChip status={project.status} className={styles.statusChip} />
 

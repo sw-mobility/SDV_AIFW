@@ -84,6 +84,8 @@ function CodeEditor({
     onSaveSnapshot,
     snapshotName = 'Default Snapshot',
     onCloseDrawer,
+    compact = false,
+    hideSaveButtons = false,
 }) {
     // 내부 상태: 열려 있는 파일
     const [fileStructure, setFileStructure] = useState(propFileStructure || [
@@ -202,7 +204,8 @@ function CodeEditor({
     const currentFile = files[activeFile] || { code: '', language: 'python' };
 
     return (
-        <div className={styles['code-editor-container']}>
+        <div className={`${styles['code-editor-container']} ${compact ? styles.compact : ''}`}>
+            {!compact && (
             <div className={styles.sidebar}>
                 <div className={styles['file-explorer']}>
                     <div style={{ marginBottom: 10 }}>
@@ -271,8 +274,10 @@ function CodeEditor({
                     </div>
                 </div>
             </div>
+            )}
 
             <div className={styles['editor-main']}>
+                {!compact && (
                 <div className={styles['editor-toolbar']}>
                     <div className={styles['toolbar-left']}>
                         <select value={currentFile.language} onChange={handleLanguageChange} className={styles['language-select']}>
@@ -283,6 +288,7 @@ function CodeEditor({
                         </select>
                     </div>
                 </div>
+                )}
                 <Editor
                     height="100%"
                     language={currentFile.language}
@@ -290,8 +296,8 @@ function CodeEditor({
                     onChange={handleEditorChange}
                     theme="vs-light"
                     options={{
-                        minimap: { enabled: true },
-                        fontSize: 14,
+                        minimap: { enabled: !compact },
+                        fontSize: compact ? 14 : 14,
                         wordWrap: 'on',
                         automaticLayout: true,
                         scrollBeyondLastLine: false,

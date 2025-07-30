@@ -1,15 +1,15 @@
 import React from 'react';
 import {BrowserRouter as Router, Routes, Route, Navigate, Outlet} from 'react-router-dom';
 
-import IndexPage from '../pages/index_page/IndexPage.jsx';
-import ProjectHomePage from '../pages/project_home/ProjectHomePage.jsx';
-import TrainingPage from '../pages/training_page/TrainingPage.jsx';
-import LabelingPage from '../pages/labeling_page/LabelingPage.jsx';
-import OptimizationPage from '../pages/optimization_page/OptimizationPage.jsx';
-import ValidationPage from '../pages/validation_page/ValidationPage.jsx';
-import DeploymentPage from '../pages/DeploymentPage';
-import ServiceProcessPage from '../pages/ServiceProcessPage';
-import MainLayout from '../components/layout/MainLayout';
+import IndexPage from '../../pages/index_page/IndexPage.jsx';
+import ProjectHomePage from '../../pages/project_home/ProjectHomePage.jsx';
+import TrainingPage from '../../pages/training_page/TrainingPage.jsx';
+import LabelingPage from '../../pages/labeling_page/LabelingPage.jsx';
+import OptimizationPage from '../../pages/optimization_page/OptimizationPage.jsx';
+import ValidationPage from '../../pages/validation_page/ValidationPage.jsx';
+import DeploymentPage from '../../pages/DeploymentPage.jsx';
+import ServiceProcessPage from '../../pages/ServiceProcessPage.jsx';
+import MainLayout from '../../shared/layout/MainLayout.jsx';
 
 const IdePage = () => (<div style={{
         padding: 40,
@@ -34,7 +34,7 @@ const LabelingDetailPage = () => (<div style={{
 const AppRoutes = () => (<Router>
         <Routes>
             <Route path="/" element={<IndexPage/>}/>
-            <Route path="/projects/:projectId" element={<MainLayout/>}>
+            <Route path="/projects/:projectName" element={<MainLayout/>}>
                 <Route index element={<ProjectHomePage/>}/>
                 <Route path="training" element={<TrainingPage/>}/>
                 <Route path="training/ide" element={<IdePage/>}/>

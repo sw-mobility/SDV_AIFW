@@ -1,0 +1,343 @@
+/* Parameter Section Layout */
+.paramSectionWrap {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  align-items: start;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 이단구조일 때는 container 스타일 적용 */
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  box-sizing: border-box;
+  min-height: 0;
+  flex: 1;
+}
+
+.paramSectionWrap.expertMode {
+  grid-template-columns: 320px 280px 1fr;
+  /* Expert Mode일 때만 전체 너비 사용 */
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 60px;
+  align-items: stretch; /* Expert Mode에서 높이를 동일하게 맞춤 */
+}
+
+.paramSummaryBox {
+  width: 100%;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+  padding: 28px 28px;
+  margin-bottom: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.paramSummaryBox:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.rightSection {
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  transform: translateX(30px) scale(0.98);
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+.paramSectionWrap.expertMode .rightSection {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  pointer-events: auto;
+  filter: blur(0);
+  height: 100%; /* Expert Mode에서 높이를 100%로 설정 */
+}
+
+.codeEditorCard {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+  overflow: hidden;
+  height: 600px; /* 기본 높이 */
+  animation: slideInScale 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.paramSectionWrap.expertMode .codeEditorCard {
+  height: 100%; /* Expert Mode에서 높이를 100%로 설정 */
+  min-height: 600px; /* 최소 높이 보장 */
+}
+
+@keyframes slideInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.95) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.codeEditorCard :global(.code-editor-container) {
+  height: 100%;
+}
+
+.codeEditorCard :global(.editor-main) {
+  height: 100%;
+}
+
+.editorButtonRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  justify-content: flex-end;
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.saveButton, .overwriteButton {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.saveButton:hover, .overwriteButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.saveButton:active, .overwriteButton:active {
+  transform: translateY(0);
+  transition: transform 0.1s ease;
+}
+
+.saveButton {
+  background: var(--color-primary-blue);
+  color: #fff;
+}
+
+.saveButton:hover {
+  background: var(--color-blue-dark);
+}
+
+.overwriteButton {
+  background: var(--color-primary-green);
+  color: #fff;
+}
+
+.overwriteButton:hover {
+  background: var(--color-success);
+}
+
+.paramCardWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.paramSectionWrap.expertMode .paramCardWrap {
+  height: 100%; /* Expert Mode에서 높이를 100%로 설정 */
+  min-height: 600px; /* 최소 높이 보장 */
+}
+
+.paramCard {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1.5px solid #d1d5db;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+  flex-shrink: 0;
+}
+
+.paramCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.paramCardEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  box-shadow: none !important;
+  height: 100%;
+  min-height: 100%;
+  transition: none; /* transition 제거 */
+}
+
+/* 일반 모드에서도 파라미터 필드와 높이 맞춤 */
+.paramCardEmpty {
+  height: 100%;
+  min-height: 400px; /* paramSummaryBox와 동일한 높이 */
+}
+
+/* Expert Mode에서 파라미터 필드와 높이 맞춤 */
+.paramSectionWrap.expertMode .paramCardEmpty {
+  height: 100%;
+  min-height: 600px; /* paramSummaryBox와 동일한 최소 높이 */
+}
+
+/* 빈 필드 hover 효과 완전 제거 */
+.paramCardEmpty:hover {
+  /* 모든 hover 효과 제거 */
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: none;
+}
+
+.emptyMessage {
+  color: #aaa;
+  font-size: 15px;
+  transition: none; /* transition 제거 */
+}
+
+/* 빈 필드 메시지 hover 효과 완전 제거 */
+.paramCardEmpty:hover .emptyMessage {
+  /* 모든 hover 효과 제거 */
+  color: #aaa;
+}
+
+.expertModeSection {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.expertModeSection:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-15px);
+    max-height: 0;
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+}
+
+.paramLabel {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  transition: color 0.2s ease;
+}
+
+.select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  background: #f8fafc;
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: var(--spacing-base);
+  transform: translateZ(0);
+}
+
+.select:hover {
+  background: #ffffff;
+  border-color: #94a3b8;
+}
+
+.select:focus {
+  border-color: #4f8cff;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .paramSectionWrap {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 0 20px;
+  }
+
+  .paramSectionWrap.expertMode {
+    grid-template-columns: 1fr;
+    padding: 0 40px;
+  }
+
+  .paramSummaryBox {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .rightSection {
+    min-height: 400px;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    filter: blur(0);
+  }
+
+  .codeEditorCard {
+    height: 400px;
+  }
+}
+
+@media (max-width: 900px) {
+  .paramSectionWrap {
+    padding: 0 20px;
+  }
+
+  .paramSectionWrap.expertMode {
+    padding: 0 20px;
+  }
+} 

@@ -1,5 +1,5 @@
-import React from "react";
-import Table from "../../components/common/Table.jsx";
+import React, { useState, useEffect } from "react";
+import Table from "../../shared/common/Table.jsx";
 import styles from "./ProjectHomePage.module.css";
 import { Box, Typography, Grid, Card, CardContent } from '@mui/material';
 import { Doughnut } from 'react-chartjs-2';
@@ -9,6 +9,8 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import { useParams } from 'react-router-dom';
+import { uid } from '../../api/uid.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -88,13 +90,43 @@ const recentAlerts = [
 ];
 
 const ProjectHomePage = () => {
+  const { projectName } = useParams();
+  const [projectData, setProjectData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:5002/projects/projects/?uid=${encodeURIComponent(uid)}`);
+        if (response.ok) {
+          const data = await response.json();
+          const project = data.find(p => p.name === projectName);
+          if (project) {
+            setProjectData(project);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch project data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (projectName) {
+      fetchProjectData();
+    }
+  }, [projectName]);
+
   return (
     <Box sx={{ maxWidth: 1200, margin: '0 auto', padding: { xs: '0 0', md: '0 0' }, background: 'var(--color-bg-primary)', boxSizing: 'border-box', mt: '-24px' }}>
       {/* Hero Section */}
       <div className={styles.hero}>
         <div className={styles.heroBlur} />
         <div className={styles.heroContent}>
-          <div className={styles.heroTitle}>Project Name</div>
+          <div className={styles.heroTitle}>
+            {loading ? 'Loading...' : (projectData?.name || 'Project Not Found')}
+          </div>
           <div className={styles.heroDesc}>Dashboard</div>
         </div>
       </div>

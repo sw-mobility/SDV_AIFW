@@ -1,13 +1,10 @@
 import React from 'react';
-import { HelpCircle, Plus, Minus } from 'lucide-react';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
+import { HelpCircle } from 'lucide-react';
 import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
 import Switch from '@mui/material/Switch';
 import styles from './ParameterEditor.module.css';
-import { validateParam, normalizeParamValue, getDecimalPlaces } from '../../services/trainingService.js';
+import { validateParam, normalizeParamValue, getDecimalPlaces } from '../../domain/training/parameterGroups.js';
 
 const ParameterEditor = ({ 
   currentParam, 
@@ -17,16 +14,25 @@ const ParameterEditor = ({
   isTraining = false 
 }) => {
   if (!currentParam) {
-    return (
-      <div className={styles.paramCard + ' ' + styles.paramCardEmpty}>
-        <span style={{ color: '#aaa', fontSize: 15 }}>왼쪽에서 파라미터를 선택하세요.</span>
-      </div>
-    );
+    return null; // 빈 상태는 ParameterSection에서 처리
   }
 
   const handleParamChange = (key, value, param) => {
     const newValue = normalizeParamValue(value, param);
     onParamChange(key, newValue, param);
+  };
+
+  // 슬라이더용 step 값 계산
+  const getSliderStep = (param) => {
+    if (param.step) return param.step;
+    
+    // step이 정의되지 않은 경우 범위에 따라 적절한 값 설정
+    const range = param.max - param.min;
+    if (range <= 1) return 0.01;
+    if (range <= 10) return 0.1;
+    if (range <= 100) return 1;
+    if (range <= 1000) return 10;
+    return Math.ceil(range / 100);
   };
 
   const inputSizeStyle = { 
@@ -58,17 +64,30 @@ const ParameterEditor = ({
           <Slider
             min={currentParam.min}
             max={currentParam.max}
-            step={currentParam.step}
+            step={getSliderStep(currentParam)}
             value={algoParams[currentParam.key] ?? currentParam.default}
             onChange={(_, v) => handleParamChange(currentParam.key, v, currentParam)}
-            sx={{ width: 180, color: '#4f8cff' }}
+            sx={{ 
+              width: 180, 
+              color: '#4f8cff',
+              '& .MuiSlider-thumb': {
+                width: 16,
+                height: 16,
+              },
+              '& .MuiSlider-track': {
+                height: 4,
+              },
+              '& .MuiSlider-rail': {
+                height: 4,
+              }
+            }}
           />
           <input
             type="number"
             value={algoParams[currentParam.key] ?? currentParam.default}
             min={currentParam.min}
             max={currentParam.max}
-            step={currentParam.step}
+            step={currentParam.step || getSliderStep(currentParam)}
             onChange={e => handleParamChange(currentParam.key, Number(e.target.value), currentParam)}
             className={styles.paramInput}
             style={{ width: 80, marginLeft: 8 }}

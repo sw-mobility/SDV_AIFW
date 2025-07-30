@@ -1,4 +1,4 @@
-import CodeEditor from '../components/common/CodeEditor.jsx';
+import CodeEditor from '../shared/common/CodeEditor.jsx';
 
 export default {
   title: 'UI/CodeEditor',

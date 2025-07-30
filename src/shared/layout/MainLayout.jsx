@@ -1,7 +1,7 @@
 import React from 'react';
-import Header from './Header';
-import Sidebar from './Sidebar';
-import Footer from './Footer';
+import Header from './Header.jsx';
+import Sidebar from './Sidebar.jsx';
+import Footer from './Footer.jsx';
 import styles from './Layout.module.css';
 import { Outlet } from 'react-router-dom';
 

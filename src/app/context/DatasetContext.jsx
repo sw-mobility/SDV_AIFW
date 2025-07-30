@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchRawDatasets, fetchLabeledDatasets } from '../api/datasets';
-import { uid } from '../api/uid';
+import { fetchRawDatasets, fetchLabeledDatasets } from '../../api/datasets.js';
+import { uid } from '../../api/uid.js';
 
 const DatasetContext = createContext();
 

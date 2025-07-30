@@ -1,14 +1,10 @@
 .sectionCard {
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
   padding: 28px 28px;
   margin-bottom: 24px;
-  transition: all 0.2s ease;
-}
-
-.sectionCard:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
 }
 
 .runCard {
@@ -36,7 +32,7 @@
 
 .logBox {
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  border: 1.5px solid #d1d5db;
   border-radius: 12px;
   min-height: 80px;
   max-height: 180px;

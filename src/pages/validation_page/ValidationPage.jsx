@@ -3,8 +3,8 @@ import styles from './ValidationPage.module.css';
 import dsStyles from '../../components/training/DatasetSelector.module.css';
 import ModelSelector from '../../components/optimization/ModelSelector.jsx';
 import DatasetSelector from '../../components/training/DatasetSelector.jsx';
-import ProgressBar from '../../components/common/ProgressBar.jsx';
-import Button from '../../components/common/Button.jsx';
+import ProgressBar from '../../shared/common/ProgressBar.jsx';
+import Button from '../../shared/common/Button.jsx';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';
 

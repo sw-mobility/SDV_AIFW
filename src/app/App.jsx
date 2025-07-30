@@ -1,6 +1,6 @@
 import './App.css'
 import AppRoutes from './routes/AppRoutes.jsx';
-import { DatasetProvider } from './context/DatasetContext';
+import { DatasetProvider } from './context/DatasetContext.jsx';
 
 function App() {
     return (

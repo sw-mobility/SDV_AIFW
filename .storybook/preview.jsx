@@ -1,4 +1,4 @@
-import { DatasetProvider } from '../src/context/DatasetContext';
+import { DatasetProvider } from '../src/app/context/DatasetContext';
 import '../src/index.css';
 
 /** @type { import('@storybook/react-vite').Preview } */

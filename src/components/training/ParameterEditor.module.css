@@ -4,14 +4,30 @@
   padding: 20px 24px;
   margin-bottom: 0;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  border: 1px solid #e2e8f0;
+  border: 1.5px solid #d1d5db;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.paramCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 .paramCardActive {
   border: 2px solid #3b82f6;
   box-shadow: 0 4px 16px rgba(59, 130, 246, 0.08);
   background: #fafdff;
-  animation: fadeIn 0.3s ease;
+  animation: simpleFadeIn 0.3s ease-out;
+}
+
+@keyframes simpleFadeIn {
+  0% { 
+    opacity: 0; 
+  }
+  100% { 
+    opacity: 1; 
+  }
 }
 
 .paramCardEmpty {
@@ -22,11 +38,15 @@
   background: #f8fafc;
   border: 2px dashed #cbd5e1;
   border-radius: 12px;
+  transition: none; /* transition 제거 */
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
+/* 빈 필드 hover 효과 완전 제거 */
+.paramCardEmpty:hover {
+  /* 모든 hover 효과 제거 */
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: none;
 }
 
 .paramRowHeader {
@@ -34,6 +54,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 16px;
+  transition: all 0.2s ease;
 }
 
 .paramLabel {
@@ -41,6 +62,11 @@
   color: #374151;
   font-weight: 600;
   line-height: 1.4;
+  transition: color 0.2s ease;
+}
+
+.paramCard:hover .paramLabel {
+  color: #1f2937;
 }
 
 .paramInput {
@@ -50,19 +76,23 @@
   border-radius: 8px;
   font-size: 14px;
   background: #ffffff;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-sizing: border-box;
   font-weight: 500;
+  transform: translateZ(0);
+}
+
+.paramInput:hover {
+  border-color: #94a3b8;
+  background: #fafafa;
 }
 
 .paramInput:focus {
-  border-color: #3689ff;
+  border-color: #4f8cff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.paramInput:hover:not(:disabled):not(.error) {
-  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+  transform: translateY(-1px);
+  background: #ffffff;
 }
 
 .paramInput:disabled {
@@ -70,6 +100,26 @@
   color: #9ca3af;
   cursor: not-allowed;
   border-color: #e5e7eb;
+  transform: none;
+}
+
+.paramInput.error {
+  border-color: #ef4444;
+  background: #fef2f2;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  animation: errorShake 0.5s cubic-bezier(0.36, 0, 0.66, -0.56);
+}
+
+@keyframes errorShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
 }
 
 .paramDesc {
@@ -77,6 +127,11 @@
   font-size: 13px;
   font-weight: 400;
   margin-top: 8px;
+  transition: color 0.2s ease;
+}
+
+.paramCard:hover .paramDesc {
+  color: #4b5563;
 }
 
 .switchContainer {
@@ -84,4 +139,69 @@
   align-items: center;
   gap: 12px;
   margin: 8px 0;
+  transition: all 0.2s ease;
+}
+
+.switchContainer:hover {
+  transform: translateX(2px);
+}
+
+/* Switch 스타일 개선 */
+.switchContainer :global(.MuiSwitch-root) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switchContainer :global(.MuiSwitch-root:hover) {
+  transform: scale(1.05);
+}
+
+.switchContainer :global(.MuiSwitch-track) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switchContainer :global(.MuiSwitch-thumb) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 에러 메시지 애니메이션 */
+.paramError {
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  line-height: 1.3;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  animation: errorSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes errorSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.paramError::before {
+  content: "⚠";
+  font-size: 12px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  animation: errorIconPulse 1s ease-in-out infinite;
+}
+
+@keyframes errorIconPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
 } 

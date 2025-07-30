@@ -1,17 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchLabeledDatasets } from '../api/datasets.js';
-import {uid} from "../api/uid.js";
+import { uid } from '../api/uid.js';
+import { TRAINING_TYPES } from '../domain/training/trainingTypes.js';
+import { getParameterGroupsByAlgorithm } from '../domain/training/parameterGroups.js';
+import { validateTrainingExecution, validateParameter } from '../domain/training/trainingValidation.js';
 
-// 스냅샷 관련 상수
-export const defaultSnapshot = { id: 'default', name: 'Default Snapshot', description: 'System default snapshot' };
-export const mockSnapshots = [
-  defaultSnapshot,
+// Mock data for snapshots
+const mockSnapshots = [
+  { id: 'default', name: 'Default Snapshot', description: 'System default snapshot' },
   { id: 'snap1', name: 'MyTrainerSnapshot1', description: 'Default trainer snapshot' },
   { id: 'snap2', name: 'MyTrainerSnapshot2', description: 'Experimental snapshot' },
 ];
 
-// 스냅샷별 파일 구조/내용 (mock)
-export const snapshotFiles = {
+// Mock snapshot files
+const snapshotFiles = {
   default: {
     fileStructure: [
       {
@@ -75,52 +77,113 @@ export const snapshotFiles = {
 };
 
 export const useTrainingState = () => {
-  // Tabs & Mode
-  const [trainingType, setTrainingType] = useState('standard');
-  const [mode, setMode] = useState('no-code');
+  // Core training state
+  const [trainingType, setTrainingType] = useState(TRAINING_TYPES.STANDARD);
+  const [algorithm, setAlgorithm] = useState('YOLO');
+  const [algoParams, setAlgoParams] = useState({});
+  const [paramErrors, setParamErrors] = useState({});
 
-  // Dataset
+  // Dataset state
   const [datasets, setDatasets] = useState([]);
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [datasetLoading, setDatasetLoading] = useState(false);
   const [datasetError, setDatasetError] = useState(null);
 
-  // Snapshot
+  // Snapshot state
   const [snapshots, setSnapshots] = useState(mockSnapshots);
   const [selectedSnapshot, setSelectedSnapshot] = useState(null);
-  const [snapshotModalOpen, setSnapshotModalOpen] = useState(false);
+  const [editorFileStructure, setEditorFileStructure] = useState(snapshotFiles.default.fileStructure);
+  const [editorFiles, setEditorFiles] = useState(snapshotFiles.default.files);
 
-  // Algorithm
-  const [algorithm, setAlgorithm] = useState('YOLO');
-  const [algoParams, setAlgoParams] = useState({});
-  const [paramErrors, setParamErrors] = useState({});
-
-  // Training
+  // Training execution state
   const [isTraining, setIsTraining] = useState(false);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('Idle');
   const [logs, setLogs] = useState([]);
 
-  // UI State
+  // UI state
   const [openParamGroup, setOpenParamGroup] = useState(0);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
-  // 여러 파라미터를 선택할 수 있도록 배열로 관리
   const [selectedParamKeys, setSelectedParamKeys] = useState([]);
-  const [editorFileStructure, setEditorFileStructure] = useState(snapshotFiles['default'].fileStructure);
-  const [editorFiles, setEditorFiles] = useState(snapshotFiles['default'].files);
 
-  // Fetch labeled datasets on mount
+  // Computed values
+  const paramGroups = useMemo(() => 
+    getParameterGroupsByAlgorithm(algorithm), 
+    [algorithm]
+  );
+
+  const trainingConfig = useMemo(() => ({
+    trainingType,
+    selectedDataset,
+    selectedSnapshot,
+    algorithm,
+    algoParams
+  }), [trainingType, selectedDataset, selectedSnapshot, algorithm, algoParams]);
+
+  // Event handlers
+  const handleAlgorithmChange = useCallback((newAlgorithm) => {
+    setAlgorithm(newAlgorithm);
+    setAlgoParams({});
+    setOpenParamGroup(0);
+    setSelectedParamKeys([]);
+  }, []);
+
+  const handleAlgoParamChange = useCallback((key, value, param) => {
+    setAlgoParams(prev => ({ ...prev, [key]: value }));
+    const { error } = validateParameter(param, value);
+    setParamErrors(prev => ({ ...prev, [key]: error }));
+  }, []);
+
+  const handleToggleParamKey = useCallback((key) => {
+    setSelectedParamKeys(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  }, []);
+
+  const handleRemoveParamKey = useCallback((key) => {
+    setSelectedParamKeys(prev => prev.filter(k => k !== key));
+  }, []);
+
+  const handleRunTraining = useCallback(async () => {
+    const validation = validateTrainingExecution(trainingConfig);
+    
+    if (!validation.isValid) {
+      const errorMessages = validation.errors.map(error => error.message);
+      alert(errorMessages.join('\n'));
+      return;
+    }
+
+    setIsTraining(true);
+    setStatus('Training');
+    setLogs([]);
+    setProgress(0);
+
+    try {
+      // Mock training execution
+      const result = await executeTraining(trainingConfig);
+      
+      if (result.success) {
+        setLogs(prev => [...prev, result.message]);
+      }
+    } catch (error) {
+      setLogs(prev => [...prev, `Error: ${error.message}`]);
+      setIsTraining(false);
+    }
+  }, [trainingConfig]);
+
+  // Effects
   useEffect(() => {
-    setDatasetLoading(true);
-    fetchLabeledDatasets({uid})
-      .then(res => {
-        // 변환: DatasetSelector가 기대하는 필드로 매핑
+    // Fetch datasets on mount
+    const fetchDatasets = async () => {
+      setDatasetLoading(true);
+      try {
+        const res = await fetchLabeledDatasets({ uid });
         const mapped = (res.data || []).map(ds => ({
           id: ds.did || ds._id,
           name: ds.name,
           type: ds.type,
           size: ds.total,
-          labelCount: ds.total, // 실제 라벨 개수 필드가 있으면 교체
+          labelCount: ds.total,
           description: ds.description,
           task_type: ds.task_type,
           label_format: ds.label_format,
@@ -129,74 +192,121 @@ export const useTrainingState = () => {
         }));
         setDatasets(mapped);
         setDatasetError(null);
-      })
-      .catch(e => setDatasetError(e.message))
-      .finally(() => setDatasetLoading(false));
+      } catch (error) {
+        setDatasetError(error.message);
+      } finally {
+        setDatasetLoading(false);
+      }
+    };
+
+    fetchDatasets();
   }, []);
 
-  // 스냅샷 선택 시 파일 구조/내용 변경
   useEffect(() => {
+    // Update editor files when snapshot changes
     const snapId = selectedSnapshot ? selectedSnapshot.id : 'default';
-    setEditorFileStructure(snapshotFiles[snapId]?.fileStructure || snapshotFiles['default'].fileStructure);
-    setEditorFiles(snapshotFiles[snapId]?.files || snapshotFiles['default'].files);
+    setEditorFileStructure(snapshotFiles[snapId]?.fileStructure || snapshotFiles.default.fileStructure);
+    setEditorFiles(snapshotFiles[snapId]?.files || snapshotFiles.default.files);
   }, [selectedSnapshot]);
 
-  // Training simulation (mock)
   useEffect(() => {
+    // Training simulation
     let interval;
     if (isTraining) {
       setStatus('Training');
-      setLogs(l => [...l, 'Training started...']);
+      setLogs(prev => [...prev, 'Training started...']);
       setProgress(0);
+      
       interval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
             setStatus('Completed');
-            setLogs(l => [...l, 'Training completed!']);
+            setLogs(prev => [...prev, 'Training completed!']);
             setIsTraining(false);
             return 100;
           }
-          setLogs(l => [...l, `Progress: ${prev + 10}%`]);
+          setLogs(prev => [...prev, `Progress: ${prev + 10}%`]);
           return prev + 10;
         });
       }, 700);
     }
+    
     return () => clearInterval(interval);
   }, [isTraining]);
 
+  useEffect(() => {
+    // Auto-complete training when progress reaches 100%
+    if (progress === 100 && status !== 'success') {
+      setStatus('success');
+    }
+  }, [progress, status]);
+
   return {
-    // Training Type & Mode
-    trainingType, setTrainingType,
-    mode, setMode,
-    
-    // Dataset
-    datasets, setDatasets,
-    selectedDataset, setSelectedDataset,
-    datasetLoading, setDatasetLoading,
-    datasetError, setDatasetError,
-    
-    // Snapshot
-    snapshots, setSnapshots,
-    selectedSnapshot, setSelectedSnapshot,
-    snapshotModalOpen, setSnapshotModalOpen,
-    
-    // Algorithm
-    algorithm, setAlgorithm,
-    algoParams, setAlgoParams,
-    paramErrors, setParamErrors,
-    
-    // Training
-    isTraining, setIsTraining,
-    progress, setProgress,
-    status, setStatus,
-    logs, setLogs,
-    
-    // UI State
-    openParamGroup, setOpenParamGroup,
-    showCodeEditor, setShowCodeEditor,
-    selectedParamKeys, setSelectedParamKeys,
-    editorFileStructure, setEditorFileStructure,
-    editorFiles, setEditorFiles,
+    // Core state
+    trainingType,
+    setTrainingType,
+    algorithm,
+    setAlgorithm,
+    algoParams,
+    setAlgoParams,
+    paramErrors,
+    setParamErrors,
+
+    // Dataset state
+    datasets,
+    selectedDataset,
+    setSelectedDataset,
+    datasetLoading,
+    datasetError,
+
+    // Snapshot state
+    snapshots,
+    selectedSnapshot,
+    setSelectedSnapshot,
+    editorFileStructure,
+    editorFiles,
+
+    // Training execution state
+    isTraining,
+    setIsTraining,
+    progress,
+    setProgress,
+    status,
+    setStatus,
+    logs,
+    setLogs,
+
+    // UI state
+    openParamGroup,
+    setOpenParamGroup,
+    showCodeEditor,
+    setShowCodeEditor,
+    selectedParamKeys,
+    setSelectedParamKeys,
+
+    // Computed values
+    paramGroups,
+    trainingConfig,
+
+    // Event handlers
+    handleAlgorithmChange,
+    handleAlgoParamChange,
+    handleToggleParamKey,
+    handleRemoveParamKey,
+    handleRunTraining,
   };
+};
+
+// Mock training execution
+const executeTraining = async (trainingConfig) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        success: true,
+        message: 'Training started successfully',
+        trainingId: `train_${Date.now()}`
+      });
+    }, 1000);
+  });
 }; 

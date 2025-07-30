@@ -1,5 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
-import MainLayout from '../components/layout/MainLayout.jsx';
+import MainLayout from '../shared/layout/MainLayout.jsx';
 
 export default {
   title: 'Layout/MainLayout',

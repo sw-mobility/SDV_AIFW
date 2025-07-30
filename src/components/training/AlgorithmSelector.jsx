@@ -1,16 +1,13 @@
 import React from 'react';
-import Button from '../common/Button.jsx';
+import Button from '../../shared/common/Button.jsx';
 import styles from './AlgorithmSelector.module.css';
-import { algorithmOptions } from '../../services/trainingService.js';
+import { algorithmOptions } from '../../domain/training/parameterGroups.js';
 
 const AlgorithmSelector = ({ 
   algorithm, 
-  onAlgorithmChange, 
-  onShowCodeEditor 
+  onAlgorithmChange
 }) => {
   return (
-    <div className={styles.sectionCard}>
-      <div className={styles.selectorGroup}>
         <div className={styles.selectorBox}>
           <label className={styles.paramLabel} style={{marginBottom: 4}}>Algorithm</label>
           <select
@@ -22,18 +19,6 @@ const AlgorithmSelector = ({
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
-        </div>
-      </div>
-      {/* Edit Code/Expert Mode button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-        <Button
-            variant="secondary"
-            onClick={onShowCodeEditor}
-            style={{ minWidth: 140 }}
-        >
-          Edit Code (Expert Mode)
-        </Button>
-      </div>
     </div>
   );
 };
