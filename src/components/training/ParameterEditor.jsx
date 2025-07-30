@@ -4,14 +4,12 @@ import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
 import Switch from '@mui/material/Switch';
 import styles from './ParameterEditor.module.css';
-import { validateParam, normalizeParamValue, getDecimalPlaces } from '../../domain/training/parameterGroups.js';
+import { normalizeParamValue} from '../../domain/training/parameterGroups.js';
 
 const ParameterEditor = ({ 
   currentParam, 
   algoParams, 
-  onParamChange, 
-  paramErrors, 
-  isTraining = false 
+  onParamChange,
 }) => {
   if (!currentParam) {
     return null; // 빈 상태는 ParameterSection에서 처리
@@ -33,17 +31,6 @@ const ParameterEditor = ({
     if (range <= 100) return 1;
     if (range <= 1000) return 10;
     return Math.ceil(range / 100);
-  };
-
-  const inputSizeStyle = { 
-    width: 150, 
-    height: 38, 
-    fontSize: 15, 
-    fontWeight: 500, 
-    borderRadius: 6, 
-    background: '#fff', 
-    minWidth: 0, 
-    maxWidth: '100%' 
   };
 
   return (
