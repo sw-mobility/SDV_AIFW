@@ -61,6 +61,13 @@
   padding: 18px 18px 12px 18px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
 }
+
+/* border 제거를 위한 클래스 */
+.selectorBlock.noBorder {
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 24px;
+}
 .selectorLabel {
   display: block;
   font-weight: 700;

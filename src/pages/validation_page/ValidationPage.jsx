@@ -89,10 +89,10 @@ const ValidationPage = () => {
       <div className={styles.sectionWrap}>
         {/* 좌측: 모델/데이터셋/메트릭 선택 패널 */}
         <div className={styles.leftPanel}>
-          <div className={styles.selectorBlock}>
+          <div className={`${styles.selectorBlock} ${styles.noBorder}`}>
             <ModelSelector value={selectedModel} onChange={setSelectedModel} disabled={status === 'running'} showInfo={false} />
           </div>
-          <div className={styles.selectorBlock}>
+          <div className={`${styles.selectorBlock} ${styles.noBorder}`}>
             <div className={dsStyles.selectorBox}>
               <label className={dsStyles.paramLabel} style={{marginBottom: 4}}>Metric</label>
               <select
@@ -108,7 +108,7 @@ const ValidationPage = () => {
               </select>
             </div>
           </div>
-          <div className={styles.selectorBlock}>
+          <div className={`${styles.selectorBlock} ${styles.noBorder}`}>
             <DatasetSelector
               datasets={datasets}
               selectedDataset={selectedDataset}

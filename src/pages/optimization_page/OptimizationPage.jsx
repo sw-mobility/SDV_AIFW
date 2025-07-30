@@ -95,7 +95,7 @@ const OptimizationPage = () => {
       </div>
       <div className={styles.sectionWrap}>
         <div className={styles.leftPanel}>
-          <div className={styles.selectorBlock}>
+          <div className={`${styles.selectorBlock} ${styles.noBorder}`}>
             <TargetBoardSelector value={targetBoard} onChange={setTargetBoard} disabled={isRunning} />
           </div>
             <DatasetTablePanel
@@ -104,7 +104,7 @@ const OptimizationPage = () => {
               onSelect={setCalibrationDataset}
               loading={loadingRaw}
             />
-          <div className={styles.selectorBlock} style={{marginTop: '24px'}}>
+          <div className={`${styles.selectorBlock} ${styles.noBorder}`} style={{marginTop: '24px'}}>
             <ModelSelector value={model} onChange={setModel} disabled={isRunning} />
           </div>
         </div>
