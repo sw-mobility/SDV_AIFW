@@ -1,8 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
-import { Folder, File, ChevronRight, ChevronDown, PlusCircle, Save, X } from 'lucide-react';
+import { Folder, File, ChevronRight, ChevronDown, PlusCircle, Save, X, Code } from 'lucide-react';
 import styles from './CodeEditor.module.css';
 import Button from './Button.jsx';
+
+// Helper: get extension color
+const extColor = ext => {
+  if (ext === 'py') return '#4f8cff';
+  if (ext === 'json') return '#ffb300';
+  if (ext === 'js') return '#f7df1e';
+  if (ext === 'cpp') return '#b0bec5';
+  if (ext === 'java') return '#e76f00';
+  if (ext === 'ts') return '#3178c6';
+  if (ext === 'jsx') return '#61dafb';
+  if (ext === 'tsx') return '#3178c6';
+  if (ext === 'html') return '#e34c26';
+  if (ext === 'css') return '#1572b6';
+  if (ext === 'md') return '#000000';
+  return '#bbb';
+};
 
 /**
  FileTree component
@@ -10,11 +26,13 @@ import Button from './Button.jsx';
  @param {number} level - 현재 depth level (들여쓰기 계산용)
  @param {function} onFileClick - 파일 클릭 핸들러
  @param {string} activeFile - 현재 열려 있는 파일명
+ @param {boolean} defaultOpen - 기본적으로 열려있을지 여부
  */
-const FileTree = ({ item, level = 0, onFileClick, activeFile }) => {
-    const [isOpened, setIsOpened] = useState(false);
+const FileTree = ({ item, level = 0, onFileClick, activeFile, defaultOpen = false }) => {
+    const [isOpened, setIsOpened] = useState(defaultOpen);
     const isFolder = item.type === 'folder';
     const ext = !isFolder && item.name.split('.').pop();
+    
     return (
         <div>
             <div
@@ -32,36 +50,32 @@ const FileTree = ({ item, level = 0, onFileClick, activeFile }) => {
             >
                 {isFolder ? (
                     <>
-                        {isOpened ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
-                        <Folder size={12} />
+                        {isOpened ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                        <Folder size={14} />
                     </>
                 ) : (
                     <>
                         <span className={styles.fileExtDot} style={{ background: extColor(ext) }}></span>
-                        <File size={12} />
+                        <File size={14} />
                     </>
                 )}
-                <span className={styles['file-name']} style={{ maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
+                <span className={styles['file-name']}>{item.name}</span>
             </div>
             {isFolder && isOpened && item.children && (
                 <div className={styles['file-children']}>
                     {item.children.map((child, index) => (
-                        <FileTree key={index} item={child} level={level + 1} onFileClick={onFileClick} activeFile={activeFile} />
+                        <FileTree 
+                            key={index} 
+                            item={child} 
+                            level={level + 1} 
+                            onFileClick={onFileClick} 
+                            activeFile={activeFile} 
+                        />
                     ))}
                 </div>
             )}
         </div>
     );
-};
-
-// Helper: get extension color
-const extColor = ext => {
-  if (ext === 'py') return '#4f8cff';
-  if (ext === 'json') return '#ffb300';
-  if (ext === 'js') return '#f7df1e';
-  if (ext === 'cpp') return '#b0bec5';
-  if (ext === 'java') return '#e76f00';
-  return '#bbb';
 };
 
 /**
@@ -87,7 +101,6 @@ function CodeEditor({
     compact = false,
     hideSaveButtons = false,
 }) {
-    // 내부 상태: 열려 있는 파일
     const [fileStructure, setFileStructure] = useState(propFileStructure || [
         {
             name: 'src',
@@ -101,55 +114,11 @@ function CodeEditor({
         }
     ]);
     const [files, setFiles] = useState(propFiles || {
-        'train.py': { code: `#python\nprint('Right triangle\\n')\nleg = int(raw_input('leg: '))`, language: 'python' }
+        'train.py': { code: `# Training script\nimport torch\nimport torch.nn as nn\n\nclass Model(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.linear = nn.Linear(10, 1)\n    \n    def forward(self, x):\n        return self.linear(x)\n\nmodel = Model()\nprint("Model initialized successfully!")`, language: 'python' }
     });
     const [activeFile, setActiveFile] = useState(propActiveFile || fileStructure[0]?.children?.[0]?.name || '');
     const [snapshotNameInput, setSnapshotNameInput] = useState('');
     const [showNameInput, setShowNameInput] = useState(false);
-
-    // FileTree (read-only, src 기본 오픈)
-    const FileTree = ({ item, level = 0, onFileClick, activeFile, defaultOpen = false }) => {
-        const [isOpened, setIsOpened] = useState(defaultOpen);
-        const isFolder = item.type === 'folder';
-        const ext = !isFolder && item.name.split('.').pop();
-        return (
-            <div>
-                <div
-                    className={
-                        styles['file-item'] +
-                        (isFolder ? ' ' + styles.folder : ' ' + styles.file) +
-                        (!isFolder && activeFile === item.name ? ' ' + styles.activeFile : '')
-                    }
-                    style={{ paddingLeft: `${level * 16 + 8}px`, cursor: 'pointer' }}
-                    onClick={() => {
-                        if (isFolder) setIsOpened(!isOpened);
-                        else onFileClick(item.name);
-                    }}
-                    title={item.name}
-                >
-                    {isFolder ? (
-                        <>
-                            {isOpened ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
-                            <Folder size={12} />
-                        </>
-                    ) : (
-                        <>
-                            <span className={styles.fileExtDot} style={{ background: extColor(ext) }}></span>
-                            <File size={12} />
-                        </>
-                    )}
-                    <span className={styles['file-name']} style={{ maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
-                </div>
-                {isFolder && isOpened && item.children && (
-                    <div className={styles['file-children']}>
-                        {item.children.map((child, index) => (
-                            <FileTree key={index} item={child} level={level + 1} onFileClick={onFileClick} activeFile={activeFile} />
-                        ))}
-                    </div>
-                )}
-            </div>
-        );
-    };
 
     // 파일 클릭 핸들러
     const handleFileClick = (filename) => {
@@ -186,20 +155,6 @@ function CodeEditor({
         if (onFilesChange) onFilesChange(newFiles);
     };
 
-    // 파일 트리 구조
-    // const fileStructure = propFileStructure || [
-    //     {
-    //         name: 'src',
-    //         type: 'folder',
-    //         children: [
-    //             { name: 'train.py', type: 'file' },
-    //             { name: 'data_loader.py', type: 'file' },
-    //             { name: 'model_config.py', type: 'file' },
-    //             { name: 'train_parameter.json', type: 'file' },
-    //         ]
-    //     }
-    // ];
-
     // 현재 파일 정보
     const currentFile = files[activeFile] || { code: '', language: 'python' };
 
@@ -208,20 +163,27 @@ function CodeEditor({
             {!compact && (
             <div className={styles.sidebar}>
                 <div className={styles['file-explorer']}>
-                    <div style={{ marginBottom: 10 }}>
+                    <div className={styles.snapshotHeader}>
                         <div className={styles.snapshotName}>{snapshotName}</div>
                         {snapshotName === 'Default Snapshot' && <span className={styles.snapshotDefault}>(default)</span>}
                     </div>
-                    <div className={styles['file-tree']} style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 180px)' }}>
+                    <div className={styles['file-tree']}>
                         {fileStructure.map((item, index) => (
-                            <FileTree key={index} item={item} onFileClick={handleFileClick} activeFile={activeFile} defaultOpen={item.name === 'src'} />
+                            <FileTree 
+                                key={index} 
+                                item={item} 
+                                onFileClick={handleFileClick} 
+                                activeFile={activeFile} 
+                                defaultOpen={item.name === 'src'} 
+                            />
                         ))}
                     </div>
                 </div>
                 {/* Snapshot Save Buttons */}
+                {!hideSaveButtons && (
                 <div className={styles.snapshotSidebarBtnsWrap}>
                     {showNameInput && (
-                        <div style={{ width: '100%', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div className={styles.snapshotInputWrapper}>
                             <input
                                 type="text"
                                 className={styles.snapshotInput}
@@ -229,7 +191,6 @@ function CodeEditor({
                                 onChange={e => setSnapshotNameInput(e.target.value)}
                                 placeholder="Enter new snapshot name"
                                 autoFocus
-                                style={{ flex: 1 }}
                             />
                             <button
                                 className={styles.snapshotBtn + ' ' + styles.cancel}
@@ -273,6 +234,7 @@ function CodeEditor({
                         </button>
                     </div>
                 </div>
+                )}
             </div>
             )}
 
@@ -280,11 +242,20 @@ function CodeEditor({
                 {!compact && (
                 <div className={styles['editor-toolbar']}>
                     <div className={styles['toolbar-left']}>
+                        <div className={styles.fileInfo}>
+                            <Code size={14} />
+                            <span className={styles.activeFileName}>{activeFile}</span>
+                        </div>
                         <select value={currentFile.language} onChange={handleLanguageChange} className={styles['language-select']}>
                             <option value="json">JSON</option>
                             <option value="python">Python</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="typescript">TypeScript</option>
                             <option value="java">Java</option>
                             <option value="cpp">C++</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="markdown">Markdown</option>
                         </select>
                     </div>
                 </div>
@@ -318,7 +289,12 @@ function CodeEditor({
                         mouseWheelZoom: true,
                         smoothScrolling: true,
                         cursorBlinking: 'smooth',
-                        cursorSmoothCaretAnimation: 'on'
+                        cursorSmoothCaretAnimation: 'on',
+                        renderWhitespace: 'selection',
+                        guides: {
+                            indentation: true,
+                            bracketPairs: true
+                        }
                     }}
                 />
             </div>

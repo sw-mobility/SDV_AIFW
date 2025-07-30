@@ -83,7 +83,6 @@ const ParameterSection = ({
                 alert(`Saved as snapshot: ${name}`);
               }}
               onCloseDrawer={() => setShowCodeEditor(false)}
-              hideSaveButtons
             />
           ) : (
             <div className={styles.paramCard + ' ' + styles.paramCardEmpty}>

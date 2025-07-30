@@ -4,67 +4,102 @@
     background-color: #ffffff;
     overflow: hidden;
     transition: all 0.3s ease;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar {
-    width: 250px;
-    min-width: 200px;
+    width: 280px;
+    min-width: 240px;
     background-color: #f8f9fa;
     border-right: 1px solid #e9ecef;
     overflow-y: auto;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
     flex-shrink: 0;
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 /* Compact mode: smaller sidebar, larger editor */
 .code-editor-container.compact .sidebar {
-    width: 180px;
-    min-width: 160px;
+    width: 200px;
+    min-width: 180px;
 }
 
 .file-explorer {
-    padding: 10px 6px;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+    padding: 16px 12px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.file-explorer h3 {
-    margin: 0 0 10px 6px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #495057;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+/* Snapshot Header */
+.snapshotHeader {
+    margin-bottom: 16px;
+    padding: 12px 8px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.snapshotName {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 2px;
+    letter-spacing: -0.3px;
+    line-height: 1.3;
+}
+
+.snapshotDefault {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-left: 4px;
+    font-weight: 500;
 }
 
 .file-tree {
-    font-size: 11px;
+    font-size: 13px;
     overflow-y: auto;
-    max-height: calc(100vh - 180px);
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+    max-height: calc(100vh - 200px);
 }
 
 .file-item {
     display: flex;
     align-items: center;
-    gap: 3px;
-    padding: 2px 6px;
+    gap: 6px;
+    padding: 4px 8px;
     cursor: pointer;
-    border-radius: 2px;
-    transition: background-color 0.15s;
+    border-radius: 4px;
+    transition: all 0.15s ease;
     user-select: none;
     color: #495057;
-    min-height: 20px;
+    min-height: 24px;
+    margin-bottom: 1px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .file-item:hover {
-    background: #f3f6ff;
-    color: #357ae8;
+    background: #e3f2fd;
+    color: #1976d2;
+    transform: translateX(2px);
 }
 
 .file-item:active {
-    background-color: #dee2e6;
+    background-color: #bbdefb;
+    transform: translateX(1px);
 }
 
 .file-item.folder {
-    font-weight: 500;
+    font-weight: 600;
+    color: #374151;
 }
 
 .file-item.file {
@@ -76,28 +111,31 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 11px;
+    font-size: 13px;
     line-height: 1.4;
-    padding: 1px 0;
-    max-width: 110px;
+    padding: 2px 0;
+    font-weight: 500;
+    min-width: 0; /* flex 아이템이 축소될 수 있도록 */
+    max-width: calc(100% - 60px); /* 아이콘들 공간 확보 */
 }
 
 .file-children {
-    margin-left: 3px;
+    margin-left: 4px;
 }
 
 .file-item svg {
     flex-shrink: 0;
+    color: inherit;
 }
 
 .file-item .w-3 {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
 }
 
 .file-item .w-4 {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
 }
 
 .editor-main {
@@ -114,23 +152,44 @@
 .editor-toolbar {
     background-color: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
-    padding: 6px 10px;
+    padding: 8px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 32px;
+    height: 40px;
     flex-shrink: 0;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.fileInfo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #374151;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.activeFileName {
+    color: #1e293b;
+    font-weight: 700;
 }
 
 .language-select {
     background-color: #ffffff;
     color: #495057;
     border: 1px solid #ced4da;
-    padding: 3px 6px;
-    border-radius: 3px;
-    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
     cursor: pointer;
-    min-width: 90px;
+    min-width: 100px;
+    font-weight: 500;
 }
 
 .language-select:focus {
@@ -147,7 +206,7 @@
 }
 
 .sidebar::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
 }
 
 .sidebar::-webkit-scrollbar-track {
@@ -156,7 +215,7 @@
 
 .sidebar::-webkit-scrollbar-thumb {
     background: #ced4da;
-    border-radius: 2px;
+    border-radius: 3px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
@@ -165,29 +224,167 @@
 
 .file-item.activeFile {
     border-left: 3px solid #4f8cff;
-    background: #eaf2ff;
-    color: #357ae8;
+    background: #e3f2fd;
+    color: #1976d2;
     font-weight: 700;
-}
-
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.file-explorer {
-    flex: 1 1 auto;
-    overflow-y: auto;
+    padding-left: 12px;
 }
 
 .fileExtDot {
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     margin-right: 6px;
     vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* Snapshot Save Buttons */
+.snapshotSidebarBtnsWrap {
+    width: 100%;
+    margin-top: auto;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background: #ffffff;
+    border-top: 1px solid #e9ecef;
+}
+
+.snapshotInputWrapper {
+    width: 100%;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.snapshotInput {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    color: #374151;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.snapshotInput:focus {
+    background-color: #fff;
+    border-color: #4f8cff;
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+/* Modal buttons */
+.snapshotModalBtns {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 0;
+    align-items: stretch;
+}
+
+/* 새로운 깔끔한 버튼 스타일 */
+.snapshotBtn {
+    min-width: 0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid transparent;
+
+    /* 기본 Primary 버튼 */
+    background-color: #4f8cff;
+    color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.snapshotBtn:hover:not(:disabled) {
+    background-color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+}
+
+.snapshotBtn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.snapshotBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #9ca3af;
+    color: #ffffff;
+    transform: none;
+    box-shadow: none;
+}
+
+.snapshotBtn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Secondary 버튼 스타일 (overwrite) */
+.snapshotBtn.overwrite {
+    background-color: #ffffff;
+    color: #4f8cff;
+    border: 1px solid #4f8cff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.snapshotBtn.overwrite:hover:not(:disabled) {
+    background-color: #eff6ff;
+    border-color: #3b82f6;
+    color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+}
+
+.snapshotBtn.overwrite:disabled {
+    background-color: #f9fafb;
+    color: #9ca3af;
+    border-color: #d1d5db;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Cancel 버튼 */
+.snapshotBtn.cancel {
+    min-width: 0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: none;
+    color: #6b7280;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    transition: all 0.2s ease;
+}
+
+.snapshotBtn.cancel:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.snapshotBtn.cancel:active {
+    background-color: #e5e7eb;
 }
 
 /* Snapshot name display */
@@ -371,54 +568,47 @@
     min-width: 320px;
 }
 
-.snapshotSidebarBtnsWrap {
-    width: 100%;
-    margin-top: 20px;
-    padding: 0 8px 12px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-}
-
-/* 사이드바 내부 버튼 스타일 조정 */
-.snapshotSidebarBtnsWrap .snapshotBtn {
-    font-size: 0.85rem;
-    padding: 8px 12px;
-}
-
 @media (max-width: 768px) {
     .sidebar {
-        width: 200px;
-        min-width: 180px;
+        width: 240px;
+        min-width: 200px;
     }
 
     .file-explorer {
-        padding: 8px 4px;
+        padding: 12px 8px;
     }
 
     .editor-toolbar {
-        padding: 5px 8px;
-        height: 28px;
+        padding: 6px 12px;
+        height: 36px;
     }
 
     .language-select {
-        min-width: 70px;
-        font-size: 9px;
+        min-width: 80px;
+        font-size: 11px;
     }
 
     .toolbar-btn {
         padding: 2px;
     }
+
+    .file-name {
+        font-size: 12px;
+    }
 }
 
 @media (max-width: 480px) {
     .sidebar {
-        width: 180px;
-        min-width: 160px;
+        width: 200px;
+        min-width: 180px;
     }
 
-    .toolbar-right {
-        gap: 3px;
+    .toolbar-left {
+        gap: 12px;
+    }
+
+    .fileInfo {
+        font-size: 12px;
     }
 
     .toolbar-btn {
