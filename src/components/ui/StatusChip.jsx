@@ -1,6 +1,6 @@
 import React from 'react';
 import Chip from '@mui/material/Chip';
-import { getStatusColor, getStatusText } from '../../utils/status.js';
+import { getStatusColor, getStatusText } from '../../domain/project/status.js';
 
 export default function StatusChip({ status, className }) {
     return (

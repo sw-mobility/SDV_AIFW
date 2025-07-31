@@ -10,6 +10,7 @@ import ShowMoreGrid from '../../../components/ui/ShowMoreGrid.jsx';
 import DatasetUploadModal from '../../../components/features/dataset/DatasetUploadModal.jsx';
 import DatasetDataPanel from '../../../components/features/dataset/DatasetDataPanel.jsx';
 import DatasetUploadFilesModal from '../../../components/features/dataset/DatasetUploadFilesModal.jsx';
+import DeleteConfirmModal from '../../../components/common/DeleteConfirmModal.jsx';
 import { Edit2, Upload as UploadIcon } from 'lucide-react';
 import { useDatasets } from '../../../hooks';
 
@@ -40,14 +41,17 @@ const DatasetsTab = () => {
         isEditModalOpen,
         isUploadModalOpen,
         isDataPanelOpen,
+        isDeleteConfirmOpen,
         editData,
         uploadTarget,
         dataPanelTarget,
+        deleteTarget,
         downloadingId,
         deletingId,
         handleDownload,
         handleEdit,
-        handleDelete,
+        openDeleteConfirm,
+        confirmDelete,
         handleUpload,
         handleCardClick,
         handleDataTypeChange,
@@ -107,7 +111,7 @@ const DatasetsTab = () => {
                     <button className={styles.actionButton} title="Download" onClick={e => { e.stopPropagation(); handleDownload(dataset); }} disabled={downloadingId === dataset._id}>
                         {downloadingId === dataset._id ? <span>...</span> : <Download size={14} />}
                     </button>
-                    <button className={styles.actionButton} title="Delete" onClick={e => { e.stopPropagation(); handleDelete(dataset); }} disabled={deletingId === dataset._id}>
+                    <button className={styles.actionButton} title="Delete" onClick={e => { e.stopPropagation(); openDeleteConfirm(dataset); }} disabled={deletingId === dataset._id}>
                         <Trash2 size={14} />
                     </button>
                 </div>
@@ -168,6 +172,14 @@ const DatasetsTab = () => {
                 onClose={closeDataPanel}
                 dataset={dataPanelTarget}
                 datasetType={dataPanelTarget?.datasetType || dataType}
+            />
+            <DeleteConfirmModal
+                isOpen={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Dataset"
+                message="Are you sure you want to delete this dataset?"
+                itemName={deleteTarget?.name}
             />
             <div className={styles.dataTypeToggle} style={{ marginBottom: 24 }}>
                 <button

@@ -35,6 +35,7 @@ import { useDatasets } from '../../../hooks';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
 import UploadFilesModal from './DatasetUploadFilesModal.jsx';
 import DatasetDataPanel from './DatasetDataPanel.jsx';
+import DeleteConfirmModal from '../../common/DeleteConfirmModal.jsx';
 
 const typeIconMap = {
     Image: <ImageIcon size={14}/>,
@@ -100,14 +101,17 @@ const DatasetDrawer = ({open, onClose}) => {
         isEditModalOpen,
         isUploadModalOpen,
         isDataPanelOpen,
+        isDeleteConfirmOpen,
         editData,
         uploadTarget,
         dataPanelTarget,
+        deleteTarget,
         downloadingId,
         deletingId,
         handleDownload,
         handleEdit,
-        handleDelete,
+        openDeleteConfirm,
+        confirmDelete,
         handleUpload,
         handleCardClick,
         handleDataTypeChange,
@@ -188,7 +192,7 @@ const DatasetDrawer = ({open, onClose}) => {
                             key={dataset._id || dataset.id}
                             dataset={{...dataset, datasetType: dataType}}
                             onDownload={handleDownload}
-                            onDelete={handleDelete}
+                            onDelete={openDeleteConfirm}
                             onEdit={openEditModal}
                             onUpload={openUploadModal}
                             onClick={handleCardClick}
@@ -207,6 +211,7 @@ const DatasetDrawer = ({open, onClose}) => {
             />
             {/* edit 모달도 DatasetUploadModal로 통일 */}
             <DatasetUploadModal
+                key={`edit-${editData?.id || editData?._id || 'new'}-${isEditModalOpen}`}
                 isOpen={isEditModalOpen}
                 onClose={closeEditModal}
                 editMode={true}
@@ -219,6 +224,14 @@ const DatasetDrawer = ({open, onClose}) => {
                 open={isDataPanelOpen}
                 onClose={closeDataPanel}
                 dataset={dataPanelTarget}
+            />
+            <DeleteConfirmModal
+                isOpen={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Dataset"
+                message="Are you sure you want to delete this dataset?"
+                itemName={deleteTarget?.name}
             />
         </Drawer>
     );

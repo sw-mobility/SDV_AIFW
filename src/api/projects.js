@@ -54,10 +54,10 @@ export async function updateProject({ id, uid, name, description }) {
 }
 
 export async function deleteProject({ id, uid }) {
-    const response = await fetch(`${BASE_URL}/projects/projects/delete`, {
+    const url = `${BASE_URL}/projects/projects/delete?id=${encodeURIComponent(id)}&uid=${encodeURIComponent(uid)}`;
+    const response = await fetch(url, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, uid }),
     });
 
     if (!response.ok) {

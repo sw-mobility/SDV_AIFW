@@ -30,11 +30,13 @@ export const useDatasets = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isDataPanelOpen, setIsDataPanelOpen] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     
     // 선택된 데이터
     const [editData, setEditData] = useState(null);
     const [uploadTarget, setUploadTarget] = useState(null);
     const [dataPanelTarget, setDataPanelTarget] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     // 액션 상태
     const [downloadingId, setDownloadingId] = useState(null);
@@ -140,7 +142,13 @@ export const useDatasets = () => {
         }
     };
 
-    // 데이터셋 삭제
+    // 데이터셋 삭제 확인 모달 열기
+    const openDeleteConfirm = (dataset) => {
+        setDeleteTarget(dataset);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    // 데이터셋 삭제 실행
     const handleDelete = async (dataset) => {
         setDeletingId(dataset.did || dataset.id);
         try {
@@ -158,6 +166,15 @@ export const useDatasets = () => {
             setError(err.message);
         } finally {
             setDeletingId(null);
+        }
+    };
+
+    // 삭제 확인 모달에서 삭제 실행
+    const confirmDelete = async () => {
+        if (deleteTarget) {
+            await handleDelete(deleteTarget);
+            setIsDeleteConfirmOpen(false);
+            setDeleteTarget(null);
         }
     };
 
@@ -212,7 +229,7 @@ export const useDatasets = () => {
     const closeCreateModal = () => setIsCreateModalOpen(false);
     
     const openEditModal = (dataset) => {
-        setEditData(dataset);
+        setEditData({ ...dataset, datasetType: dataType });
         setIsEditModalOpen(true);
     };
     
@@ -283,16 +300,19 @@ export const useDatasets = () => {
         isEditModalOpen,
         isUploadModalOpen,
         isDataPanelOpen,
+        isDeleteConfirmOpen,
         editData,
         uploadTarget,
         dataPanelTarget,
+        deleteTarget,
         downloadingId,
         deletingId,
         
         // 핸들러
         handleDownload,
         handleEdit,
-        handleDelete,
+        openDeleteConfirm,
+        confirmDelete,
         handleUpload,
         handleCardClick,
         handleDataTypeChange,

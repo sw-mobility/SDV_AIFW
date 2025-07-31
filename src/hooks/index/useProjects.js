@@ -16,7 +16,9 @@ export const useProjects = () => {
     // 모달 상태
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [editProject, setEditProject] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     // 프로젝트 목록 조회
     const fetchProjectsList = async () => {
@@ -87,7 +89,13 @@ export const useProjects = () => {
         }
     };
 
-    // 프로젝트 삭제
+    // 프로젝트 삭제 확인 모달 열기
+    const openDeleteConfirm = (project) => {
+        setDeleteTarget(project);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    // 프로젝트 삭제 실행
     const handleDeleteProject = async (projectId) => {
         try {
             setLoading(true);
@@ -99,6 +107,15 @@ export const useProjects = () => {
             setError(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // 삭제 확인 모달에서 삭제 실행
+    const confirmDelete = async () => {
+        if (deleteTarget) {
+            await handleDeleteProject(deleteTarget._id || deleteTarget.id);
+            setIsDeleteConfirmOpen(false);
+            setDeleteTarget(null);
         }
     };
 
@@ -128,12 +145,15 @@ export const useProjects = () => {
         error,
         isCreateModalOpen,
         isEditModalOpen,
+        isDeleteConfirmOpen,
         editProject,
+        deleteTarget,
         
         // 핸들러
         handleCreateProject,
         handleEditProject,
-        handleDeleteProject,
+        openDeleteConfirm,
+        confirmDelete,
         handleProjectClick,
         openCreateModal,
         closeCreateModal,

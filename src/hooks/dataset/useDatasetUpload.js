@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { createRawDataset, createLabeledDataset } from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';
 
@@ -30,6 +30,19 @@ export const useDatasetUpload = (initialData = {}, editMode = false, datasetType
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  // initialData가 변경될 때 formData 업데이트
+  useEffect(() => {
+    if (editMode && initialData && initialData.name) {
+      setFormData({
+        name: initialData.name || '',
+        type: initialData.type || DATASET_TYPES[0],
+        description: initialData.description || '',
+        taskType: initialData.task_type || initialData.taskType || 'Classification',
+        labelFormat: initialData.label_format || initialData.labelFormat || 'COCO'
+      });
+    }
+  }, [editMode, initialData]);
 
   // 폼 데이터 업데이트
   const updateFormData = useCallback((field, value) => {

@@ -9,6 +9,7 @@ import ErrorMessage from '../../../components/ui/ErrorMessage.jsx';
 import EmptyState from '../../../components/ui/EmptyState.jsx';
 import ShowMoreGrid from '../../../components/ui/ShowMoreGrid.jsx';
 import CreateModal from '../../../components/ui/CreateModal.jsx';
+import DeleteConfirmModal from '../../../components/common/DeleteConfirmModal.jsx';
 import { useProjects } from '../../../hooks';
 /**
  * ProjectsTab 컴포넌트
@@ -34,10 +35,13 @@ const ProjectsTab = () => {
         error,
         isCreateModalOpen,
         isEditModalOpen,
+        isDeleteConfirmOpen,
         editProject,
+        deleteTarget,
         handleCreateProject,
         handleEditProject,
-        handleDeleteProject,
+        openDeleteConfirm,
+        confirmDelete,
         handleProjectClick,
         openCreateModal,
         closeCreateModal,
@@ -97,7 +101,7 @@ const ProjectsTab = () => {
                     <button 
                         className={styles.actionButton} 
                         title="Delete"
-                        onClick={e => { e.stopPropagation(); handleDeleteProject(project._id || project.id); }}
+                        onClick={e => { e.stopPropagation(); openDeleteConfirm(project); }}
                     >
                         <Trash2 size={14} />
                     </button>
@@ -151,6 +155,14 @@ const ProjectsTab = () => {
                 placeholder="Enter project name"
                 inputName="projectNameEdit"
                 showDescription={true}
+            />
+            <DeleteConfirmModal
+                isOpen={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Project"
+                message="Are you sure you want to delete this project?"
+                itemName={deleteTarget?.name}
             />
         </>
     );
