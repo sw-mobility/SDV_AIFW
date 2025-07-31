@@ -16,3 +16,4 @@ export { useTrainingUI } from './training/useTrainingUI.js';
 export { useIndexTabs } from './index/useIndexTabs.js';
 export { useProjects } from './index/useProjects.js';
 export { useDatasets } from './index/useDatasets.js';
+export { default } from './optimization/useOptimizationState.js';

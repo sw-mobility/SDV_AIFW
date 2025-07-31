@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './LabelingPage.module.css';
-import DatasetTablePanel from '../../components/labeling/DatasetTablePanel.jsx';
-import LabelingWorkspace from '../../components/labeling/LabelingWorkspace.jsx';
+import DatasetTablePanel from '../../components/features/labeling/DatasetTablePanel.jsx';
+import LabelingWorkspace from '../../components/features/labeling/LabelingWorkspace.jsx';
 import { fetchRawDatasets } from '../../api/datasets.js';
 import {uid} from '../../api/uid';
 const LabelingPage = () => {

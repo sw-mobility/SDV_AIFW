@@ -1,6 +1,6 @@
 # Hooks Structure
 
-이 디렉토리는 React 커스텀 훅들을 체계적으로 관리합니다.
+이 디렉토리는 React 커스텀 훅들을 관리합니다.
 
 ## 구조
 
@@ -107,7 +107,7 @@ const {
 Optimization 관련 상태를 관리합니다.
 
 ```javascript
-import useOptimizationState from '../hooks/useOptimizationState';
+import useOptimizationState from '../hooks/index.js';
 
 const {
   targetBoard,
@@ -224,7 +224,7 @@ import {
   useProjects,
   useDatasets
 } from '../hooks';
-import useOptimizationState from '../hooks/useOptimizationState';
+import useOptimizationState from '../hooks/index.js';
 ```
 
 ### 개별 import
@@ -232,11 +232,3 @@ import useOptimizationState from '../hooks/useOptimizationState';
 import { useTrainingState } from '../hooks/training/useTrainingState';
 import { useAsync } from '../hooks/common/useAsync';
 ```
-
-## 장점
-
-1. **단일 책임 원칙**: 각 훅이 하나의 명확한 책임만 가짐
-2. **재사용성**: 공통 훅들을 다른 페이지에서도 사용 가능
-3. **테스트 용이성**: 작은 단위로 테스트하기 쉬움
-4. **유지보수성**: 특정 기능 수정 시 해당 훅만 수정하면 됨
-5. **가독성**: 각 훅의 목적이 명확해짐 

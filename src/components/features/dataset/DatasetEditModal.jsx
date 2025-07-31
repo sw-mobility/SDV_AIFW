@@ -1,8 +1,8 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import styles from './Dataset.module.css';
-import { updateRawDataset } from '../../api/datasets.js';
-import * as editTarget from "../../api/uid.js";
+import { updateRawDataset } from '../../../api/datasets.js';
+import * as editTarget from "../../../api/uid.js";
 
 const DatasetEditModal = ({open, onClose, dataset, onUpdated}) => {
     const [name, setName] = React.useState(dataset?.name || '');

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import Table from '../common/Table.jsx';
+import Table from '../../ui/Table.jsx';
 import { Search } from 'lucide-react';
-import pageStyles from '../../pages/labeling_page/LabelingPage.module.css';
+import pageStyles from '../../../pages/labeling_page/LabelingPage.module.css';
 import tableStyles from './RawDatasetTable.module.css';
 
 export default function RawDatasetTable({ columns, data, onRowClick, selectedId, searchPlaceholder = 'Search...' }) {

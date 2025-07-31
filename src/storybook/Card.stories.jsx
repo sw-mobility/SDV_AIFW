@@ -1,5 +1,5 @@
-import Card, { CardGrid } from '../components/common/Card.jsx';
-import Button from '../components/common/Button.jsx';
+import Card, { CardGrid } from '../components/ui/Card.jsx';
+import Button from '../components/ui/Button.jsx';
 
 export default {
   title: 'UI/Card',

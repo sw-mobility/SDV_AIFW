@@ -1,13 +1,10 @@
 import './App.css'
 import AppRoutes from './routes/AppRoutes.jsx';
-import { DatasetProvider } from './context/DatasetContext.jsx';
 
 function App() {
     return (
         <div className="app">
-            <DatasetProvider>
-                <AppRoutes />
-            </DatasetProvider>
+            <AppRoutes />
         </div>
     )
 }

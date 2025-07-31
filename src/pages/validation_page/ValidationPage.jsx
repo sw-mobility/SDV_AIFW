@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ValidationPage.module.css';
-import dsStyles from '../../components/training/DatasetSelector.module.css';
-import ModelSelector from '../../components/optimization/ModelSelector.jsx';
-import DatasetSelector from '../../components/training/DatasetSelector.jsx';
-import ProgressBar from '../../components/common/ProgressBar.jsx';
-import Button from '../../components/common/Button.jsx';
+import dsStyles from '../../components/features/training/DatasetSelector.module.css';
+import ModelSelector from '../../components/features/optimization/ModelSelector.jsx';
+import DatasetSelector from '../../components/features/training/DatasetSelector.jsx';
+import ProgressBar from '../../components/ui/ProgressBar.jsx';
+import Button from '../../components/ui/Button.jsx';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';
 

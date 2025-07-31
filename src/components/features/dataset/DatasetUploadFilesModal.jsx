@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Modal from '../common/Modal.jsx';
-import createModalStyles from '../common/CreateModal.module.css';
-import FileUploadField from '../common/FileUploadField.jsx';
+import Modal from '../../ui/Modal.jsx';
+import createModalStyles from '../../ui/CreateModal.module.css';
+import FileUploadField from '../../ui/FileUploadField.jsx';
 
 /**
  * 데이터셋 파일 업로드 모달 컴포넌트

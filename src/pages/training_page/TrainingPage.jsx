@@ -1,10 +1,10 @@
 import React from 'react';
-import AlgorithmSelector from '../../components/training/AlgorithmSelector.jsx';
-import DatasetSelector from '../../components/training/DatasetSelector.jsx';
-import TrainingExecution from '../../components/training/TrainingExecution.jsx';
-import ContinualLearningInfo from '../../components/training/ContinualLearningInfo.jsx';
-import TrainingTypeSelector from '../../components/training/TrainingTypeSelector.jsx';
-import ParameterSection from '../../components/training/ParameterSection.jsx';
+import AlgorithmSelector from '../../components/features/training/AlgorithmSelector.jsx';
+import DatasetSelector from '../../components/features/training/DatasetSelector.jsx';
+import TrainingExecution from '../../components/features/training/TrainingExecution.jsx';
+import ContinualLearningInfo from '../../components/features/training/ContinualLearningInfo.jsx';
+import TrainingTypeSelector from '../../components/features/training/TrainingTypeSelector.jsx';
+import ParameterSection from '../../components/features/training/ParameterSection.jsx';
 import { useTrainingState } from '../../hooks/useTrainingState.js';
 import { TRAINING_TYPES } from '../../domain/training/trainingTypes.js';
 import styles from './TrainingPage.module.css';

@@ -1,7 +1,7 @@
 import React from 'react';
-import Button from '../common/Button.jsx';
+import Button from '../../ui/Button.jsx';
 import styles from './AlgorithmSelector.module.css';
-import { algorithmOptions } from '../../domain/training/parameterGroups.js';
+import { algorithmOptions } from '../../../domain/training/parameterGroups.js';
 
 const AlgorithmSelector = ({ 
   algorithm, 

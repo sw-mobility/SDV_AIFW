@@ -1,20 +1,19 @@
 import React, { useState,  } from 'react';
-import Modal from '../common/Modal.jsx';
+import Modal from '../../ui/Modal.jsx';
 import styles from './Dataset.module.css';
-import Button from '../common/Button.jsx';
-import { uploadDataset, createRawDataset, createLabeledDataset, uploadLabeledFiles } from '../../api/datasets.js';
-import Loading from '../common/Loading.jsx';
-import ErrorMessage from '../common/ErrorMessage.jsx';
-import { useDatasetContext } from '../../app/context/DatasetContext.jsx';
-import { uid } from '../../api/uid.js';
-import FileUploadField from '../common/FileUploadField.jsx';
+import Button from '../../ui/Button.jsx';
+import { uploadDataset, createRawDataset, createLabeledDataset, uploadLabeledFiles } from '../../../api/datasets.js';
+import Loading from '../../ui/Loading.jsx';
+import ErrorMessage from '../../ui/ErrorMessage.jsx';
+
+import { uid } from '../../../api/uid.js';
+import FileUploadField from '../../ui/FileUploadField.jsx';
 
 const DATASET_TYPES = [
   'Image', 'Text', 'Audio', 'Video', 'Tabular', 'TimeSeries', 'Graph'
 ];
 
 export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw', editMode = false, initialData = {}, onSave, onCreated }) {
-  const { reload } = useDatasetContext();
   const [name, setName] = useState(initialData.name || '');
   const [type, setType] = useState(initialData.type || DATASET_TYPES[0]);
   const [files, setFiles] = useState([]);
@@ -87,7 +86,6 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
         });
       }
       setSuccess(true);
-      reload();
       onCreated && onCreated();
       setTimeout(() => {
         setSuccess(false);

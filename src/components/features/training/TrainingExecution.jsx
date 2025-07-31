@@ -1,6 +1,6 @@
 import React from 'react';
-import Button from '../common/Button.jsx';
-import ProgressBar from '../common/ProgressBar.jsx';
+import Button from '../../ui/Button.jsx';
+import ProgressBar from '../../ui/ProgressBar.jsx';
 import styles from './TrainingExecution.module.css';
 
 const TrainingExecution = ({ 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import DatasetDrawer from '../components/dataset/DatasetDrawer.jsx';
+import DatasetDrawer from '../components/features/dataset/DatasetDrawer.jsx';
 
 export default {
   title: 'Dataset/DatasetDrawer',

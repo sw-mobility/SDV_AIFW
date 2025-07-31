@@ -1,6 +1,6 @@
 import React from 'react';
-import TabNavigation from '../common/TabNavigation.jsx';
-import { TRAINING_TABS } from '../../domain/training/trainingTypes.js';
+import TabNavigation from '../../ui/TabNavigation.jsx';
+import { TRAINING_TABS } from '../../../domain/training/trainingTypes.js';
 
 const TrainingTypeSelector = ({ trainingType, onTrainingTypeChange }) => {
   return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronDown, ChevronUp, Info, X } from 'lucide-react';
-import { PARAMETER_GROUPS, PROJECT_INFO_PARAMS } from '../../domain/training/parameterGroups.js';
+import { PARAMETER_GROUPS, PROJECT_INFO_PARAMS } from '../../../domain/training/parameterGroups.js';
 import styles from './ParameterSelector.module.css';
 
 const ParameterSelector = ({

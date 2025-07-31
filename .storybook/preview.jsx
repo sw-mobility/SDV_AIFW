@@ -1,15 +1,12 @@
-import { DatasetProvider } from '../src/app/context/DatasetContext';
 import '../src/index.css';
 
 /** @type { import('@storybook/react-vite').Preview } */
 const preview = {
   decorators: [
     (Story) => (
-      <DatasetProvider>
-        <div style={{ fontFamily: 'var(--font-family)', color: 'var(--color-text-main)' }}>
-          <Story />
-        </div>
-      </DatasetProvider>
+      <div style={{ fontFamily: 'var(--font-family)', color: 'var(--color-text-main)' }}>
+        <Story />
+      </div>
     ),
   ],
   parameters: {

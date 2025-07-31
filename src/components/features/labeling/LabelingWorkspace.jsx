@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Settings, Play, CheckCircle, XCircle } from 'lucide-react';
-import ProgressBar from '../common/ProgressBar.jsx';
-import Button from '../common/Button.jsx';
+import ProgressBar from '../../ui/ProgressBar.jsx';
+import Button from '../../ui/Button.jsx';
 import styles from './LabelingWorkspace.module.css';
 
 export default function LabelingWorkspace({ dataset }) {

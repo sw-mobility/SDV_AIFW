@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Modal from '../components/common/Modal.jsx';
-import Button from '../components/common/Button.jsx';
+import Modal from '../components/ui/Modal.jsx';
+import Button from '../components/ui/Button.jsx';
 
 export default {
   title: 'UI/Modal',

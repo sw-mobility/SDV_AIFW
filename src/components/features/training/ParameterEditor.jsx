@@ -4,7 +4,7 @@ import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
 import Switch from '@mui/material/Switch';
 import styles from './ParameterEditor.module.css';
-import { normalizeParamValue} from '../../domain/training/parameterGroups.js';
+import { normalizeParamValue} from '../../../domain/training/parameterGroups.js';
 
 const ParameterEditor = ({ 
   currentParam, 

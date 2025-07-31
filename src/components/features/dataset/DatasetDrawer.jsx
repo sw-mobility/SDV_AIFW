@@ -17,10 +17,10 @@ import {
     Video,
     Upload
 } from 'lucide-react';
-import {useDatasetContext} from '../../app/context/DatasetContext.jsx';
-import Loading from '../common/Loading.jsx';
-import ErrorMessage from '../common/ErrorMessage.jsx';
-import EmptyState from '../common/EmptyState.jsx';
+
+import Loading from '../../ui/Loading.jsx';
+import ErrorMessage from '../../ui/ErrorMessage.jsx';
+import EmptyState from '../../ui/EmptyState.jsx';
 import styles from './Dataset.module.css';
 import {
     downloadDatasetById,
@@ -29,8 +29,9 @@ import {
     uploadRawFiles,
     deleteDatasets,
     uploadLabeledFiles
-} from '../../api/datasets.js';
-import { uid } from '../../api/uid.js';
+} from '../../../api/datasets.js';
+import { uid } from '../../../api/uid.js';
+import { useDatasets } from '../../../hooks';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
 import UploadFilesModal from './DatasetUploadFilesModal.jsx';
 import DatasetDataPanel from './DatasetDataPanel.jsx';
@@ -91,92 +92,36 @@ const DatasetCard = ({dataset, onDownload, onDelete, onEdit, onUpload, onClick})
 );
 
 const DatasetDrawer = ({open, onClose}) => {
-    const {datasets, loading, error, reload} = useDatasetContext();
-    const [uploadOpen, setUploadOpen] = React.useState(false);
-    const [uploadTarget, setUploadTarget] = React.useState(null);
-    const [createOpen, setCreateOpen] = React.useState(false);
-    const [editOpen, setEditOpen] = React.useState(false);
-    const [editTarget, setEditTarget] = React.useState(null);
-    // 데이터셋 상세/데이터 패널 상태
-    const [dataPanelOpen, setDataPanelOpen] = React.useState(false);
-    const [dataPanelTarget, setDataPanelTarget] = React.useState(null);
-    // 카드 클릭 핸들러
-    const handleCardClick = (dataset) => {
-        setDataPanelTarget(dataset);
-        setDataPanelOpen(true);
-    };
-
-    const handleDownload = async (dataset) => {
-        try {
-            await downloadDatasetById({ uid: dataset.uid || uid, target_id: dataset._id || dataset.id });
-            console.log('Download started for:', dataset.name);
-        } catch (error) {
-            console.error('Download failed:', error.message);
-        }
-    };
-
-    const handleDelete = async (dataset) => {
-        try {
-            const id = dataset._id;
-            const path = dataset.file_path || dataset.path;
-            await deleteDatasets({
-                uid: uid,
-                target_id_list: [id],
-                target_path_list: path ? [path] : []
-            });
-            reload();
-        } catch (error) {
-            console.error('Delete failed:', error.message);
-        }
-    };
-
-    // 업로드 핸들러 (파일 업로드용)
-    const handleUpload = (dataset) => {
-        setUploadTarget(dataset);
-        setUploadOpen(true);
-    };
-    // 업로드 저장 핸들러 (실제 API 호출)
-    const handleUploadSave = async (files) => {
-        if (uploadTarget?.datasetType === 'labeled') {
-            await uploadLabeledFiles({ files, uid: uploadTarget.uid || '', id: uploadTarget._id, task_type: uploadTarget.task_type, label_format: uploadTarget.label_format });
-        } else {
-            await uploadRawFiles({ files, uid: uploadTarget.uid || '', id: uploadTarget._id });
-        }
-        setUploadOpen(false);
-        setUploadTarget(null);
-        reload();
-    };
-
-    // edit 버튼 클릭 시
-    const handleEdit = (dataset) => {
-        setEditTarget(dataset);
-        setEditOpen(true);
-    };
-
-    const handleEditSave = async (fields) => {
-        if (editTarget?.datasetType === 'labeled') {
-            await updateLabeledDataset({
-                id: editTarget._id,
-                uid: uid,
-                name: fields.name,
-                description: fields.description,
-                type: fields.type,
-                task_type: fields.taskType,
-                label_format: fields.labelFormat
-            });
-        } else {
-            await updateRawDataset({
-                uid: editTarget.uid,
-                id:editTarget._id,
-                name: fields.name,
-                description: fields.description,
-                type: fields.type
-            });
-        }
-        setEditOpen(false);
-        setEditTarget(null);
-        reload();
-    };
+    const {
+        dataType,
+        loading,
+        error,
+        isCreateModalOpen,
+        isEditModalOpen,
+        isUploadModalOpen,
+        isDataPanelOpen,
+        editData,
+        uploadTarget,
+        dataPanelTarget,
+        downloadingId,
+        deletingId,
+        handleDownload,
+        handleEdit,
+        handleDelete,
+        handleUpload,
+        handleCardClick,
+        handleDataTypeChange,
+        openCreateModal,
+        closeCreateModal,
+        openEditModal,
+        closeEditModal,
+        openUploadModal,
+        closeUploadModal,
+        openDataPanel,
+        closeDataPanel,
+        getCurrentDatasets,
+        handleCreated
+    } = useDatasets();
 
     return (
         <Drawer
@@ -205,51 +150,55 @@ const DatasetDrawer = ({open, onClose}) => {
                         fontWeight: 600,
                         textTransform: 'none'
                     }}
-                    onClick={() => setCreateOpen(true)}
+                    onClick={openCreateModal}
                 >
                     Create Dataset
                 </Button>
-                <DatasetUploadModal isOpen={createOpen} onClose={() => setCreateOpen(false)} />
+                <DatasetUploadModal 
+                    isOpen={isCreateModalOpen} 
+                    onClose={closeCreateModal} 
+                    onCreated={handleCreated}
+                />
 
                 {loading && <Loading/>}
                 {error && <ErrorMessage message={error.message}/>}
 
                 <div className={styles['dataset-list']}>
-                    {datasets.map(dataset => (
+                    {getCurrentDatasets().map(dataset => (
                         <DatasetCard
-                            key={dataset.id}
+                            key={dataset._id || dataset.id}
                             dataset={dataset}
                             onDownload={handleDownload}
                             onDelete={handleDelete}
-                            onEdit={handleEdit}
-                            onUpload={handleUpload}
+                            onEdit={openEditModal}
+                            onUpload={openUploadModal}
                             onClick={handleCardClick}
                         />
                     ))}
                 </div>
 
-                {datasets.length === 0 && !loading && (
+                {getCurrentDatasets().length === 0 && !loading && (
                     <EmptyState message="No datasets found."/>
                 )}
             </div>
             <UploadFilesModal
-                isOpen={uploadOpen}
-                onClose={() => { setUploadOpen(false); setUploadTarget(null); }}
-                onSave={handleUploadSave}
+                isOpen={isUploadModalOpen}
+                onClose={closeUploadModal}
+                onSave={handleUpload}
             />
             {/* edit 모달도 DatasetUploadModal로 통일 */}
             <DatasetUploadModal
-                isOpen={editOpen}
-                onClose={() => setEditOpen(false)}
+                isOpen={isEditModalOpen}
+                onClose={closeEditModal}
                 editMode={true}
-                datasetType={editTarget?.datasetType || 'raw'}
-                initialData={editTarget || {}}
-                onSave={handleEditSave}
-                onCreated={reload}
+                datasetType={editData?.datasetType || dataType}
+                initialData={editData || {}}
+                onSave={handleEdit}
+                onCreated={handleCreated}
             />
             <DatasetDataPanel
-                open={dataPanelOpen}
-                onClose={() => setDataPanelOpen(false)}
+                open={isDataPanelOpen}
+                onClose={closeDataPanel}
                 dataset={dataPanelTarget}
             />
         </Drawer>

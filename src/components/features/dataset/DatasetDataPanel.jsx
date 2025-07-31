@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import Modal from '../common/Modal.jsx';
+import Modal from '../../ui/Modal.jsx';
 import styles from './Dataset.module.css';
-import Button from '../common/Button.jsx';
-import Loading from '../common/Loading.jsx';
-import ErrorMessage from '../common/ErrorMessage.jsx';
-import EmptyState from '../common/EmptyState.jsx';
-import Table from '../common/Table.jsx';
-import FileUploadField from '../common/FileUploadField.jsx';
-import {getRawDataset, uploadRawFiles, getLabeledDataset, uploadLabeledFiles, deleteData, downloadDatasetById, downloadDataByPaths} from '../../api/datasets.js';
+import Button from '../../ui/Button.jsx';
+import Loading from '../../ui/Loading.jsx';
+import ErrorMessage from '../../ui/ErrorMessage.jsx';
+import EmptyState from '../../ui/EmptyState.jsx';
+import Table from '../../ui/Table.jsx';
+import FileUploadField from '../../ui/FileUploadField.jsx';
+import {getRawDataset, uploadRawFiles, getLabeledDataset, uploadLabeledFiles, deleteData, downloadDatasetById, downloadDataByPaths} from '../../../api/datasets.js';
 import { Trash2, Download } from 'lucide-react';
 
 const DatasetDataPanel = ({ open, onClose, dataset }) => {

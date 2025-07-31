@@ -1,9 +1,9 @@
 import React from 'react';
-import CodeEditor from '../common/CodeEditor.jsx';
+import CodeEditor from '../../ui/CodeEditor.jsx';
 import ParameterEditor from './ParameterEditor.jsx';
 import ExpertModeToggle from './ExpertModeToggle.jsx';
 import ParameterSelector from './ParameterSelector.jsx';
-import { TRAINING_TYPES } from '../../domain/training/trainingTypes.js';
+import { TRAINING_TYPES } from '../../../domain/training/trainingTypes.js';
 import styles from './ParameterSection.module.css';
 
 const ParameterSection = ({
