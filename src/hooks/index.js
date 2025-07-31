@@ -12,5 +12,7 @@ export { useTrainingSnapshots } from './training/useTrainingSnapshots.js';
 export { useTrainingExecution } from './training/useTrainingExecution.js';
 export { useTrainingUI } from './training/useTrainingUI.js';
 
-// Optimization hooks
-// Note: useOptimizationState is a default export, import directly from the file 
+// Index hooks
+export { useIndexTabs } from './index/useIndexTabs.js';
+export { useProjects } from './index/useProjects.js';
+export { useDatasets } from './index/useDatasets.js';

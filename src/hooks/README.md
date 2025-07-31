@@ -9,6 +9,7 @@ src/hooks/
 ├── common/           # 공통 훅들
 ├── training/         # Training 관련 훅들
 ├── optimization/     # Optimization 관련 훅들
+├── index/           # Index 페이지 관련 훅들
 └── index.js         # 모든 훅 export
 ```
 
@@ -119,6 +120,98 @@ const {
 } = useOptimizationState();
 ```
 
+## Index Hooks
+
+### useIndexTabs
+Index 페이지의 탭 관리를 담당합니다.
+
+```javascript
+import { useIndexTabs } from '../hooks';
+
+const {
+  activeTab,
+  tabs,
+  handleTabChange
+} = useIndexTabs();
+```
+
+### useProjects
+프로젝트 관련 모든 로직을 관리합니다.
+
+```javascript
+import { useProjects } from '../hooks';
+
+const {
+  // 상태
+  projects,
+  loading,
+  error,
+  isCreateModalOpen,
+  isEditModalOpen,
+  editProject,
+  
+  // 핸들러
+  handleCreateProject,
+  handleEditProject,
+  handleDeleteProject,
+  handleProjectClick,
+  openCreateModal,
+  closeCreateModal,
+  openEditModal,
+  closeEditModal,
+  
+  // 유틸리티
+  fetchProjectsList
+} = useProjects();
+```
+
+### useDatasets
+데이터셋 관련 모든 로직을 관리합니다.
+
+```javascript
+import { useDatasets } from '../hooks';
+
+const {
+  // 상태
+  dataType,
+  loading,
+  error,
+  initialLoading,
+  isCreateModalOpen,
+  isEditModalOpen,
+  isUploadModalOpen,
+  isDataPanelOpen,
+  editData,
+  uploadTarget,
+  dataPanelTarget,
+  downloadingId,
+  deletingId,
+  
+  // 핸들러
+  handleDownload,
+  handleEdit,
+  handleDelete,
+  handleUpload,
+  handleCardClick,
+  handleDataTypeChange,
+  
+  // 모달 핸들러
+  openCreateModal,
+  closeCreateModal,
+  openEditModal,
+  closeEditModal,
+  openUploadModal,
+  closeUploadModal,
+  openDataPanel,
+  closeDataPanel,
+  
+  // 유틸리티
+  fetchDatasetsList,
+  refreshCurrentDatasets,
+  getCurrentDatasets
+} = useDatasets();
+```
+
 ## 사용법
 
 ### 전체 import
@@ -126,7 +219,10 @@ const {
 import { 
   useTrainingState, 
   useAsync,
-  useProgress 
+  useProgress,
+  useIndexTabs,
+  useProjects,
+  useDatasets
 } from '../hooks';
 import useOptimizationState from '../hooks/useOptimizationState';
 ```

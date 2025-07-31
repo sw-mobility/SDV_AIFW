@@ -8,15 +8,6 @@ import Button from './Button.jsx';
 const extColor = ext => {
   if (ext === 'py') return '#4f8cff';
   if (ext === 'json') return '#ffb300';
-  if (ext === 'js') return '#f7df1e';
-  if (ext === 'cpp') return '#b0bec5';
-  if (ext === 'java') return '#e76f00';
-  if (ext === 'ts') return '#3178c6';
-  if (ext === 'jsx') return '#61dafb';
-  if (ext === 'tsx') return '#3178c6';
-  if (ext === 'html') return '#e34c26';
-  if (ext === 'css') return '#1572b6';
-  if (ext === 'md') return '#000000';
   return '#bbb';
 };
 

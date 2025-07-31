@@ -1,20 +1,17 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState } from 'react';
 import { Database, Tag, PlusCircle } from 'lucide-react';
 import Card from '../../../components/common/Card.jsx';
 import styles from '../IndexPage.module.css';
 import { Calendar, Download, Trash2 } from 'lucide-react';
-import { fetchRawDatasets, fetchLabeledDatasets, downloadDatasetById, updateRawDataset, updateLabeledDataset, deleteDatasets, uploadRawFiles, uploadLabeledFiles } from '../../../api/datasets.js';
 import Loading from '../../../components/common/Loading.jsx';
 import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
 import EmptyState from '../../../components/common/EmptyState.jsx';
 import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
 import DatasetUploadModal from '../../../components/dataset/DatasetUploadModal.jsx';
 import DatasetDataPanel from '../../../components/dataset/DatasetDataPanel.jsx';
+import DatasetUploadFilesModal from '../../../components/dataset/DatasetUploadFilesModal.jsx';
 import { Edit2, Upload as UploadIcon } from 'lucide-react';
-import Modal from '../../../components/common/Modal.jsx';
-import createModalStyles from '../../../components/common/CreateModal.module.css';
-import { uid } from '../../../api/uid.js';
-import FileUploadField from '../../../components/common/FileUploadField.jsx';
+import { useDatasets } from '../../../hooks';
 
 /**
  * DatasetsTab 컴포넌트
@@ -28,172 +25,50 @@ import FileUploadField from '../../../components/common/FileUploadField.jsx';
  */
 
 
-const UploadModal = ({ isOpen, onClose, onSave }) => {
-    const [files, setFiles] = useState([]);
-    const [fileError, setFileError] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const handleSubmit = async e => {
-        e.preventDefault();
-        setLoading(true);
-        await onSave(files);
-        setLoading(false);
-        setFiles([]);
-        setFileError(null);
-    };
-    return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Upload Files">
-            <form onSubmit={handleSubmit} className={createModalStyles.formGroup} style={{margin:0}}>
-                <label className={createModalStyles.label}>
-                    <FileUploadField files={files} setFiles={setFiles} fileError={fileError} setFileError={setFileError} accept={'.jpg,.jpeg,.png,.gif'} multiple />
-                </label>
-                {fileError && <div className={createModalStyles.fileError}>{fileError}</div>}
-                <div className={createModalStyles.modalActions}>
-                    <button type="button" onClick={onClose} className={createModalStyles.cancelButton} disabled={loading}>Cancel</button>
-                    <button type="submit" className={createModalStyles.submitButton} disabled={loading || files.length === 0 || fileError}>Upload</button>
-                </div>
-            </form>
-        </Modal>
-    );
-};
+
 
 const DatasetsTab = () => {
     const [showMore, setShowMore] = useState(false);
-    const [dataType, setDataType] = useState('raw');
     const cardsPerPage = 8;
 
-    const [rawDatasets, setRawDatasets] = useState([]);
-    const [labeledDatasets, setLabeledDatasets] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [initialLoading, setInitialLoading] = useState(true);
-    const [createOpen, setCreateOpen] = useState(false);
-    const [editOpen, setEditOpen] = useState(false);
-    const [editData, setEditData] = useState(null);
-    const [downloadingId, setDownloadingId] = useState(null);
-    const [deletingId, setDeletingId] = useState(null);
-    const [uploadOpen, setUploadOpen] = useState(false);
-    const [uploadTarget, setUploadTarget] = useState(null);
-    // 데이터셋 상세/데이터 패널 상태
-    const [dataPanelOpen, setDataPanelOpen] = useState(false);
-    const [dataPanelTarget, setDataPanelTarget] = useState(null);
-    // 카드 클릭 핸들러
-    const handleCardClick = (dataset) => {
-        setDataPanelTarget(dataset);
-        setDataPanelOpen(true);
-    };
-
-    useEffect(() => {
-        setInitialLoading(true);
-        setError(null);
-        
-        // raw data와 labeled data를 모두 병렬로 로드
-        Promise.all([
-            fetchRawDatasets({ uid }),
-            fetchLabeledDatasets({ uid })
-        ])
-            .then(([rawRes, labeledRes]) => {
-                setRawDatasets(rawRes.data || []);
-                setLabeledDatasets(labeledRes.data || []);
-            })
-            .catch(err => {
-                console.error('DatasetsTab: Error fetching datasets:', err);
-                setError(err.message || 'Failed to fetch datasets');
-            })
-            .finally(() => {
-                setInitialLoading(false);
-            });
-    }, []); // dataType 의존성 제거
+    const {
+        dataType,
+        loading,
+        error,
+        initialLoading,
+        isCreateModalOpen,
+        isEditModalOpen,
+        isUploadModalOpen,
+        isDataPanelOpen,
+        editData,
+        uploadTarget,
+        dataPanelTarget,
+        downloadingId,
+        deletingId,
+        handleDownload,
+        handleEdit,
+        handleDelete,
+        handleUpload,
+        handleCardClick,
+        handleDataTypeChange,
+        openCreateModal,
+        closeCreateModal,
+        openEditModal,
+        closeEditModal,
+        openUploadModal,
+        closeUploadModal,
+        openDataPanel,
+        closeDataPanel,
+        getCurrentDatasets,
+        handleCreated
+    } = useDatasets();
 
     const handleToggleShowMore = () => {
         setShowMore(!showMore);
     };
 
-    const handleDownload = async (dataset) => {
-        setDownloadingId(dataset._id || dataset.id);
-        try {
-            await downloadDatasetById({ uid: dataset.uid || uid, target_id: dataset._id || dataset.id });
-        } catch (err) {
-            alert('Download failed: ' + err.message);
-        } finally {
-            setDownloadingId(null);
-        }
-    };
-
-    const handleCreated = () => {
-        if (dataType === 'labeled') {
-            fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
-        } else {
-            fetchRawDatasets({ uid }).then(res => setRawDatasets(res.data));
-        }
-    };
-
-    const handleEdit = (dataset) => {
-        setEditData(dataset);
-        setEditOpen(true);
-    };
-    const handleEditSave = async (fields) => {
-        if (dataType === 'labeled') {
-            await updateLabeledDataset({
-                id: editData._id,
-                uid: editData.uid || uid,
-                name: fields.name,
-                description: fields.description,
-                type: fields.type,
-                task_type: fields.taskType,
-                label_format: fields.labelFormat
-            });
-            fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
-        } else {
-            await updateRawDataset({
-                id: editData._id || editData.id,
-                uid: editData.uid || uid,
-                name: fields.name,
-                description: fields.description,
-                type: fields.type
-            });
-            fetchRawDatasets({ uid }).then(res => setRawDatasets(res.data));
-        }
-        setEditOpen(false);
-        setEditData(null);
-    };
-
-    const handleDelete = async (dataset) => {
-        setDeletingId(dataset.did || dataset.id);
-        try {
-            const id = dataset._id;
-            const path = dataset.file_path || dataset.path;
-            await deleteDatasets({
-                uid: uid,
-                target_id_list: [id],
-                target_path_list: path ? [path] : []
-            });
-            if (dataType === 'raw') {
-                await fetchRawDatasets({ uid }).then(res => setRawDatasets(res.data));
-            } else {
-                await fetchLabeledDatasets({ uid }).then(res => setLabeledDatasets(res.data));
-            }
-        } finally {
-            setDeletingId(null);
-        }
-    };
-
-    const handleUpload = (dataset) => {
-        setUploadTarget(dataset);
-        setUploadOpen(true);
-    };
-    const handleUploadSave = async (files) => {
-        if (dataType === 'labeled') {
-            await uploadLabeledFiles({ files, uid: uid, id: uploadTarget._id});
-        } else {
-            await uploadRawFiles({ files, uid: uid, id: uploadTarget._id});
-        }
-        setUploadOpen(false);
-        setUploadTarget(null);
-        handleCreated();
-    };
-
     const CreateDatasetCard = () => (
-        <Card className={styles.createCard} onClick={() => setCreateOpen(true)}>
+        <Card className={styles.createCard} onClick={openCreateModal}>
             <div className={styles.createCardContent}>
                 <PlusCircle size={32} className={styles.createCardIcon} />
                 <div className={styles.createCardText}>
@@ -204,7 +79,7 @@ const DatasetsTab = () => {
     );
     // Unified DatasetCard for both raw and labeled
     const DatasetCard = ({ dataset, isLabeled }) => (
-        <Card className={styles.projectCard} onClick={() => handleCardClick({ ...dataset, _id: dataset._id || dataset.id, uid: uid, datasetType: isLabeled ? 'labeled' : 'raw' })}>
+        <Card className={styles.projectCard} onClick={() => handleCardClick(dataset)}>
             <div className={styles.cardContent}>
                 <div className={styles.cardIcon}>
                     {isLabeled ? <Tag size={18} color="var(--color-text-secondary)" /> : <Database size={18} color="var(--color-text-secondary)" />}
@@ -223,10 +98,10 @@ const DatasetsTab = () => {
                     {dataset.created_at && new Date(dataset.created_at).toLocaleDateString()}
                 </div>
                 <div className={styles.cardActions}>
-                    <button className={styles.actionButton} title="Edit" onClick={e => { e.stopPropagation(); handleEdit(dataset); }}>
+                    <button className={styles.actionButton} title="Edit" onClick={e => { e.stopPropagation(); openEditModal(dataset); }}>
                         <Edit2 size={16} />
                     </button>
-                    <button className={styles.actionButton} title="Upload" onClick={e => { e.stopPropagation(); handleUpload(dataset); }}>
+                    <button className={styles.actionButton} title="Upload" onClick={e => { e.stopPropagation(); openUploadModal(dataset); }}>
                         <UploadIcon size={14} />
                     </button>
                     <button className={styles.actionButton} title="Download" onClick={e => { e.stopPropagation(); handleDownload(dataset); }} disabled={downloadingId === dataset._id}>
@@ -240,15 +115,7 @@ const DatasetsTab = () => {
         </Card>
     );
 
-    // 정렬 함수: created_at, createdAt, created 중 하나라도 있으면 내림차순
-    function sortByCreatedDesc(arr) {
-        return [...arr].sort((a, b) => {
-            const getTime = (d) => new Date(d.created_at || 0).getTime();
-            return getTime(b) - getTime(a);
-        });
-    }
-
-    const currentDatasets = dataType === 'raw' ? sortByCreatedDesc(rawDatasets) : sortByCreatedDesc(labeledDatasets);
+    const currentDatasets = getCurrentDatasets();
     // 최신 데이터셋만 추출
     const latestDataset = currentDatasets[0];
     // 최신 데이터셋 카드
@@ -272,36 +139,45 @@ const DatasetsTab = () => {
 
     return (
         <>
-            <DatasetUploadModal isOpen={createOpen} onClose={() => setCreateOpen(false)} datasetType={dataType} onCreated={handleCreated} />
-            {editOpen && (
+            <DatasetUploadModal 
+                isOpen={isCreateModalOpen} 
+                onClose={closeCreateModal} 
+                datasetType={dataType} 
+                onCreated={handleCreated} 
+            />
+            {isEditModalOpen && (
                 <DatasetUploadModal
-                    isOpen={editOpen}
-                    onClose={() => { setEditOpen(false); setEditData(null); }}
+                    isOpen={isEditModalOpen}
+                    onClose={closeEditModal}
                     datasetType={dataType}
                     editMode
                     initialData={editData}
-                    onSave={handleEditSave}
+                    onSave={handleEdit}
                     onCreated={handleCreated}
                 />
             )}
-            <UploadModal isOpen={uploadOpen} onClose={() => { setUploadOpen(false); setUploadTarget(null); }} onSave={handleUploadSave} />
+            <DatasetUploadFilesModal 
+                isOpen={isUploadModalOpen} 
+                onClose={closeUploadModal} 
+                onSave={handleUpload} 
+            />
             <DatasetDataPanel
-                open={dataPanelOpen}
-                onClose={() => setDataPanelOpen(false)}
+                open={isDataPanelOpen}
+                onClose={closeDataPanel}
                 dataset={dataPanelTarget}
                 datasetType={dataPanelTarget?.datasetType || dataType}
             />
             <div className={styles.dataTypeToggle} style={{ marginBottom: 24 }}>
                 <button
                     className={`${styles.dataTypeButton} ${dataType === 'raw' ? styles.activeDataType : ''}`}
-                    onClick={() => setDataType('raw')}
+                    onClick={() => handleDataTypeChange('raw')}
                 >
                     <Database size={16} />
                     Raw Data
                 </button>
                 <button
                     className={`${styles.dataTypeButton} ${dataType === 'labeled' ? styles.activeDataType : ''}`}
-                    onClick={() => setDataType('labeled')}
+                    onClick={() => handleDataTypeChange('labeled')}
                 >
                     <Tag size={16} />
                     Labeled Data

@@ -37,9 +37,7 @@ const AppRoutes = () => (<Router>
             <Route path="/projects/:projectName" element={<MainLayout/>}>
                 <Route index element={<ProjectHomePage/>}/>
                 <Route path="training" element={<TrainingPage/>}/>
-                <Route path="training/ide" element={<IdePage/>}/>
                 <Route path="labeling" element={<LabelingPage/>}/>
-                <Route path="labeling/:datasetId" element={<LabelingDetailPage/>}/>
                 <Route path="optimization" element={<OptimizationPage/>}/>
                 <Route path="validation" element={<ValidationPage/>}/>
                 <Route path="deployment" element={<DeploymentPage/>}/>
