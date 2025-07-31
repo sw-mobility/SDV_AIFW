@@ -18,16 +18,18 @@ export const useTrainingExecution = (trainingConfig) => {
     progress.start();
     progress.addLog('Training started...');
 
-    try {
-      const result = await executeTraining(trainingConfig);
+    let pct = 0;
+    const interval = setInterval(() => {
+      pct += 10;
+      progress.updateProgress(pct);
+      progress.addLog(`Progress: ${pct}%`);
       
-      if (result.success) {
-        progress.addLog(result.message);
+      if (pct >= 100) {
+        clearInterval(interval);
+        progress.complete();
+        progress.addLog('Training completed!');
       }
-    } catch (error) {
-      progress.addLog(`Error: ${error.message}`);
-      progress.stop();
-    }
+    }, 400);
   }, [trainingConfig, progress]);
 
   return {

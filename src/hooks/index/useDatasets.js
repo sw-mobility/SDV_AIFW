@@ -39,6 +39,9 @@ export const useDatasets = () => {
     // 액션 상태
     const [downloadingId, setDownloadingId] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
+    
+    // Show More 상태
+    const [showMoreCount, setShowMoreCount] = useState(5);
 
     // 데이터셋 목록 조회
     const fetchDatasetsList = async () => {
@@ -241,6 +244,7 @@ export const useDatasets = () => {
     // 데이터 타입 변경
     const handleDataTypeChange = (newDataType) => {
         setDataType(newDataType);
+        setShowMoreCount(5); // 데이터 타입 변경 시 Show More 카운트 리셋
     };
 
     // 현재 데이터셋 목록 (정렬된)
@@ -250,6 +254,21 @@ export const useDatasets = () => {
             const getTime = (d) => new Date(d.created_at || 0).getTime();
             return getTime(b) - getTime(a);
         });
+    };
+    
+    // Show More를 위한 데이터셋 목록 (제한된 개수)
+    const getLimitedDatasets = () => {
+        return getCurrentDatasets().slice(0, showMoreCount);
+    };
+    
+    // Show More 핸들러
+    const handleShowMore = () => {
+        setShowMoreCount(prev => prev + 5);
+    };
+    
+    // Show More 버튼 표시 여부
+    const shouldShowMoreButton = () => {
+        return getCurrentDatasets().length > showMoreCount;
     };
 
     return {
@@ -292,6 +311,9 @@ export const useDatasets = () => {
         // 유틸리티
         fetchDatasetsList,
         refreshCurrentDatasets,
-        getCurrentDatasets
+        getCurrentDatasets,
+        getLimitedDatasets,
+        handleShowMore,
+        shouldShowMoreButton
     };
 }; 

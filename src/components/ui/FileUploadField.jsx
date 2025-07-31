@@ -2,12 +2,9 @@ import React, { useRef, useState } from 'react';
 import styles from './FileUploadField.module.css';
 import { Upload } from 'lucide-react';
 
-// 공용 파일 업로드 필드 (UI/UX 강화, CSS 분리)
 export default function FileUploadField({ files, setFiles, fileError, setFileError, accept = '*', multiple = true, maxFiles = 20, maxSizeMB = 100 }) {
     const fileInputRef = useRef();
     const [dragActive, setDragActive] = useState(false);
-
-    // 파일 확장자 및 용량 체크
     const validateFiles = (selected) => {
         if (accept && accept !== '*') {
             const allowed = accept.split(',').map(s => s.replace('.', '').toLowerCase());
@@ -36,8 +33,7 @@ export default function FileUploadField({ files, setFiles, fileError, setFileErr
         if (!validateFiles(selected)) return;
         setFiles(prev => [...prev, ...selected]);
     };
-
-    // 드래그 앤 드롭 지원
+// drag and drop 지원
     const handleDrop = (e) => {
         e.preventDefault();
         setDragActive(false);
@@ -55,17 +51,13 @@ export default function FileUploadField({ files, setFiles, fileError, setFileErr
         setDragActive(false);
     };
 
-    // 파일 개별 삭제 (파일의 name+size 조합으로 고유 식별)
     const handleRemoveFile = (fileToRemove) => {
         const newFiles = files.filter(f => !(f.name === fileToRemove.name && f.size === fileToRemove.size));
         setFiles(newFiles);
         setFileError && setFileError(null);
     };
-
-    // 파일 용량 표시
     const totalSizeMB = (files.reduce((a, f) => a + f.size, 0) / (1024 * 1024)).toFixed(1);
 
-    // 서버 중복 에러 등 사용자 친화적 에러 메시지 표출
     const getFriendlyError = (err) => {
         if (!err) return null;
         if (typeof err === 'string' && (err.includes('duplicate key') || err.includes('E11000'))) {

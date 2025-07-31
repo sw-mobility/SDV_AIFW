@@ -6,14 +6,12 @@
 }
 
 .tabContent {
-    height: calc(100vh - 200px);
-    min-height: 600px;
+    min-height: calc(100vh - 200px);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .tabPanel {
-    height: 100%;
     width: 100%;
     position: relative;
 }
