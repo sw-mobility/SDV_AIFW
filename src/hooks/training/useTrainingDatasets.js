@@ -1,16 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';
-import { useAsync } from '../common/useAsync.js';
 
 export const useTrainingDatasets = () => {
   const [datasets, setDatasets] = useState([]);
   const [selectedDataset, setSelectedDataset] = useState(null);
-  
-  const { execute: fetchDatasets, status: datasetLoading, error: datasetError } = useAsync(
-    async () => {
+  const [datasetLoading, setDatasetLoading] = useState(false);
+  const [datasetError, setDatasetError] = useState(null);
+
+  const fetchDatasets = useCallback(async () => {
+    setDatasetLoading(true);
+    setDatasetError(null);
+    try {
       const res = await fetchLabeledDatasets({ uid });
-      return (res.data || []).map(ds => ({
+      const formattedDatasets = (res.data || []).map(ds => ({
         id: ds.did || ds._id,
         name: ds.name,
         type: ds.type,
@@ -22,11 +25,18 @@ export const useTrainingDatasets = () => {
         origin_raw: ds.origin_raw,
         created_at: ds.created_at,
       }));
+      setDatasets(formattedDatasets);
+      return formattedDatasets;
+    } catch (err) {
+      setDatasetError(err.message);
+      throw err;
+    } finally {
+      setDatasetLoading(false);
     }
-  );
+  }, []);
 
   useEffect(() => {
-    fetchDatasets().then(setDatasets);
+    fetchDatasets();
   }, [fetchDatasets]);
 
   const selectDataset = (dataset) => {

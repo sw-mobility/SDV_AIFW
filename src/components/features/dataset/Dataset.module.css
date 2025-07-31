@@ -10,6 +10,48 @@
     padding: 1.5rem;
 }
 
+/* Data Type Toggle Styles for Drawer */
+.drawerDataTypeToggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    padding: 8px;
+    background: var(--color-gray-50, #f8f9fa);
+    border-radius: 12px;
+    border: 1px solid var(--color-border-primary, #e0e0e0);
+}
+
+.drawerDataTypeButton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--color-text-secondary, #666);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    justify-content: center;
+}
+
+.drawerDataTypeButton:hover {
+    color: white;
+    background: var(--color-blue, #3498db);
+}
+
+.drawerDataTypeButton.active {
+    color: white;
+    background: var(--color-blue, #3498db);
+}
+
+.drawerDataTypeButton.active:hover {
+    background: var(--color-blue-dark, #2980b9);
+}
+
 .dataset-list {
     display: flex;
     flex-direction: column;

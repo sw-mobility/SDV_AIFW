@@ -1,30 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styles from './LabelingPage.module.css';
 import DatasetTablePanel from '../../components/features/labeling/DatasetTablePanel.jsx';
 import LabelingWorkspace from '../../components/features/labeling/LabelingWorkspace.jsx';
-import { fetchRawDatasets } from '../../api/datasets.js';
-import {uid} from '../../api/uid';
+import { useLabeling } from '../../hooks';
 const LabelingPage = () => {
-    const [datasets, setDatasets] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [selectedDataset, setSelectedDataset] = useState(null);
-
-    useEffect(() => {
-        setLoading(true);
-        fetchRawDatasets({uid})
-            .then(res => {
-                const camelDatasets = (res.data || []).map(ds => ({
-                    ...ds,
-                    id: ds.id || ds._id, // id 필드 보장
-                    createdAt: ds.created_at ? new Date(ds.created_at).toISOString().slice(0, 10) : undefined
-                }));
-                setDatasets(camelDatasets);
-                setError(null);
-            })
-            .catch(e => setError(e.message))
-            .finally(() => setLoading(false));
-    }, []);
+    const {
+        datasets,
+        loading,
+        error,
+        selectedDataset,
+        setSelectedDataset
+    } = useLabeling();
 
     return (
         <div className={styles.container}>

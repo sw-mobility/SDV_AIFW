@@ -5,7 +5,7 @@ import TrainingExecution from '../../components/features/training/TrainingExecut
 import ContinualLearningInfo from '../../components/features/training/ContinualLearningInfo.jsx';
 import TrainingTypeSelector from '../../components/features/training/TrainingTypeSelector.jsx';
 import ParameterSection from '../../components/features/training/ParameterSection.jsx';
-import { useTrainingState } from '../../hooks/useTrainingState.js';
+import { useTrainingState } from '../../hooks';
 import { TRAINING_TYPES } from '../../domain/training/trainingTypes.js';
 import styles from './TrainingPage.module.css';
 

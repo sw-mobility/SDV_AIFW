@@ -197,7 +197,7 @@ export const useDatasets = () => {
     const handleCardClick = (dataset) => {
         setDataPanelTarget({ 
             ...dataset, 
-            _id: dataset._id || dataset.id, 
+            _id: dataset._id || dataset.id || dataset.did, 
             uid: uid, 
             datasetType: dataType 
         });

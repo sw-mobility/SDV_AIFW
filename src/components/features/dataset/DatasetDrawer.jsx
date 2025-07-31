@@ -47,23 +47,23 @@ const typeIconMap = {
 };
 
 const DatasetCard = ({dataset, onDownload, onDelete, onEdit, onUpload, onClick}) => (
-    <div className={styles['dataset-card']}>
+    <div className={styles['dataset-card']} onClick={() => onClick(dataset)}>
         <div className={styles['dataset-card-header']}>
             <div>
                 {dataset.datasetType === 'raw' ? typeIconMap.Raw : typeIconMap.Label}
             </div>
             <div className={styles['dataset-card-actions']}>
-                <IconButton size="small" title="Edit" onClick={() => onEdit(dataset)}>
+                <IconButton size="small" title="Edit" onClick={(e) => { e.stopPropagation(); onEdit(dataset); }}>
                     <Edit2 size={16}/>
                 </IconButton>
-                <IconButton size="small" title="Download" onClick={() => onDownload(dataset)}>
+                <IconButton size="small" title="Download" onClick={(e) => { e.stopPropagation(); onDownload(dataset); }}>
                     <Download size={16}/>
                 </IconButton>
-                <IconButton size="small" title="Delete" onClick={() => onDelete(dataset)}>
+                <IconButton size="small" title="Delete" onClick={(e) => { e.stopPropagation(); onDelete(dataset); }}>
                     <Trash2 size={16}/>
                 </IconButton>
                 {dataset.datasetType === 'raw' && (
-                    <IconButton size="small" title="Upload" onClick={() => onUpload(dataset)}>
+                    <IconButton size="small" title="Upload" onClick={(e) => { e.stopPropagation(); onUpload(dataset); }}>
                         <Upload size={16}/>
                     </IconButton>
                 )}
@@ -140,6 +140,24 @@ const DatasetDrawer = ({open, onClose}) => {
             </div>
             <Divider/>
             <div className={styles['drawer-content']}>
+                {/* Data Type Toggle */}
+                <div className={styles.drawerDataTypeToggle}>
+                    <button
+                        className={`${styles.drawerDataTypeButton} ${dataType === 'raw' ? styles.active : ''}`}
+                        onClick={() => handleDataTypeChange('raw')}
+                    >
+                        <Database size={14} />
+                        Raw Data
+                    </button>
+                    <button
+                        className={`${styles.drawerDataTypeButton} ${dataType === 'labeled' ? styles.active : ''}`}
+                        onClick={() => handleDataTypeChange('labeled')}
+                    >
+                        <Tag size={14} />
+                        Labeled Data
+                    </button>
+                </div>
+
                 <Button
                     variant="contained"
                     startIcon={<PlusCircle size={16}/>} 
@@ -157,6 +175,7 @@ const DatasetDrawer = ({open, onClose}) => {
                 <DatasetUploadModal 
                     isOpen={isCreateModalOpen} 
                     onClose={closeCreateModal} 
+                    datasetType={dataType}
                     onCreated={handleCreated}
                 />
 
@@ -167,7 +186,7 @@ const DatasetDrawer = ({open, onClose}) => {
                     {getCurrentDatasets().map(dataset => (
                         <DatasetCard
                             key={dataset._id || dataset.id}
-                            dataset={dataset}
+                            dataset={{...dataset, datasetType: dataType}}
                             onDownload={handleDownload}
                             onDelete={handleDelete}
                             onEdit={openEditModal}

@@ -140,6 +140,7 @@ const DatasetsTab = () => {
     return (
         <>
             <DatasetUploadModal 
+                key={`create-${dataType}-${isCreateModalOpen}`}
                 isOpen={isCreateModalOpen} 
                 onClose={closeCreateModal} 
                 datasetType={dataType} 
@@ -147,6 +148,7 @@ const DatasetsTab = () => {
             />
             {isEditModalOpen && (
                 <DatasetUploadModal
+                    key={`edit-${dataType}-${editData?.id || editData?._id || 'new'}`}
                     isOpen={isEditModalOpen}
                     onClose={closeEditModal}
                     datasetType={dataType}

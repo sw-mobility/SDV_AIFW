@@ -8,7 +8,7 @@ import EmptyState from '../../ui/EmptyState.jsx';
 import Table from '../../ui/Table.jsx';
 import FileUploadField from '../../ui/FileUploadField.jsx';
 import {getRawDataset, uploadRawFiles, getLabeledDataset, uploadLabeledFiles, deleteData, downloadDatasetById, downloadDataByPaths} from '../../../api/datasets.js';
-import { Trash2, Download } from 'lucide-react';
+import { Trash2, Download, Database } from 'lucide-react';
 
 const DatasetDataPanel = ({ open, onClose, dataset }) => {
     const [data, setData] = useState(null);
@@ -27,9 +27,10 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         setLoading(true);
         setError(null);
         const isLabeled = dataset.datasetType === 'labeled' || dataset.type === 'labeled';
+        const datasetId = dataset._id || dataset.id || dataset.did;
         const fetchData = isLabeled
-          ? getLabeledDataset({ did: dataset.did || dataset._id || dataset.id, id: dataset._id || dataset.id, uid: dataset.uid || '' })
-          : getRawDataset({ did: dataset.did || dataset._id || dataset.id, id: dataset._id || dataset.id, uid: dataset.uid || '' });
+          ? getLabeledDataset({ id: datasetId, uid: dataset.uid || '' })
+          : getRawDataset({ id: datasetId, uid: dataset.uid || '' });
         fetchData
             .then(res => setData(res))
             .catch(err => setError(err.message))
@@ -118,7 +119,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
 
     // rowKey는 _id로 지정
     return (
-        <Modal isOpen={open} onClose={onClose} title={data ? data.name : 'Dataset Details'} className={styles.wideModal}>
+        <Modal isOpen={open} onClose={onClose} title="Dataset Details" titleIcon={<Database size={20} />} className={styles.wideModal}>
             {loading && <Loading />}
             {error && <ErrorMessage message={error} />}
             {data && (
@@ -133,14 +134,14 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                         </div>
                     </div>
                     <form onSubmit={handleUpload} style={{ marginBottom: 16, display: 'flex', alignItems: 'flex-end', gap: 12, justifyContent: 'flex-end' }}>
-                        <FileUploadField
-                            files={uploadFiles}
-                            setFiles={setUploadFiles}
-                            fileError={uploadError}
-                            setFileError={setUploadError}
-                            accept={'.jpg,.jpeg,.png,.gif'}
-                            multiple={true}
-                        />
+                                                 <FileUploadField
+                             files={uploadFiles}
+                             setFiles={setUploadFiles}
+                             fileError={uploadError}
+                             setFileError={setUploadError}
+                             accept="*"
+                             multiple={true}
+                         />
                         <Button
                             type="submit"
                             size="medium"
@@ -188,9 +189,8 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                         selectedId={null}
                         selectedRowClassName={styles.selectedRow}
                     />
-                    </div>
-                    {(data.data_list && data.data_list.length === 0) && <EmptyState message="No data in this dataset." />}
-                    {showDeleteConfirm && (
+                                         </div>
+                     {showDeleteConfirm && (
                         <Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title="Delete Data" className={styles.confirmModal}>
                             <div style={{ padding: 16, fontSize: 16, color: '#d32f2f', textAlign: 'center' }}>
                                 <Trash2 size={32} style={{ marginBottom: 8 }} />

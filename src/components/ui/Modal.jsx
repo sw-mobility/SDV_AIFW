@@ -7,7 +7,8 @@ export default function Modal({
     onClose,
     title,
     children,
-    className = ''
+    className = '',
+    titleIcon
 }) {
     useEffect(() => {
         const handleEscape = (e) => {
@@ -36,7 +37,10 @@ export default function Modal({
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className={styles.header}>
-                    <h2 className={styles.title}>{title}</h2>
+                    <h2 className={styles.title}>
+                        {titleIcon && <span style={{ marginRight: 8, display: 'inline-flex', alignItems: 'center' }}>{titleIcon}</span>}
+                        {title}
+                    </h2>
                     <button 
                         className={styles.closeButton}
                         onClick={onClose}

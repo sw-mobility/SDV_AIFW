@@ -77,8 +77,8 @@
 }
 
 .dataTypeButton:hover {
-    color: var(--color-text-main);
-    background: var(--color-gray-100);
+    color: white;
+    background: var(--color-blue);
 }
 
 .activeDataType {
@@ -288,6 +288,17 @@
     background: var(--color-gray-100);
     color: var(--color-text-main);
     border-color: var(--color-border-focus);
+}
+
+/* 삭제 버튼 특별 스타일 */
+.actionButton[title="Delete"] {
+    color: var(--color-red, #dc3545);
+}
+
+.actionButton[title="Delete"]:hover {
+    background: var(--color-red-light, #f8d7da);
+    border-color: var(--color-red, #dc3545);
+    color: var(--color-red, #dc3545);
 }
 
 .moreButton {
