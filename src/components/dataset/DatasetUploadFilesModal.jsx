@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Modal from '../../shared/common/Modal.jsx';
-import createModalStyles from '../../shared/common/CreateModal.module.css';
-import FileUploadField from '../../shared/common/FileUploadField.jsx';
+import Modal from '../common/Modal.jsx';
+import createModalStyles from '../common/CreateModal.module.css';
+import FileUploadField from '../common/FileUploadField.jsx';
 
 const UploadFilesModal = ({ isOpen, onClose, onSave }) => {
     const [files, setFiles] = useState([]);

@@ -18,9 +18,9 @@ import {
     Upload
 } from 'lucide-react';
 import {useDatasetContext} from '../../app/context/DatasetContext.jsx';
-import Loading from '../../shared/common/Loading.jsx';
-import ErrorMessage from '../../shared/common/ErrorMessage.jsx';
-import EmptyState from '../../shared/common/EmptyState.jsx';
+import Loading from '../common/Loading.jsx';
+import ErrorMessage from '../common/ErrorMessage.jsx';
+import EmptyState from '../common/EmptyState.jsx';
 import styles from './Dataset.module.css';
 import {
     downloadDatasetById,

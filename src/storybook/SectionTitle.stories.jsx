@@ -1,4 +1,4 @@
-import SectionTitle from '../shared/common/SectionTitle.jsx';
+import SectionTitle from '../components/common/SectionTitle.jsx';
 
 export default {
   title: 'UI/SectionTitle',

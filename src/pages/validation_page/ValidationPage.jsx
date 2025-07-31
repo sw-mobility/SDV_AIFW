@@ -3,8 +3,8 @@ import styles from './ValidationPage.module.css';
 import dsStyles from '../../components/training/DatasetSelector.module.css';
 import ModelSelector from '../../components/optimization/ModelSelector.jsx';
 import DatasetSelector from '../../components/training/DatasetSelector.jsx';
-import ProgressBar from '../../shared/common/ProgressBar.jsx';
-import Button from '../../shared/common/Button.jsx';
+import ProgressBar from '../../components/common/ProgressBar.jsx';
+import Button from '../../components/common/Button.jsx';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';
 
@@ -87,7 +87,7 @@ const ValidationPage = () => {
         </div>
       )}
       <div className={styles.sectionWrap}>
-        {/* 좌측: 모델/데이터셋/메트릭 선택 패널 */}
+        {/* 좌측: model dataset metric 선택 필드 */}
         <div className={styles.leftPanel}>
           <div className={`${styles.selectorBlock} ${styles.noBorder}`}>
             <ModelSelector value={selectedModel} onChange={setSelectedModel} disabled={status === 'running'} showInfo={false} />
@@ -118,10 +118,9 @@ const ValidationPage = () => {
             />
           </div>
         </div>
-        {/* 우측: 실행 및 결과 패널 */}
+        {/* 우측: 실행, 결과 컴포넌트 */}
         <div className={styles.rightPanel}>
           <div className={styles.workspace}>
-            {/* 헤더 섹션 */}
             <div className={styles.header}>
               <div>
                 <h2 className={styles.pageTitle} style={{ fontSize: 22, marginBottom: 0 }}>Validation Execution</h2>
@@ -133,7 +132,6 @@ const ValidationPage = () => {
                 {status === 'error' && <span className={styles.statusError}>Failed</span>}
               </div>
             </div>
-            {/* 실행 버튼 */}
             <div style={{ margin: '32px 0 24px 0', display: 'flex', justifyContent: 'flex-end' }}>
               <Button
                 variant="primary"
@@ -147,7 +145,6 @@ const ValidationPage = () => {
                 {status === 'running' ? 'Running...' : 'Run Validation'}
               </Button>
             </div>
-            {/* 진행률 표시 */}
             {status !== 'idle' && (
               <div className={styles.progressSection}>
                 <ProgressBar
@@ -157,7 +154,7 @@ const ValidationPage = () => {
                 />
               </div>
             )}
-            {/* 결과 표 */}
+            {/* result table */}
             {results.length > 0 && (
               <div style={{ marginTop: 32 }}>
                 <h3>Results</h3>

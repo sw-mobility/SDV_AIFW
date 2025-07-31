@@ -1,4 +1,4 @@
-import Footer from '../shared/layout/Footer.jsx';
+import Footer from '../components/layout/Footer.jsx';
 
 export default {
   title: 'Layout/Footer',

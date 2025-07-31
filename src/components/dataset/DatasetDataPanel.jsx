@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import Modal from '../../shared/common/Modal.jsx';
+import Modal from '../common/Modal.jsx';
 import styles from './Dataset.module.css';
-import Button from '../../shared/common/Button.jsx';
-import Loading from '../../shared/common/Loading.jsx';
-import ErrorMessage from '../../shared/common/ErrorMessage.jsx';
-import EmptyState from '../../shared/common/EmptyState.jsx';
-import Table from '../../shared/common/Table.jsx';
-import FileUploadField from '../../shared/common/FileUploadField.jsx';
+import Button from '../common/Button.jsx';
+import Loading from '../common/Loading.jsx';
+import ErrorMessage from '../common/ErrorMessage.jsx';
+import EmptyState from '../common/EmptyState.jsx';
+import Table from '../common/Table.jsx';
+import FileUploadField from '../common/FileUploadField.jsx';
 import {getRawDataset, uploadRawFiles, getLabeledDataset, uploadLabeledFiles, deleteData, downloadDatasetById, downloadDataByPaths} from '../../api/datasets.js';
 import { Trash2, Download } from 'lucide-react';
 

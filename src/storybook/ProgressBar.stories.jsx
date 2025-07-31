@@ -1,4 +1,4 @@
-import ProgressBar from '../shared/common/ProgressBar.jsx';
+import ProgressBar from '../components/common/ProgressBar.jsx';
 
 export default {
   title: 'UI/ProgressBar',

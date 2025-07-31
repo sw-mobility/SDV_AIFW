@@ -3,9 +3,8 @@ import styles from './OptimizationPage.module.css';
 import TargetBoardSelector from '../../components/optimization/TargetBoardSelector.jsx';
 import ModelSelector from '../../components/optimization/ModelSelector.jsx';
 import OptionEditor from '../../components/optimization/OptionEditor.jsx';
-import ProgressBar from '../../shared/common/ProgressBar.jsx';
+import ProgressBar from '../../components/common/ProgressBar.jsx';
 import DatasetTablePanel from '../../components/labeling/DatasetTablePanel.jsx';
-import Table from '../../shared/common/Table.jsx';
 import { fetchLabeledDatasets, fetchRawDatasets } from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';
 import useOptimizationState from '../../hooks/useOptimizationState.js';
@@ -38,8 +37,7 @@ const OptimizationPage = () => {
     model, setModel,
     options, setOptions,
     isRunning, progress, logs, status,
-    runOptimization,
-    trials, setTestDataset
+    runOptimization, setTestDataset
   } = useOptimizationState();
 
   const [labeledDatasets, setLabeledDatasets] = useState([]);
@@ -78,8 +76,7 @@ const OptimizationPage = () => {
 
   const handleRunOptimization = () => {
     if (!targetBoard || !model || !calibrationDataset) {
-      // logs 상태를 직접 set
-      setOptions(prev => ({ ...prev })); // 강제 리렌더
+      setOptions(prev => ({ ...prev }));
       return;
     }
     runOptimization();

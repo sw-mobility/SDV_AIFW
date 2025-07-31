@@ -1,5 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
-import Sidebar from '../shared/layout/Sidebar.jsx';
+import Sidebar from '../components/layout/Sidebar.jsx';
 
 export default {
   title: 'Layout/Sidebar',

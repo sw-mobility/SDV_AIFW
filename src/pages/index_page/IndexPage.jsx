@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import Header from '../../shared/layout/Header.jsx';
-import Footer from '../../shared/layout/Footer.jsx';
-import TabNavigation from '../../shared/common/TabNavigation.jsx';
-import styles from '../../shared/layout/Layout.module.css';
+import React, { useState} from 'react';
+import Header from '../../components/layout/Header.jsx';
+import Footer from '../../components/layout/Footer.jsx';
+import TabNavigation from '../../components/common/TabNavigation.jsx';
+import styles from '../../components/layout/Layout.module.css';
 import pageStyles from './IndexPage.module.css';
 import ProjectsTab from './index_tab/ProjectsTab.jsx';
 import DatasetsTab from './index_tab/DatasetsTab.jsx';
@@ -10,7 +10,6 @@ import DatasetsTab from './index_tab/DatasetsTab.jsx';
 const IndexPage = () => {
     const [activeTab, setActiveTab] = useState('projects'); // 'projects' or 'data'
 
-    // 탭 설정
     const tabs = [
         { value: 'projects', label: 'Projects' },
         { value: 'data', label: 'Data Management' }

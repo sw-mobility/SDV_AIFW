@@ -1,20 +1,20 @@
 import React, { useState, useEffect} from 'react';
-import { Upload, Database, Tag, PlusCircle } from 'lucide-react';
-import Card from '../../../shared/common/Card.jsx';
+import { Database, Tag, PlusCircle } from 'lucide-react';
+import Card from '../../../components/common/Card.jsx';
 import styles from '../IndexPage.module.css';
 import { Calendar, Download, Trash2 } from 'lucide-react';
 import { fetchRawDatasets, fetchLabeledDatasets, downloadDatasetById, updateRawDataset, updateLabeledDataset, deleteDatasets, uploadRawFiles, uploadLabeledFiles } from '../../../api/datasets.js';
-import Loading from '../../../shared/common/Loading.jsx';
-import ErrorMessage from '../../../shared/common/ErrorMessage.jsx';
-import EmptyState from '../../../shared/common/EmptyState.jsx';
-import ShowMoreGrid from '../../../shared/common/ShowMoreGrid.jsx';
+import Loading from '../../../components/common/Loading.jsx';
+import ErrorMessage from '../../../components/common/ErrorMessage.jsx';
+import EmptyState from '../../../components/common/EmptyState.jsx';
+import ShowMoreGrid from '../../../components/common/ShowMoreGrid.jsx';
 import DatasetUploadModal from '../../../components/dataset/DatasetUploadModal.jsx';
 import DatasetDataPanel from '../../../components/dataset/DatasetDataPanel.jsx';
 import { Edit2, Upload as UploadIcon } from 'lucide-react';
-import Modal from '../../../shared/common/Modal.jsx';
-import createModalStyles from '../../../shared/common/CreateModal.module.css';
+import Modal from '../../../components/common/Modal.jsx';
+import createModalStyles from '../../../components/common/CreateModal.module.css';
 import { uid } from '../../../api/uid.js';
-import FileUploadField from '../../../shared/common/FileUploadField.jsx';
+import FileUploadField from '../../../components/common/FileUploadField.jsx';
 
 /**
  * DatasetsTab 컴포넌트

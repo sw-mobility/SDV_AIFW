@@ -1,5 +1,5 @@
 import React from 'react';
-import Loading from '../../shared/common/Loading.jsx';
+import Loading from '../common/Loading.jsx';
 import styles from './DatasetSelector.module.css';
 
 const DatasetSelector = ({ 

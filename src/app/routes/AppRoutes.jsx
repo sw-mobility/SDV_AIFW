@@ -9,7 +9,7 @@ import OptimizationPage from '../../pages/optimization_page/OptimizationPage.jsx
 import ValidationPage from '../../pages/validation_page/ValidationPage.jsx';
 import DeploymentPage from '../../pages/DeploymentPage.jsx';
 import ServiceProcessPage from '../../pages/ServiceProcessPage.jsx';
-import MainLayout from '../../shared/layout/MainLayout.jsx';
+import MainLayout from '../../components/layout/MainLayout.jsx';
 
 const IdePage = () => (<div style={{
         padding: 40,

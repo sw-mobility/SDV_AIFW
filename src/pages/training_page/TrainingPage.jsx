@@ -93,9 +93,7 @@ const TrainingPage = () => {
 
   return (
       <div className={styles.pageContainer}>
-        {/* 상단 부분 - container 제한 */}
         <div className={styles.container}>
-          {/* Page Header */}
           <div className={styles.pageHeader}>
             <h1 className={styles.pageTitle}>Training</h1>
             <p className={styles.pageDescription}>
@@ -125,12 +123,12 @@ const TrainingPage = () => {
           )}
         </div>
 
-        {/* 삼단구조 부분 - 동적 높이 조절 가능 */}
+        {/* expert mode 삼단구조 부분 */}
         <div className={styles.parameterSectionWrapper}>
           {renderParameterSection()}
         </div>
 
-        {/* 하단 부분 - container 제한 */}
+        {/* parameter 필드 height 에 따라 아래로 더 내려가는 하단 컴포넌트 */}
         <div className={styles.container}>
           <TrainingExecution
               isTraining={isTraining}

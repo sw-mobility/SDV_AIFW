@@ -1,13 +1,13 @@
 import React, { useState,  } from 'react';
-import Modal from '../../shared/common/Modal.jsx';
+import Modal from '../common/Modal.jsx';
 import styles from './Dataset.module.css';
-import Button from '../../shared/common/Button.jsx';
+import Button from '../common/Button.jsx';
 import { uploadDataset, createRawDataset, createLabeledDataset, uploadLabeledFiles } from '../../api/datasets.js';
-import Loading from '../../shared/common/Loading.jsx';
-import ErrorMessage from '../../shared/common/ErrorMessage.jsx';
+import Loading from '../common/Loading.jsx';
+import ErrorMessage from '../common/ErrorMessage.jsx';
 import { useDatasetContext } from '../../app/context/DatasetContext.jsx';
 import { uid } from '../../api/uid.js';
-import FileUploadField from '../../shared/common/FileUploadField.jsx';
+import FileUploadField from '../common/FileUploadField.jsx';
 
 const DATASET_TYPES = [
   'Image', 'Text', 'Audio', 'Video', 'Tabular', 'TimeSeries', 'Graph'

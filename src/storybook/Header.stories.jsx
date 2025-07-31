@@ -1,5 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
-import Header from '../shared/layout/Header.jsx';
+import Header from '../components/layout/Header.jsx';
 
 export default {
   title: 'Layout/Header',

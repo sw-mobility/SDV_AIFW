@@ -1,5 +1,5 @@
 import React from 'react';
-import CodeEditor from '../../shared/common/CodeEditor.jsx';
+import CodeEditor from '../common/CodeEditor.jsx';
 import ParameterEditor from './ParameterEditor.jsx';
 import ExpertModeToggle from './ExpertModeToggle.jsx';
 import ParameterSelector from './ParameterSelector.jsx';

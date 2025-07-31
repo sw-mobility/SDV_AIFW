@@ -1,4 +1,4 @@
-import Table from '../shared/common/Table.jsx';
+import Table from '../components/common/Table.jsx';
 
 export default {
   title: 'UI/Table',

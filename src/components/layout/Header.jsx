@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styles from './Layout.module.css';
-import DatasetDrawer from '../../components/dataset/DatasetDrawer.jsx';
+import DatasetDrawer from '../dataset/DatasetDrawer.jsx';
 import Button from '@mui/material/Button';
 import { Database } from 'lucide-react';
 
