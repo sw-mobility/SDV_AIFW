@@ -10,6 +10,7 @@ import styles from "./Layout.module.css";
 import { NavLink, useParams } from "react-router-dom";
 import { getProjectById } from "../../api/projects.js";
 import { uid } from "../../api/uid.js";
+import { SkeletonTitle } from "../ui/Skeleton.jsx";
 
 const menuItems = [
     {label: "Home", icon: Home, path: ""},
@@ -56,7 +57,15 @@ export default function Sidebar() {
         <aside className={styles.sidebar}>
             <div className={styles["sidebar-inner"]}>
                 <h1 className={styles["sidebar-project-name"]}>
-                    {loading ? 'Loading...' : (projectData?.name || 'Project Not Found')}
+                    {loading ? (
+                        <SkeletonTitle 
+                            width="200px" 
+                            height="24px" 
+                            className={styles.sidebarSkeleton}
+                        />
+                    ) : (
+                        projectData?.name || 'Project Not Found'
+                    )}
                 </h1>
                 <nav className={styles["sidebar-nav"]} aria-label="Main navigation">
                     <ul>

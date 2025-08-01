@@ -1,19 +1,32 @@
 .skeleton {
     background: #ddd;
-    margin : 10px 0;
+    margin: 10px 0;
     border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
 
+.skeleton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: loading 2s infinite;
 }
 
 .skeleton.text {
-    width : 100%;
-    height : 12px;
+    width: 100%;
+    height: 12px;
 }
 
 .skeleton.title {
-    width: 50%;
-    height: 20px;
+    width: 300px;
+    height: 48px;
     margin-bottom: 15px;
+    border-radius: 8px;
 }
 
 .skeleton.avatar{
@@ -24,7 +37,188 @@
 
 .skeleton.thumbnail {
     width: 100px;
-    height : 100px;
+    height: 100px;
+}
+
+/* Skeleton Card Styles */
+.skeletonCard {
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-lg);
+    min-height: 120px;
+    width: 280px;
+    height: auto;
+    position: relative;
+    transition: var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-lg);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.skeletonCardContent {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 12px;
+    position: relative;
+}
+
+.skeletonStatus {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 60px;
+    height: 20px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeletonStatus::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: loading 2s infinite;
+}
+
+.skeletonIcon {
+    width: 18px;
+    height: 18px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeletonIcon::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: loading 2s infinite;
+}
+
+.skeletonName {
+    width: 80%;
+    height: 20px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeletonName::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: loading 2s infinite;
+}
+
+.skeletonDescription {
+    width: 90%;
+    height: 16px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    margin: 2px 0 4px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeletonDescription::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: loading 2s infinite;
+}
+
+.skeletonDate {
+    width: 60%;
+    height: 16px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    margin-top: auto;
+    padding-top: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeletonDate::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: loading 2s infinite;
+}
+
+.skeletonActions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.skeletonActionButton {
+    width: 32px;
+    height: 32px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeletonActionButton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: loading 2s infinite;
+}
+
+/* Skeleton Card 반응형 스타일 */
+@media (max-width: 1024px) {
+    .skeletonCard {
+        min-height: 280px;
+        width: auto !important;
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 768px) {
+    .skeletonCard {
+        min-height: 240px;
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .skeletonCard {
+        min-height: 200px;
+        padding: var(--spacing-sm);
+    }
 }
 
 .shimmer-wrapper {

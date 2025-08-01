@@ -54,8 +54,25 @@ export const useProjects = () => {
             setProjects(prev => [result.data, ...prev]);
             setIsCreateModalOpen(false);
             
-            // 프로젝트 페이지로 이동
-            window.location.href = `/projects/${encodeURIComponent(result.data.name)}`;
+            // 프로젝트 페이지로 이동 - 생성된 프로젝트의 이름 사용
+            const createdProject = result.data;
+            let projectName;
+            
+            if (typeof createdProject === 'string') {
+                projectName = createdProject;
+            } else if (createdProject && typeof createdProject === 'object') {
+                projectName = createdProject.name;
+            } else {
+                projectName = projectData.name; // 입력한 이름 사용
+            }
+            
+            // 프로젝트 이름이 유효한지 확인
+            if (projectName && projectName !== 'undefined' && projectName !== '[object Object]') {
+                window.location.href = `/projects/${encodeURIComponent(projectName)}`;
+            } else {
+                // 입력한 프로젝트 이름으로 이동
+                window.location.href = `/projects/${encodeURIComponent(projectData.name)}`;
+            }
         } catch (err) {
             setError(err.message);
         } finally {

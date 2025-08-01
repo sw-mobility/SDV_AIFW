@@ -158,3 +158,35 @@
 .sidebar-nav-item .sidebar-nav-label {
     font-size: 14px;
 }
+
+@keyframes loading {
+    0% {
+        transform: translateX(-150%);
+    }
+    50% {
+        transform: translateX(-60%);
+    }
+    100% {
+        transform: translateX(150%);
+    }
+}
+
+.skeletonWrapper {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.sidebarSkeleton {
+    background: rgba(229, 231, 235, 0.3) !important;
+    border-radius: 6px !important;
+    backdrop-filter: blur(4px);
+    margin: 0 !important;
+    display: inline-block !important;
+}
+
+.sidebarSkeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent) !important;
+    animation: loading 2.5s infinite !important;
+    box-shadow: 0 0 20px 20px rgba(255, 255, 255, 0.1) !important;
+}

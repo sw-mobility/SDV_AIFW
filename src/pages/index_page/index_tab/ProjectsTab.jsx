@@ -11,6 +11,7 @@ import ShowMoreGrid from '../../../components/ui/ShowMoreGrid.jsx';
 import CreateModal from '../../../components/ui/CreateModal.jsx';
 import DeleteConfirmModal from '../../../components/common/DeleteConfirmModal.jsx';
 import { useProjects } from '../../../hooks';
+import { SkeletonCard } from '../../../components/ui/Skeleton.jsx';
 /**
  * ProjectsTab 컴포넌트
  *
@@ -49,7 +50,6 @@ const ProjectsTab = () => {
         closeEditModal
     } = useProjects();
 
-    if (loading) return <Loading fullHeight={true} />;
     if (error) return <ErrorMessage message={error} fullHeight={true} />;
 
     const handleToggleShowMore = () => {
@@ -65,6 +65,10 @@ const ProjectsTab = () => {
                 </div>
             </div>
         </Card>
+    );
+
+    const ProjectCardSkeleton = () => (
+        <SkeletonCard />
     );
 
     const ProjectCard = ({ project }) => (
@@ -110,6 +114,10 @@ const ProjectsTab = () => {
         </Card>
     );
 
+    const skeletonCards = Array(7).fill(null).map((_, index) => (
+        <ProjectCardSkeleton key={`skeleton-${index}`} />
+    ));
+
     const allProjectCards = [
         <CreateProjectCard key="create" />,
         ...projects.map(project => (
@@ -119,7 +127,11 @@ const ProjectsTab = () => {
 
     return (
         <>
-            {projects.length === 0 ? (
+            {loading ? (
+                <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
+                    {[<CreateProjectCard key="create" />, ...skeletonCards]}
+                </ShowMoreGrid>
+            ) : projects.length === 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
                     <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
                         {allProjectCards}
@@ -127,9 +139,9 @@ const ProjectsTab = () => {
                     <EmptyState message="No projects found." fullHeight={false} />
                 </div>
             ) : (
-            <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
-                {allProjectCards}
-            </ShowMoreGrid>
+                <ShowMoreGrid cardsPerPage={cardsPerPage} showMore={showMore} onToggleShowMore={handleToggleShowMore}>
+                    {allProjectCards}
+                </ShowMoreGrid>
             )}
 
             <CreateModal

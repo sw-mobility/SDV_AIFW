@@ -11,6 +11,7 @@ import {
 } from 'chart.js';
 import { useParams } from 'react-router-dom';
 import { uid } from '../../api/uid.js';
+import { SkeletonTitle } from '../../components/ui/Skeleton.jsx';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -125,7 +126,17 @@ const ProjectHomePage = () => {
         <div className={styles.heroBlur} />
         <div className={styles.heroContent}>
           <div className={styles.heroTitle}>
-            {loading ? 'Loading...' : (projectData?.name || 'Project Not Found')}
+            {loading ? (
+              <div className={styles.heroSkeletonWrapper}>
+                <SkeletonTitle 
+                  width="300px" 
+                  height="48px" 
+                  className={styles.heroSkeleton}
+                />
+              </div>
+            ) : (
+              projectData?.name || 'Project Not Found'
+            )}
           </div>
           <div className={styles.heroDesc}>Dashboard</div>
         </div>

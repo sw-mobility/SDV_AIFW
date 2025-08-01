@@ -98,6 +98,35 @@
   font-size: 22px;
   color: var(--color-primary-blue);
 }
+
+@keyframes loading {
+  0% {
+    transform: translateX(-150%);
+  }
+  50% {
+    transform: translateX(-60%);
+  }
+  100% {
+    transform: translateX(150%);
+  }
+}
+
+.heroSkeletonWrapper {
+    display: inline-block;
+    position: relative;
+}
+
+.heroSkeleton {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px !important;
+    margin: 0 !important;
+}
+
+.heroSkeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent) !important;
+    animation: loading 2s infinite !important;
+}
+
 .donutLabel {
   font-weight: 500;
   font-size: 15px;
