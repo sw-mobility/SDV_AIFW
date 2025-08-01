@@ -97,7 +97,8 @@ export const useDatasets = () => {
         try {
             await downloadDatasetById({ 
                 uid: dataset.uid || uid, 
-                target_id: dataset._id || dataset.id 
+                target_id: dataset._id || dataset.id,
+                dataset_name: dataset.name
             });
         } catch (err) {
             alert('Download failed: ' + err.message);

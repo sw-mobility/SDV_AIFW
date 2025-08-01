@@ -1,5 +1,5 @@
 import React from 'react';
-import Selector from '../../ui/Selector.jsx';
+import Selector from '../../ui/atoms/Selector.jsx';
 
 const testDatasets = [
   { value: 'test1', label: 'Test Dataset 1' },

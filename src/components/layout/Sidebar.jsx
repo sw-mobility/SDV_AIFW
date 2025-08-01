@@ -10,7 +10,7 @@ import styles from "./Layout.module.css";
 import { NavLink, useParams } from "react-router-dom";
 import { getProjectById } from "../../api/projects.js";
 import { uid } from "../../api/uid.js";
-import { SkeletonTitle } from "../ui/Skeleton.jsx";
+import { SkeletonTitle } from "../ui/atoms/Skeleton.jsx";
 
 const menuItems = [
     {label: "Home", icon: Home, path: ""},

@@ -18,9 +18,9 @@ import {
     Upload
 } from 'lucide-react';
 
-import Loading from '../../ui/Loading.jsx';
-import ErrorMessage from '../../ui/ErrorMessage.jsx';
-import EmptyState from '../../ui/EmptyState.jsx';
+import Loading from '../../ui/atoms/Loading.jsx';
+import ErrorMessage from '../../ui/atoms/ErrorMessage.jsx';
+import EmptyState from '../../ui/atoms/EmptyState.jsx';
 import styles from './Dataset.module.css';
 import {
     downloadDatasetById,
@@ -35,7 +35,7 @@ import { useDatasets } from '../../../hooks';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
 import UploadFilesModal from './DatasetUploadFilesModal.jsx';
 import DatasetDataPanel from './DatasetDataPanel.jsx';
-import DeleteConfirmModal from '../../common/DeleteConfirmModal.jsx';
+import DeleteConfirmModal from '../../ui/modals/DeleteConfirmModal.jsx';
 
 const typeIconMap = {
     Image: <ImageIcon size={14}/>,
@@ -63,11 +63,9 @@ const DatasetCard = ({dataset, onDownload, onDelete, onEdit, onUpload, onClick})
                 <IconButton size="small" title="Delete" onClick={(e) => { e.stopPropagation(); onDelete(dataset); }}>
                     <Trash2 size={16}/>
                 </IconButton>
-                {dataset.datasetType === 'raw' && (
-                    <IconButton size="small" title="Upload" onClick={(e) => { e.stopPropagation(); onUpload(dataset); }}>
-                        <Upload size={16}/>
-                    </IconButton>
-                )}
+                <IconButton size="small" title="Upload" onClick={(e) => { e.stopPropagation(); onUpload(dataset); }}>
+                    <Upload size={16}/>
+                </IconButton>
             </div>
         </div>
         <div className={styles['dataset-card-name']}>

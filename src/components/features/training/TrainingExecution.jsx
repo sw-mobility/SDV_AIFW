@@ -1,6 +1,6 @@
 import React from 'react';
-import Button from '../../ui/Button.jsx';
-import ProgressBar from '../../ui/ProgressBar.jsx';
+import Button from '../../ui/atoms/Button.jsx';
+import ProgressBar from '../../ui/atoms/ProgressBar.jsx';
 import styles from './TrainingExecution.module.css';
 
 const TrainingExecution = ({ 

@@ -3,7 +3,7 @@ import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
 import Checkbox from '@mui/material/Checkbox';
 import { Info } from 'lucide-react';
-import Button from '../../ui/Button.jsx';
+import Button from '../../ui/atoms/Button.jsx';
 import styles from './OptionEditor.module.css';
 
 export default function OptionEditor({

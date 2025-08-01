@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { Folder, File, ChevronRight, ChevronDown, PlusCircle, Save, X, Code } from 'lucide-react';
 import styles from './CodeEditor.module.css';
-import Button from './Button.jsx';
+import Button from '../atoms/Button.jsx';
 
 // Helper: get extension color
 const extColor = ext => {

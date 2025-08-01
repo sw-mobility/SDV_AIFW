@@ -1,4 +1,4 @@
-import SkeletonElement, { Shimmer } from '../components/ui/Skeleton.jsx';
+import SkeletonElement, { Shimmer } from '../components/ui/atoms/Skeleton.jsx';
 
 export default {
   title: 'UI/Skeleton',

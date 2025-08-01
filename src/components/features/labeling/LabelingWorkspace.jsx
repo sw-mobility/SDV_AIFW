@@ -1,28 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Settings, Play, CheckCircle, XCircle } from 'lucide-react';
-import ProgressBar from '../../ui/ProgressBar.jsx';
-import Button from '../../ui/Button.jsx';
+import ProgressBar from '../../ui/atoms/ProgressBar.jsx';
+import Button from '../../ui/atoms/Button.jsx';
 import styles from './LabelingWorkspace.module.css';
+import { useLabelingWorkspace } from '../../../hooks/labeling/useLabelingWorkspace.js';
 
 export default function LabelingWorkspace({ dataset }) {
-  const [modelType, setModelType] = useState('YOLO');
-  const [taskType, setTaskType] = useState('Object detection');
-  const [status, setStatus] = useState('idle'); // idle | running | success | error
-  const [progress, setProgress] = useState(0);
-
-  const handleRunLabeling = () => {
-    setStatus('running');
-    setProgress(0);
-    let pct = 0;
-    const interval = setInterval(() => {
-      pct += 10;
-      setProgress(pct);
-      if (pct >= 100) {
-        clearInterval(interval);
-        setStatus('success');
-      }
-    }, 400);
-  };
+  const {
+    modelType,
+    taskType,
+    status,
+    progress,
+    handleRunLabeling,
+    handleModelTypeChange,
+    handleTaskTypeChange,
+    isDisabled
+  } = useLabelingWorkspace(dataset);
 
   if (!dataset) {
     return (
@@ -78,7 +71,7 @@ export default function LabelingWorkspace({ dataset }) {
               <label className={styles.configLabel}>Model Type</label>
               <select
                   value={modelType}
-                  onChange={e => setModelType(e.target.value)}
+                  onChange={e => handleModelTypeChange(e.target.value)}
                   className={styles.configSelect}
                   disabled={status === 'running'}
               >
@@ -92,7 +85,7 @@ export default function LabelingWorkspace({ dataset }) {
               <label className={styles.configLabel}>Task Type</label>
               <select
                   value={taskType}
-                  onChange={e => setTaskType(e.target.value)}
+                  onChange={e => handleTaskTypeChange(e.target.value)}
                   className={styles.configSelect}
                   disabled={status === 'running'}
               >

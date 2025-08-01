@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Table from "../../components/ui/Table.jsx";
+import Table from "../../components/ui/atoms/Table.jsx";
 import styles from "./ProjectHomePage.module.css";
 import { Box, Typography, Grid, Card, CardContent } from '@mui/material';
 import { Doughnut } from 'react-chartjs-2';
@@ -11,7 +11,7 @@ import {
 } from 'chart.js';
 import { useParams } from 'react-router-dom';
 import { uid } from '../../api/uid.js';
-import { SkeletonTitle } from '../../components/ui/Skeleton.jsx';
+import { SkeletonTitle } from '../../components/ui/atoms/Skeleton.jsx';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 

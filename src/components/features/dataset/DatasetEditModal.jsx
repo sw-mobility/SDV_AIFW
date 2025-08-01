@@ -40,7 +40,7 @@ const DatasetEditModal = ({open, onClose, dataset, onUpdated}) => {
     };
     if (!open) return null;
     return (
-        <div className={styles['modal-backdrop']}>
+        <div className={styles['modals-backdrop']}>
             <div className={styles['modal']}>
                 <form onSubmit={handleSubmit} className={styles.formGroup}>
                     <div style={{fontWeight: 600, fontSize: 18, marginBottom: 12}}>Edit Dataset</div>

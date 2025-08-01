@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-export const useAsync = (asyncFunction, immediate = false) => {
+export const useAsync = (asyncFunction) => {
   const [status, setStatus] = useState('idle');
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);

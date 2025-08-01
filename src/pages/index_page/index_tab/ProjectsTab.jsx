@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import {Plus, FolderOpen, ChevronDown, Trash2, Pencil} from 'lucide-react';
-import Card, { CardGrid } from '../../../components/ui/Card.jsx';
+import Card, { CardGrid } from '../../../components/ui/atoms/Card.jsx';
 import styles from '../IndexPage.module.css';
 import { Calendar } from 'lucide-react';
-import StatusChip from '../../../components/ui/StatusChip.jsx';
-import Loading from '../../../components/ui/Loading.jsx';
-import ErrorMessage from '../../../components/ui/ErrorMessage.jsx';
-import EmptyState from '../../../components/ui/EmptyState.jsx';
-import ShowMoreGrid from '../../../components/ui/ShowMoreGrid.jsx';
-import CreateModal from '../../../components/ui/CreateModal.jsx';
-import DeleteConfirmModal from '../../../components/common/DeleteConfirmModal.jsx';
+import StatusChip from '../../../components/ui/atoms/StatusChip.jsx';
+import Loading from '../../../components/ui/atoms/Loading.jsx';
+import ErrorMessage from '../../../components/ui/atoms/ErrorMessage.jsx';
+import EmptyState from '../../../components/ui/atoms/EmptyState.jsx';
+import ShowMoreGrid from '../../../components/ui/atoms/ShowMoreGrid.jsx';
+import CreateModal from '../../../components/ui/modals/CreateModal.jsx';
+import DeleteConfirmModal from '../../../components/ui/modals/DeleteConfirmModal.jsx';
 import { useProjects } from '../../../hooks';
-import { SkeletonCard } from '../../../components/ui/Skeleton.jsx';
+import { SkeletonCard } from '../../../components/ui/atoms/Skeleton.jsx';
 /**
  * ProjectsTab 컴포넌트
  *

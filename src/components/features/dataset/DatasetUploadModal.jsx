@@ -1,9 +1,9 @@
 import React from 'react';
-import Modal from '../../ui/Modal.jsx';
+import Modal from '../../ui/modals/Modal.jsx';
 import styles from './Dataset.module.css';
-import Button from '../../ui/Button.jsx';
-import Loading from '../../ui/Loading.jsx';
-import ErrorMessage from '../../ui/ErrorMessage.jsx';
+import Button from '../../ui/atoms/Button.jsx';
+import Loading from '../../ui/atoms/Loading.jsx';
+import ErrorMessage from '../../ui/atoms/ErrorMessage.jsx';
 import { useDatasetUpload } from '../../../hooks/dataset/useDatasetUpload.js';
 
 export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw', editMode = false, initialData = {}, onSave, onCreated }) {

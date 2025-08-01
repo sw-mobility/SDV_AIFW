@@ -1,4 +1,4 @@
-import Button from '../components/ui/Button.jsx';
+import Button from '../components/ui/atoms/Button.jsx';
 
 export default {
   title: 'UI/Button',

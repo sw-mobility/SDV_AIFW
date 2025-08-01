@@ -1,5 +1,5 @@
 import React from 'react';
-import TabNavigation from '../../ui/TabNavigation.jsx';
+import TabNavigation from '../../ui/atoms/TabNavigation.jsx';
 import { TRAINING_TABS } from '../../../domain/training/trainingTypes.js';
 
 const TrainingTypeSelector = ({ trainingType, onTrainingTypeChange }) => {

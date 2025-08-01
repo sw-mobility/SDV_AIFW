@@ -197,7 +197,7 @@ export async function updateLabeledDataset({ id, uid, name, description, type, t
     return await response.json();
 }
 
-export async function downloadDatasetById({ uid, target_id }) {
+export async function downloadDatasetById({ uid, target_id, dataset_name }) {
     const response = await fetch(`${BASE_URL}/datasets/download-dataset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -211,7 +211,9 @@ export async function downloadDatasetById({ uid, target_id }) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${target_id}.zip`;
+    // dataset_name이 있으면 사용하고, 없으면 target_id 사용
+    const fileName = dataset_name ? `${dataset_name}.zip` : `${target_id}.zip`;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -219,7 +221,7 @@ export async function downloadDatasetById({ uid, target_id }) {
     return true;
 }
 
-export async function downloadDataByPaths({ uid, target_path_list }) {
+export async function downloadDataByPaths({ uid, target_path_list, dataset_name }) {
     const response = await fetch(`${BASE_URL}/datasets/download-data`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -233,7 +235,9 @@ export async function downloadDataByPaths({ uid, target_path_list }) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `data.zip`;
+    // dataset_name이 있으면 사용하고, 없으면 기본 이름 사용
+    const fileName = dataset_name ? `${dataset_name}_selected_data.zip` : `data.zip`;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

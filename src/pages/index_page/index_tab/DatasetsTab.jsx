@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Database, Tag, PlusCircle } from 'lucide-react';
-import Card from '../../../components/ui/Card.jsx';
+import Card from '../../../components/ui/atoms/Card.jsx';
 import styles from '../IndexPage.module.css';
 import { Calendar, Download, Trash2 } from 'lucide-react';
-import Loading from '../../../components/ui/Loading.jsx';
-import ErrorMessage from '../../../components/ui/ErrorMessage.jsx';
-import EmptyState from '../../../components/ui/EmptyState.jsx';
-import ShowMoreGrid from '../../../components/ui/ShowMoreGrid.jsx';
+import Loading from '../../../components/ui/atoms/Loading.jsx';
+import ErrorMessage from '../../../components/ui/atoms/ErrorMessage.jsx';
+import EmptyState from '../../../components/ui/atoms/EmptyState.jsx';
+import ShowMoreGrid from '../../../components/ui/atoms/ShowMoreGrid.jsx';
 import DatasetUploadModal from '../../../components/features/dataset/DatasetUploadModal.jsx';
 import DatasetDataPanel from '../../../components/features/dataset/DatasetDataPanel.jsx';
 import DatasetUploadFilesModal from '../../../components/features/dataset/DatasetUploadFilesModal.jsx';
-import DeleteConfirmModal from '../../../components/common/DeleteConfirmModal.jsx';
+import DeleteConfirmModal from '../../../components/ui/modals/DeleteConfirmModal.jsx';
 import { Edit2, Upload as UploadIcon } from 'lucide-react';
 import { useDatasets } from '../../../hooks';
 

@@ -1,8 +1,8 @@
 import React from 'react';
-import Modal from '../ui/Modal.jsx';
-import Button from '../ui/Button.jsx';
+import Modal from './Modal.jsx';
+import Button from '../atoms/Button.jsx';
 import { Trash2 } from 'lucide-react';
-import styles from '../features/dataset/Dataset.module.css';
+import styles from '../../features/dataset/Dataset.module.css';
 
 const DeleteConfirmModal = ({ 
     isOpen, 

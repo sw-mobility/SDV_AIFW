@@ -3,7 +3,7 @@ import styles from './OptimizationPage.module.css';
 import TargetBoardSelector from '../../components/features/optimization/TargetBoardSelector.jsx';
 import ModelSelector from '../../components/features/optimization/ModelSelector.jsx';
 import OptionEditor from '../../components/features/optimization/OptionEditor.jsx';
-import ProgressBar from '../../components/ui/ProgressBar.jsx';
+import ProgressBar from '../../components/ui/atoms/ProgressBar.jsx';
 import DatasetTablePanel from '../../components/features/labeling/DatasetTablePanel.jsx';
 import { fetchLabeledDatasets, fetchRawDatasets } from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';

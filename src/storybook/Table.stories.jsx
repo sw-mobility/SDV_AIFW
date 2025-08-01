@@ -1,4 +1,4 @@
-import Table from '../components/ui/Table.jsx';
+import Table from '../components/ui/atoms/Table.jsx';
 
 export default {
   title: 'UI/Table',

@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback} from 'react';
 
-export const useProgress = (autoStart = false) => {
+export const useProgress = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('idle');

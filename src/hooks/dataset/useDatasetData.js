@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getRawDataset, uploadRawFiles, getLabeledDataset, uploadLabeledFiles, deleteData, downloadDatasetById, downloadDataByPaths } from '../../api/datasets.js';
 
-export const useDatasetData = (dataset) => {
+export const useDatasetData = (dataset, isOpen = false) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,8 +25,8 @@ export const useDatasetData = (dataset) => {
       const fetchFunction = isLabeled ? getLabeledDataset : getRawDataset;
       
       const res = await fetchFunction({ 
-        did: dataset.did || dataset._id || dataset.id, 
-        id: dataset._id || dataset.id, 
+        did: dataset.did ,
+        id: dataset._id ,
         uid: dataset.uid || '' 
       });
       
@@ -40,8 +40,20 @@ export const useDatasetData = (dataset) => {
 
   // 초기 로드 및 refresh
   useEffect(() => {
+    if (!isOpen || !dataset) {
+      // 모달이 닫히거나 dataset이 없을 때 상태 초기화
+      setData(null);
+      setError(null);
+      setLoading(false);
+      setSelected([]);
+      setUploadFiles([]);
+      setUploadError(null);
+      setShowDeleteConfirm(false);
+      setDownloading(false);
+      return;
+    }
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, isOpen, dataset]);
 
   // 선택 관리
   const handleSelect = useCallback((row) => {
@@ -49,11 +61,11 @@ export const useDatasetData = (dataset) => {
   }, []);
 
   const handleSelectAll = useCallback(() => {
-    if (!data?.data_list) return;
+    if (!data?.data_list || !Array.isArray(data.data_list)) return;
     if (selected.length === data.data_list.length) {
       setSelected([]);
     } else {
-      setSelected(data.data_list.map(d => d._id));
+      setSelected(data.data_list.map(d => d._id).filter(Boolean));
     }
   }, [data?.data_list, selected.length]);
 
@@ -119,22 +131,23 @@ export const useDatasetData = (dataset) => {
     try {
       await downloadDatasetById({ 
         uid: dataset.uid, 
-        target_id: dataset._id 
+        target_id: dataset._id,
+        dataset_name: dataset.name || data?.name
       });
     } catch (err) {
       setError('Download failed: ' + err.message);
     } finally {
       setDownloading(false);
     }
-  }, [dataset]);
+  }, [dataset, data?.name]);
 
   const handleDownloadSelected = useCallback(async () => {
-    if (!selected.length || !data?.data_list || !dataset) return;
+    if (!selected.length || !data?.data_list || !Array.isArray(data.data_list) || !dataset) return;
     
     setDownloading(true);
     try {
       const selectedPaths = data.data_list
-        .filter(d => selected.includes(d._id) && d.path)
+        .filter(d => d && selected.includes(d._id) && d.path)
         .map(d => d.path);
       
       if (selectedPaths.length === 0) {
@@ -143,15 +156,15 @@ export const useDatasetData = (dataset) => {
       
       await downloadDataByPaths({ 
         uid: dataset.uid, 
-        target_path_list: selectedPaths 
+        target_path_list: selectedPaths,
+        dataset_name: dataset.name || data?.name
       });
     } catch (err) {
       setError('Download failed: ' + err.message);
     } finally {
       setDownloading(false);
     }
-  }, [selected, data?.data_list, dataset]);
-
+  }, [selected, data?.data_list, dataset, data?.name]);
   // 파일 업데이트
   const updateUploadFiles = useCallback((newFiles) => {
     setUploadFiles(newFiles);

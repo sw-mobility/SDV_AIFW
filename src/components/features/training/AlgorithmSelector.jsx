@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../../ui/Button.jsx';
+import Button from '../../ui/atoms/Button.jsx';
 import styles from './AlgorithmSelector.module.css';
 import { algorithmOptions } from '../../../domain/training/parameterGroups.js';
 

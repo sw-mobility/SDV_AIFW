@@ -1,6 +1,6 @@
 import React from 'react';
 import { CardGrid } from './Card.jsx';
-import styles from '../../pages/index_page/IndexPage.module.css';
+import styles from '../../../pages/index_page/IndexPage.module.css';
 import { ChevronDown } from 'lucide-react';
 
 export default function ShowMoreGrid({ children, cardsPerPage = 8, showMore, onToggleShowMore }) {
