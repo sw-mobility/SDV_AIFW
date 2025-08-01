@@ -16,7 +16,7 @@ export const useLabeling = () => {
       const res = await fetchRawDatasets({ uid });
       const camelDatasets = (res.data || []).map(ds => ({
         ...ds,
-        id: ds.id || ds._id, // id 필드 보장
+        id: ds._id,
         createdAt: ds.created_at ? new Date(ds.created_at).toISOString().slice(0, 10) : undefined
       }));
       setDatasets(camelDatasets);
@@ -33,16 +33,12 @@ export const useLabeling = () => {
   }, [fetchDatasets]);
 
   return {
-    // 상태
     datasets,
     loading,
     error,
     selectedDataset,
-    
-    // 핸들러
+
     setSelectedDataset,
-    
-    // 유틸리티
     fetchDatasets
   };
 }; 
