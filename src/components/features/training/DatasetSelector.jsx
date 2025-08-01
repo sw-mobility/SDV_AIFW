@@ -2,6 +2,17 @@ import React from 'react';
 import Loading from '../../ui/atoms/Loading.jsx';
 import styles from './DatasetSelector.module.css';
 
+/**
+ *  훈련에 사용할 데이터셋 선택 컴포넌트
+ * 주요 기능: 훈련 데이터셋 선택
+ * @param datasets
+ * @param selectedDataset
+ * @param onDatasetChange
+ * @param datasetLoading
+ * @param datasetError
+ * @returns {Element}
+ * @constructor
+ */
 const DatasetSelector = ({ 
   datasets, 
   selectedDataset, 

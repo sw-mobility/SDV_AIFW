@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import Modal from '../../ui/modals/Modal.jsx';
 import createModalStyles from '../../ui/modals/CreateModal.module.css';
-import FileUploadField from '../../ui/modals/FileUploadField.jsx';
+import FileUploadField from './FileUploadField.jsx';
 
 /**
- * 데이터셋 파일 업로드 모달 컴포넌트
+ * 데이터셋에 파일을 업로드하는 모달
+ * 주요 기능:
+ * 다중 파일 업로드
+ * 파일 형식 검증
+ * 업로드 진행 상태 표시
  * 
  * @param {Object} props
  * @param {boolean} props.isOpen - 모달 열림 상태

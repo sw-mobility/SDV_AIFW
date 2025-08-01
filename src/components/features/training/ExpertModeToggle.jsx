@@ -2,6 +2,14 @@ import React from 'react';
 import { Code } from 'lucide-react';
 import styles from './ExpertModeToggle.module.css';
 
+/**
+ * 전문가 모드 토글
+ * 주요 기능: 고급 파라미터 설정 모드 전환
+ * @param isActive
+ * @param onToggle
+ * @returns {Element}
+ * @constructor
+ */
 const ExpertModeToggle = ({ isActive, onToggle }) => {
   return (
     <div className={styles.expertModeToggle}>

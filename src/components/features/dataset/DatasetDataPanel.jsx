@@ -4,11 +4,25 @@ import styles from './Dataset.module.css';
 import Button from '../../ui/atoms/Button.jsx';
 import Loading from '../../ui/atoms/Loading.jsx';
 import ErrorMessage from '../../ui/atoms/ErrorMessage.jsx';
-import EmptyState from '../../ui/atoms/EmptyState.jsx';
 import Table from '../../ui/atoms/Table.jsx';
-import FileUploadField from '../../ui/modals/FileUploadField.jsx';
+import FileUploadField from './FileUploadField.jsx';
 import { useDatasetData } from '../../../hooks/dataset/useDatasetData.js';
 import { Trash2, Download, Database, Tag } from 'lucide-react';
+
+/**
+ * 데이터셋 클릭 시 나타나는 상세 정보 모달
+ * 주요 기능:
+ * 데이터셋 내부 데이터 목록 표시
+ * 데이터 업로드 기능
+ * 선택된 데이터 다운로드/삭제
+ * 데이터셋 상세 정보 표시
+ *
+ * @param open
+ * @param onClose
+ * @param dataset
+ * @returns {Element}
+ * @constructor
+ */
 
 const DatasetDataPanel = ({ open, onClose, dataset }) => {
     const {
@@ -22,10 +36,8 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         showDeleteConfirm,
         downloading,
         handleSelect,
-        handleSelectAll,
         handleDelete,
         handleUpload,
-        handleDownloadDataset,
         handleDownloadSelected,
         updateUploadFiles,
         toggleDeleteConfirm,
@@ -38,11 +50,6 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
     const columns = [
         '', 'Name', 'Type', 'Format', 'Created'
     ];
-
-    // 전체선택 체크박스 별도 렌더링
-    const renderSelectAll = () => (
-        <input type="checkbox" checked={data?.data_list && Array.isArray(data.data_list) && selected.length === data.data_list.length && data.data_list.length > 0} onChange={handleSelectAll} key="all" />
-    );
 
     const tableData = React.useMemo(() => {
         if (!data?.data_list || !Array.isArray(data.data_list)) {

@@ -3,6 +3,20 @@ import { Database, Loader2 } from 'lucide-react';
 import DatasetTable from '../dataset/RawDatasetTable.jsx';
 import styles from './DatasetTablePanel.module.css';
 
+/**
+ * 라벨링 페이지에서 데이터셋 테이블을 표시하는 패널
+ * features/dataset 의 rawdatasettable 컴포넌트 정보 포함
+ * 주요 기능:
+ * 데이터셋 목록 표시
+ * 라벨링 대상 데이터셋 선택
+ *
+ * @param datasets
+ * @param selectedId
+ * @param onSelect
+ * @param loading
+ * @returns {Element}
+ * @constructor
+ */
 export default function DatasetTablePanel({ datasets, selectedId, onSelect, loading }) {
     return (
         <div className={styles.panel}>

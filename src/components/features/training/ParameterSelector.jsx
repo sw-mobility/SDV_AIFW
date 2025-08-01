@@ -9,8 +9,7 @@ const ParameterSelector = ({
   openParamGroup,
   onToggleParamKey,
   onRemoveParamKey,
-  onToggleGroup,
-  trainingType
+  onToggleGroup
 }) => {
   const renderParameterChips = () => {
     if (selectedParamKeys.length === 0) return null;

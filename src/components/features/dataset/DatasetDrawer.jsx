@@ -17,25 +17,23 @@ import {
     Video,
     Upload
 } from 'lucide-react';
-
 import Loading from '../../ui/atoms/Loading.jsx';
 import ErrorMessage from '../../ui/atoms/ErrorMessage.jsx';
 import EmptyState from '../../ui/atoms/EmptyState.jsx';
 import styles from './Dataset.module.css';
-import {
-    downloadDatasetById,
-    updateLabeledDataset,
-    updateRawDataset,
-    uploadRawFiles,
-    deleteDatasets,
-    uploadLabeledFiles
-} from '../../../api/datasets.js';
-import { uid } from '../../../api/uid.js';
 import { useDatasets } from '../../../hooks';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
+import DatasetEditModal from './DatasetEditModal.jsx';
 import UploadFilesModal from './DatasetUploadFilesModal.jsx';
 import DatasetDataPanel from './DatasetDataPanel.jsx';
 import DeleteConfirmModal from '../../ui/modals/DeleteConfirmModal.jsx';
+
+/**
+ * quick dataset management 버튼을 눌렀을 때 등장하는 mini dataset management입니다.
+ * index page 의 dataset management 기능을 ui 배치만 바꿔 그대로 제공합니다.
+ *
+ * @type {{Image: React.JSX.Element, Text: React.JSX.Element, Audio: React.JSX.Element, Video: React.JSX.Element, Raw: React.JSX.Element, Graph: React.JSX.Element, Label: React.JSX.Element}}
+ */
 
 const typeIconMap = {
     Image: <ImageIcon size={14}/>,
@@ -44,7 +42,7 @@ const typeIconMap = {
     Video: <Video size={14}/>,
     Raw: <Database size={14} style={{"color": "#3498db"}}/>,
     Graph: <Tag size={14}/>,
-    Label: <Tag size={14} style={{"color": "#cc305a"}}/>,
+    Label: <Tag size={14} style={{"color": "#cc3030"}}/>,
 };
 
 const DatasetCard = ({dataset, onDownload, onDelete, onEdit, onUpload, onClick}) => (
@@ -101,11 +99,8 @@ const DatasetDrawer = ({open, onClose}) => {
         isDataPanelOpen,
         isDeleteConfirmOpen,
         editData,
-        uploadTarget,
         dataPanelTarget,
         deleteTarget,
-        downloadingId,
-        deletingId,
         handleDownload,
         handleEdit,
         openDeleteConfirm,
@@ -119,7 +114,6 @@ const DatasetDrawer = ({open, onClose}) => {
         closeEditModal,
         openUploadModal,
         closeUploadModal,
-        openDataPanel,
         closeDataPanel,
         getCurrentDatasets,
         handleCreated
@@ -207,16 +201,13 @@ const DatasetDrawer = ({open, onClose}) => {
                 onClose={closeUploadModal}
                 onSave={handleUpload}
             />
-            {/* edit 모달도 DatasetUploadModal로 통일 */}
-            <DatasetUploadModal
-                key={`edit-${editData?.id || editData?._id || 'new'}-${isEditModalOpen}`}
-                isOpen={isEditModalOpen}
+            {/* 편집 모달 */}
+            <DatasetEditModal
+                open={isEditModalOpen}
                 onClose={closeEditModal}
-                editMode={true}
+                dataset={editData}
                 datasetType={editData?.datasetType || dataType}
-                initialData={editData || {}}
-                onSave={handleEdit}
-                onCreated={handleCreated}
+                onUpdated={handleCreated}
             />
             <DatasetDataPanel
                 open={isDataPanelOpen}
@@ -225,7 +216,6 @@ const DatasetDrawer = ({open, onClose}) => {
             />
             <DeleteConfirmModal
                 isOpen={isDeleteConfirmOpen}
-                onClose={() => setIsDeleteConfirmOpen(false)}
                 onConfirm={confirmDelete}
                 title="Delete Dataset"
                 message="Are you sure you want to delete this dataset?"

@@ -6,6 +6,15 @@ import Switch from '@mui/material/Switch';
 import styles from './ParameterEditor.module.css';
 import { normalizeParamValue} from '../../../domain/training/parameterGroups.js';
 
+/**
+ * 파라미터 입력 및 검증 담당
+ *
+ * @param currentParam
+ * @param algoParams
+ * @param onParamChange
+ * @returns {React.JSX.Element|null}
+ * @constructor
+ */
 const ParameterEditor = ({ 
   currentParam, 
   algoParams, 

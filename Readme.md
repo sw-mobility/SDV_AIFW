@@ -1,5 +1,8 @@
 # Frontend Project Guide
 
+전체 프로젝트의 구조를 설명합니다.
+## 컴포넌트 조립법 예시: [FrontendArchitectureGuide.md](FrontendArchitectureGuide.md)
+
 ## Project Structure
 
 ```
@@ -36,7 +39,7 @@ front/
 │   │   │   └── ProjectHomePage.module.css
 │   │   ├── DeploymentPage.jsx
 │   │   └── ServiceProcessPage.jsx
-│   ├── components/                # 재사용 가능한 UI 컴포넌트들
+│   ├── components/                # 재사용 가능한 UI 컴포넌트들 (각 목적은 파일 상단 주석에서 확인 가능)
 │   │   ├── ui/                   # 기본 UI 컴포넌트
 │   │   │   ├── Button.jsx
 │   │   │   ├── Card.jsx
@@ -120,12 +123,8 @@ front/
 │   │   │   ├── useDatasetData.js
 │   │   │   └── useDatasetUpload.js
 │   │   ├── common/              # 공통 훅
-│   │   │   ├── useAsync.js
-│   │   │   ├── useDebounce.js
-│   │   │   ├── useLocalStorage.js
-│   │   │   ├── useParameterEditor.js
 │   │   │   └── useProgress.js
-│   │   └── index.js             # 훅 export 파일
+│   │   └── index.js             # 훅 export 파일 (page 나 컴포넌트에서 hook을 불러와 사용할 땐 이 파일만 import하면 되도록)
 │   ├── api/                     # 서버 통신 API
 │   │   ├── datasets.js          # 데이터셋 API
 │   │   ├── projects.js          # 프로젝트 API
@@ -135,38 +134,14 @@ front/
 │   │       ├── parameterGroups.js
 │   │       ├── trainingTypes.js
 │   │       └── trainingValidation.js
-│   ├── utils/                   # 유틸리티 함수
-│   │   └── status.js
-│   ├── mocks/                   # 목업 데이터
+│   ├── mocks/                   # dummy (아직 api 연동 안 되었지만 필요한 data)
 │   │   └── trainingSnapshots.js
 │   └── storybook/               # Storybook 스토리 파일들
-│       ├── Button.stories.jsx
-│       ├── Card.stories.jsx
-│       ├── CodeEditor.stories.jsx
-│       ├── DatasetDrawer.stories.jsx
-│       ├── DatasetsApi.stories.jsx
-│       ├── Footer.stories.jsx
-│       ├── Header.stories.jsx
-│       ├── IndexPage.stories.jsx
-│       ├── LabelingPage.stories.jsx
-│       ├── MainLayout.stories.jsx
-│       ├── Modal.stories.jsx
-│       ├── OptimizationPage.stories.jsx
-│       ├── ProgressBar.stories.jsx
-│       ├── ProjectHomePage.stories.jsx
-│       ├── SectionTitle.stories.jsx
-│       ├── Sidebar.stories.jsx
-│       ├── Skeleton.stories.jsx
-│       ├── Table.stories.jsx
-│       ├── TrainingPage.stories.jsx
-│       └── ValidationPage.stories.jsx
-├── public/                       # 정적 파일들
+├── public/                       # 정적 파일들 (이미지는 이곳에)
 │   └── logo.png
 ├── package.json                  # 프로젝트 설정 및 의존성
-├── package-lock.json            # 의존성 잠금 파일
 ├── vite.config.js               # Vite 빌드 도구 설정
-├── eslint.config.js             # ESLint 설정
-└── README.md                    # 프로젝트 문서
+└── README.md                    # 이 문서
 ```
 
 ## Architecture
@@ -189,13 +164,16 @@ front/
 └─────────────────────────────────────┘
 ```
 
-### 1. Presentation Layer (표현 계층)
+### 1. Presentation Layer
 **위치**: `src/pages/`, `src/components/`
 **역할**: 사용자 인터페이스와 사용자 상호작용
 **특징**:
 - 화면 표시만 담당
 - 비즈니스 로직을 직접 포함하지 않음
+- 기능이 없는 UI
 - Hooks를 통해 데이터와 로직을 받아옴
+- JSX 확장자 파일의 return 값은 사용자 인터페이스에 표출되는 내용입니다.
+
 
 ```javascript
 // 예시: TrainingPage.jsx
@@ -220,13 +198,14 @@ const TrainingPage = () => {
 };
 ```
 
-### 2. Business Logic Layer (비즈니스 로직 계층)
+### 2. Business Logic Layer
 **위치**: `src/hooks/`
 **역할**: 데이터 처리, 상태 관리, 비즈니스 규칙 적용
 **특징**:
 - 컴포넌트에서 사용할 데이터와 로직을 제공
 - API 호출과 데이터 변환을 담당
 - 재사용 가능한 로직들을 모아둠
+- JS 확장자
 
 ```javascript
 // 예시: useDatasets.js
@@ -254,9 +233,9 @@ export const useDatasets = () => {
 **위치**: `src/domain/`
 **역할**: 핵심 비즈니스 규칙과 상수
 **특징**:
-- 다른 레이어에 의존하지 않음
-- 순수한 비즈니스 로직만 포함
+- 다른 layer에 의존하지 않음
 - 검증 규칙, 상수, 타입 정의
+- JS 확장자
 
 ```javascript
 // 예시: trainingValidation.js
@@ -284,7 +263,8 @@ export const validateTrainingExecution = (config) => {
 **특징**:
 - HTTP 요청을 통한 서버 통신
 - 데이터 변환과 에러 처리
-- 다른 레이어에 의존하지 않음
+- 다른 layer에 의존하지 않음
+- JS 확장자
 
 ```javascript
 // 예시: datasets.js
@@ -353,7 +333,6 @@ src/hooks/
 ├── index/useProjects.js       # 프로젝트 관리 (CRUD 작업)
 ├── index/useDatasets.js       # 데이터셋 관리 (업로드, 조회, 삭제)
 ├── training/useTrainingState.js  # 훈련 상태 관리 (진행률, 로그 등)
-└── common/useAsync.js         # 공통 비동기 처리 로직
 ```
 
 ## Key Directories Explained
@@ -371,18 +350,6 @@ src/hooks/
 
 ### `src/components/` - UI Components
 **역할**: 재사용 가능한 작은 UI 부품
-
-**구조**:
-```
-components/
-├── ui/              # 기본 UI 요소 (버튼, 카드, 모달 등)
-├── common/          # 여러 페이지에서 공통으로 사용되는 컴포넌트
-└── features/        # 특정 기능에만 사용되는 컴포넌트
-    ├── dataset/     # 데이터셋 관련 (카드, 업로드 모달 등)
-    ├── training/    # 훈련 관련 (설정 패널, 진행률 표시 등)
-    ├── labeling/    # 라벨링 관련
-    └── ...
-```
 
 **예시**:
 - `ui/Button.jsx`: 프로젝트 전체에서 사용하는 공통 버튼
@@ -432,18 +399,11 @@ hooks/
 - `training/trainingValidation.js`: 훈련 설정 검증 규칙
 - `training/parameterGroups.js`: 훈련 파라미터 그룹 정의
 
-### `src/utils/` - Utility Functions
-**역할**: 프로젝트 전반에서 사용되는 유틸리티 함수들
-**특징**:
-- 날짜/시간 포맷팅
-- 문자열 처리
-- 배열/객체 조작
-- 상태 변환 로직
-
 ## Core Concepts
 
 ### 1. Component
 **정의**: 화면의 일부분을 담당하는 재사용 가능한 부품
+
 **특징**: UI 렌더링과 사용자 인터랙션 처리
 
 ```javascript
@@ -463,6 +423,7 @@ function Button({ text, onClick, disabled = false }) {
 
 ### 2. Hook
 **정의**: 데이터 처리와 상태 관리를 담당하는 함수
+
 **특징**: 컴포넌트에서 사용할 데이터와 로직을 제공
 
 ```javascript
@@ -489,6 +450,7 @@ function useDatasets() {
 
 ### 3. Props
 **정의**: 부모 컴포넌트에서 자식 컴포넌트로 전달하는 데이터
+
 **특징**: 컴포넌트 간의 데이터 전달 방식
 
 ```javascript
@@ -503,6 +465,7 @@ function Button({ text, onClick, disabled }) {
 
 ### 4. State
 **정의**: 컴포넌트나 훅에서 관리하는 변경 가능한 데이터
+
 **특징**: 상태가 변경되면 관련 컴포넌트가 자동으로 다시 렌더링됨
 
 ```javascript
@@ -562,28 +525,16 @@ const deleteDataset = async (id) => {
    src/api/새기능.js
    ```
 
-### Coding Principles
-
-1. **관심사의 분리**: 각 레이어는 자신의 역할만 담당
-   - **Component**: UI 렌더링과 사용자 인터랙션
-   - **Hook**: 데이터 처리와 상태 관리
-   - **API**: 서버와의 통신
-   - **Domain**: 비즈니스 규칙과 검증
-
-2. **재사용성**: 중복 코드를 피하고 공통 로직은 Hook이나 Domain 으로 분리
-
-3. **가독성**
-
 ### File Naming Conventions
 
 - **컴포넌트**: PascalCase (예: `DatasetCard.jsx`)
-- **훅**: camelCase + use 접두사 (예: `useDatasets.js`)
+- **훅**: camelCase + use (예: `useDatasets.js`)
 - **API**: camelCase (예: `datasets.js`)
 - **스타일**: 컴포넌트명 + .module.css (예: `DatasetCard.module.css`)
-- **유틸리티**: camelCase (예: `dateFormatter.js`)
 
 ### CSS Modules 사용법
-
+일반 css와 다르게
+CSS Modules는 클래스명이 자동으로 고유한 해시로 변환되기 때문에, 배포 이후 발생하는 전역 충돌을 방지할 수 있습니다. 예를 들어, button이라는 클래스가 다른 컴포넌트의 button과 충돌하지 않습니다.
 ```javascript
 // DatasetCard.module.css
 .container {
@@ -606,64 +557,6 @@ function DatasetCard({ title }) {
         <div className={styles.container}>
             <h3 className={styles.title}>{title}</h3>
         </div>
-    );
-}
-```
-
-## Common Patterns
-
-### 1. Loading State Pattern
-```javascript
-function MyComponent() {
-    const { data, loading, error } = useMyData();
-    
-    if (loading) return <Loading />;
-    if (error) return <ErrorMessage error={error} />;
-    
-    return <DataDisplay data={data} />;
-}
-```
-
-### 2. Modal Pattern
-```javascript
-function MyPage() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    return (
-        <div>
-            <Button onClick={() => setIsModalOpen(true)} text="모달 열기" />
-            {isModalOpen && (
-                <Modal onClose={() => setIsModalOpen(false)}>
-                    <ModalContent />
-                </Modal>
-            )}
-        </div>
-    );
-}
-```
-
-### 3. Form Handling Pattern
-```javascript
-function MyForm() {
-    const [formData, setFormData] = useState({ name: '', email: '' });
-    
-    const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-    };
-    
-    const handleSubmit = async () => {
-        await api.submitForm(formData);
-        // 성공 처리
-    };
-    
-    return (
-        <form onSubmit={handleSubmit}>
-            <input 
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-            />
-            {/* ... */}
-        </form>
     );
 }
 ```

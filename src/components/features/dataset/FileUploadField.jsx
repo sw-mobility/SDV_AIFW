@@ -2,6 +2,19 @@ import React, { useRef, useState } from 'react';
 import styles from './FileUploadField.module.css';
 import { Upload } from 'lucide-react';
 
+/**
+ * 파일 업로드를 위한 field
+ * @param files
+ * @param setFiles
+ * @param fileError
+ * @param setFileError
+ * @param accept
+ * @param multiple
+ * @param maxFiles
+ * @param maxSizeMB
+ * @returns {Element}
+ * @constructor
+ */
 export default function FileUploadField({ files, setFiles, fileError, setFileError, accept = '*', multiple = true, maxFiles = 20, maxSizeMB = 100 }) {
     const fileInputRef = useRef();
     const [dragActive, setDragActive] = useState(false);

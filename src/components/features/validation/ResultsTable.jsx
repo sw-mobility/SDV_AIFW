@@ -1,5 +1,12 @@
 import React from 'react';
 
+/**
+ * 기능: 검증 결과 테이블
+ * 주요 기능: 검증 결과를 테이블 형태로 표시
+ * @param results
+ * @returns {React.JSX.Element|null}
+ * @constructor
+ */
 const ResultsTable = ({ results }) => {
   if (results.length === 0) return null;
 

@@ -4,14 +4,27 @@ import { Search } from 'lucide-react';
 import pageStyles from '../../../pages/labeling_page/LabelingPage.module.css';
 import tableStyles from './RawDatasetTable.module.css';
 
-export default function RawDatasetTable({ columns, data, onRowClick, selectedId, searchPlaceholder = 'Search...' }) {
+/**
+ * Raw 데이터셋을 테이블 형태로 표시
+ * labeling page 등에서 raw dataset 표 표출 필요할 때 사용
+ * 주요 기능:
+ * 검색 기능
+ * 데이터셋 선택
+ * 이름과 생성일 표시
+ * @param data
+ * @param onRowClick
+ * @param selectedId
+ * @param searchPlaceholder
+ * @returns {Element}
+ * @constructor
+ */
+export default function RawDatasetTable({data, onRowClick, selectedId, searchPlaceholder = 'Search...' }) {
   const [search, setSearch] = useState('');
   const filtered = useMemo(() => {
     if (!search) return data;
     return data.filter(row => row.name?.toLowerCase().includes(search.toLowerCase()));
   }, [data, search]);
 
-  // Restore: always render a single Name column with name + createdAt in one cell
   const tableData = filtered.map(row => ({
     id: row.id,
     cell: (

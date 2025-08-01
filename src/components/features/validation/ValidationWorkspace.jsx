@@ -5,6 +5,19 @@ import StatusBadge from './StatusBadge.jsx';
 import ResultsTable from './ResultsTable.jsx';
 import styles from './Validation.module.css';
 
+/**
+ * validation page 우측 필드
+ * 기능: 검증 상태 배지
+ * 주요 기능: 검증 진행 상태를 시각적으로 표시
+ * @param status
+ * @param progress
+ * @param onRunValidation
+ * @param isDisabled
+ * @param isRunning
+ * @param results
+ * @returns {Element}
+ * @constructor
+ */
 const ValidationWorkspace = ({ 
   status, 
   progress, 

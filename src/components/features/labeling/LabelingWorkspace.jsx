@@ -5,6 +5,18 @@ import Button from '../../ui/atoms/Button.jsx';
 import styles from './LabelingWorkspace.module.css';
 import { useLabelingWorkspace } from '../../../hooks/labeling/useLabelingWorkspace.js';
 
+/**
+ * labeling page 우측
+ * 라벨링 작업을 위한 메인 워크스페이스
+ * 주요 기능:
+ * 라벨링 작업 인터페이스
+ * 진행률 표시
+ * 라벨링 도구 제공
+ * 태스크 타입 선택
+ * @param dataset
+ * @returns {Element}
+ * @constructor
+ */
 export default function LabelingWorkspace({ dataset }) {
   const {
     modelType,
@@ -14,7 +26,6 @@ export default function LabelingWorkspace({ dataset }) {
     handleRunLabeling,
     handleModelTypeChange,
     handleTaskTypeChange,
-    isDisabled
   } = useLabelingWorkspace(dataset);
 
   if (!dataset) {

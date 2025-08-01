@@ -3,7 +3,8 @@ import Modal from './Modal.jsx';
 import styles from './CreateModal.module.css';
 
 /**
- * 범용 엔티티 생성/수정 모달
+ * 공통 modal component
+ * 현재 project tab의 create project modal 로 사용
  * @param isOpen
  * @param onClose
  * @param onSubmit

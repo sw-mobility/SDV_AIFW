@@ -3,6 +3,21 @@ import Button from '../../ui/atoms/Button.jsx';
 import ProgressBar from '../../ui/atoms/ProgressBar.jsx';
 import styles from './TrainingExecution.module.css';
 
+/**
+ * 훈련 실행 및 모니터링
+ * 주요 기능:
+ * 훈련 시작/중지
+ * 진행률 표시
+ * 훈련 상태 모니터링
+ * @param isTraining
+ * @param progress
+ * @param logs
+ * @param onRunTraining
+ * @param status
+ * @param completeText
+ * @returns {Element}
+ * @constructor
+ */
 const TrainingExecution = ({ 
   isTraining, 
   progress, 

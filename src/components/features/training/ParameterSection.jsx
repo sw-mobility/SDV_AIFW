@@ -6,6 +6,35 @@ import ParameterSelector from './ParameterSelector.jsx';
 import { TRAINING_TYPES } from '../../../domain/training/trainingTypes.js';
 import styles from './ParameterSection.module.css';
 
+/**
+ * training page 의 중앙 삼단구조 좌측필드
+ * 알고리즘 파라미터 설정 섹션
+ * 주요 기능:
+ * 파라미터 그룹별 설정
+ * 전문가 모드 토글
+ * 파라미터 편집기 제공
+ *
+ * @param showCodeEditor
+ * @param setShowCodeEditor
+ * @param paramGroups
+ * @param selectedParamKeys
+ * @param openParamGroup
+ * @param onToggleParamKey
+ * @param onRemoveParamKey
+ * @param onToggleGroup
+ * @param snapshots
+ * @param selectedSnapshot
+ * @param setSelectedSnapshot
+ * @param editorFileStructure
+ * @param editorFiles
+ * @param algoParams
+ * @param onParamChange
+ * @param paramErrors
+ * @param isTraining
+ * @param trainingType
+ * @returns {Element}
+ * @constructor
+ */
 const ParameterSection = ({
   // Expert mode state
   showCodeEditor,

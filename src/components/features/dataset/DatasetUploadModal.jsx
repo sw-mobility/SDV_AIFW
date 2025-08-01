@@ -6,7 +6,20 @@ import Loading from '../../ui/atoms/Loading.jsx';
 import ErrorMessage from '../../ui/atoms/ErrorMessage.jsx';
 import { useDatasetUpload } from '../../../hooks/dataset/useDatasetUpload.js';
 
-export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw', editMode = false, initialData = {}, onSave, onCreated }) {
+/**
+ * create dataset 버튼을 클릭했을 때 뜨는 모달
+ *
+ * 주요 기능:
+ * 새 데이터셋 생성 (Raw/Labeled)
+ *
+ * @param isOpen
+ * @param onClose
+ * @param datasetType
+ * @param onCreated
+ * @returns {Element}
+ * @constructor
+ */
+export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw', onCreated }) {
   const {
     formData,
     loading,
@@ -15,17 +28,11 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
     updateFormData,
     handleSubmit,
     DATASET_TYPES
-  } = useDatasetUpload(initialData, editMode, datasetType, onCreated);
+  } = useDatasetUpload({}, false, datasetType, onCreated);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    
-    if (editMode && onSave) {
-      await onSave(formData);
-      onClose();
-    } else {
-      await handleSubmit(e);
-    }
+    await handleSubmit(e);
   };
 
   // 성공 시 모달 닫기
@@ -38,7 +45,7 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
   }, [success, onClose]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={datasetType === 'labeled' ? (editMode ? 'Edit Labeled Dataset' : 'Create Labeled Dataset') : (editMode ? 'Edit Dataset' : 'Create Dataset')}>
+    <Modal isOpen={isOpen} onClose={onClose} title={datasetType === 'labeled' ? 'Create Labeled Dataset' : 'Create Dataset'}>
       <form onSubmit={onSubmit} className={styles.formGroup}>
         <label className={styles.label}>
           Name
@@ -104,7 +111,7 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
         )}
         {loading && <Loading />}
         {error && <ErrorMessage message={error} />}
-        {success && <div className={styles.successMessage}>{editMode ? 'Saved!' : 'Upload complete!'}</div>}
+        {success && <div className={styles.successMessage}>Upload complete!</div>}
         <div className={styles.modalActions}>
           <button
             type="button"
@@ -120,7 +127,7 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
             size="medium"
             disabled={loading || !formData.name}
           >
-            {editMode ? 'Save' : 'Create'}
+            Create
           </Button>
         </div>
       </form>

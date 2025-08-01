@@ -3,8 +3,16 @@ import Button from '../../ui/atoms/Button.jsx';
 import styles from './AlgorithmSelector.module.css';
 import { algorithmOptions } from '../../../domain/training/parameterGroups.js';
 
-const AlgorithmSelector = ({ 
-  algorithm, 
+/**
+ * : 알고리즘 선택 컴포넌트
+ * 주요 기능: 훈련에 사용할 알고리즘 선택
+ * @param algorithm
+ * @param onAlgorithmChange
+ * @returns {Element}
+ * @constructor
+ */
+const AlgorithmSelector = ({
+  algorithm,
   onAlgorithmChange
 }) => {
   return (

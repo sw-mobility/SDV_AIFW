@@ -4,6 +4,19 @@ import Button from '../atoms/Button.jsx';
 import { Trash2 } from 'lucide-react';
 import styles from '../../features/dataset/Dataset.module.css';
 
+/**
+ * 삭제 전 사용자에게 삭제여부를 한번 더 확인하는 modal
+ *
+ * @param isOpen
+ * @param onClose
+ * @param onConfirm
+ * @param title
+ * @param message
+ * @param confirmText
+ * @param itemName
+ * @returns {Element}
+ * @constructor
+ */
 const DeleteConfirmModal = ({ 
     isOpen, 
     onClose, 

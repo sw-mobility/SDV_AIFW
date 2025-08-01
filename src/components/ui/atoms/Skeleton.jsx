@@ -1,6 +1,16 @@
 import React from "react";
 import styles from "./Skeleton.module.css";
 
+/**
+ * skeleton ui 컴포넌트
+ * loading 시 animation 이 포함된 회색 필드를 넣어 ux 를 고려하는 방식
+ * @param type
+ * @param width
+ * @param height
+ * @param className
+ * @returns {Element}
+ * @constructor
+ */
 const SkeletonElement = ({ type, width, height, className }) => {
     const classes = `${styles.skeleton} ${styles[type]} ${className || ''}`;
     const style = {
