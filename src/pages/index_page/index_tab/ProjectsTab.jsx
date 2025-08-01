@@ -170,7 +170,6 @@ const ProjectsTab = () => {
             />
             <DeleteConfirmModal
                 isOpen={isDeleteConfirmOpen}
-                onClose={() => setIsDeleteConfirmOpen(false)}
                 onConfirm={confirmDelete}
                 title="Delete Project"
                 message="Are you sure you want to delete this project?"

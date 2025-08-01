@@ -8,6 +8,7 @@ import ErrorMessage from '../../../components/ui/atoms/ErrorMessage.jsx';
 import EmptyState from '../../../components/ui/atoms/EmptyState.jsx';
 import ShowMoreGrid from '../../../components/ui/atoms/ShowMoreGrid.jsx';
 import DatasetUploadModal from '../../../components/features/dataset/DatasetUploadModal.jsx';
+import DatasetEditModal from '../../../components/features/dataset/DatasetEditModal.jsx';
 import DatasetDataPanel from '../../../components/features/dataset/DatasetDataPanel.jsx';
 import DatasetUploadFilesModal from '../../../components/features/dataset/DatasetUploadFilesModal.jsx';
 import DeleteConfirmModal from '../../../components/ui/modals/DeleteConfirmModal.jsx';
@@ -34,7 +35,6 @@ const DatasetsTab = () => {
 
     const {
         dataType,
-        loading,
         error,
         initialLoading,
         isCreateModalOpen,
@@ -43,7 +43,6 @@ const DatasetsTab = () => {
         isDataPanelOpen,
         isDeleteConfirmOpen,
         editData,
-        uploadTarget,
         dataPanelTarget,
         deleteTarget,
         downloadingId,
@@ -61,7 +60,6 @@ const DatasetsTab = () => {
         closeEditModal,
         openUploadModal,
         closeUploadModal,
-        openDataPanel,
         closeDataPanel,
         getCurrentDatasets,
         handleCreated
@@ -151,15 +149,12 @@ const DatasetsTab = () => {
                 onCreated={handleCreated} 
             />
             {isEditModalOpen && (
-                <DatasetUploadModal
-                    key={`edit-${dataType}-${editData?.id || editData?._id || 'new'}`}
-                    isOpen={isEditModalOpen}
+                <DatasetEditModal
+                    open={isEditModalOpen}
                     onClose={closeEditModal}
+                    dataset={editData}
                     datasetType={dataType}
-                    editMode
-                    initialData={editData}
-                    onSave={handleEdit}
-                    onCreated={handleCreated}
+                    onUpdated={handleCreated}
                 />
             )}
             <DatasetUploadFilesModal 
@@ -175,7 +170,6 @@ const DatasetsTab = () => {
             />
             <DeleteConfirmModal
                 isOpen={isDeleteConfirmOpen}
-                onClose={() => setIsDeleteConfirmOpen(false)}
                 onConfirm={confirmDelete}
                 title="Delete Dataset"
                 message="Are you sure you want to delete this dataset?"
