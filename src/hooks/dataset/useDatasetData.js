@@ -182,6 +182,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
     loading,
     error,
     selected,
+    setSelected, // setSelected 함수 추가
     uploading,
     uploadError,
     uploadFiles,

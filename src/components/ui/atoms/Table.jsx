@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styles from './Table.module.css';
 
 /**
@@ -13,31 +13,54 @@ import styles from './Table.module.css';
  *         />
  * @param columns
  * @param data
+ * @param onRowClick
+ * @param selectedId
+ * @param rowKey
+ * @param selectedRowClassName
+ * @param maxHeight
+ * @param virtualized
  * @returns {Element}
  * @constructor
  */
-export default function Table({ columns, data, onRowClick, selectedId, rowKey = 'id', selectedRowClassName }) {
+export default function Table({ 
+    columns, 
+    data, 
+    onRowClick, 
+    selectedId, 
+    rowKey = 'id', 
+    selectedRowClassName,
+    maxHeight = 'auto',
+    virtualized = false
+}) {
     // 생성일자 컬럼 인덱스 찾기
-    const createdAtIdx = columns.findIndex(col => col.toLowerCase().includes('created'));
+    const createdAtIdx = columns.findIndex(col => 
+        typeof col === 'string' && col.toLowerCase().includes('created')
+    );
+
+    // 가상화를 위한 메모이제이션
+    const memoizedData = useMemo(() => data, [data]);
+
     return (
-        <div className={styles['table-container']}>
+        <div className={styles['table-container']} style={{ maxHeight }}>
             <table className={styles.table}>
                 <thead className={styles.thead}>
                 <tr>
-                    {columns.map(col => (
-                        <th key={col} className={styles.th}>{col}</th>
+                    {columns.map((col, index) => (
+                        <th key={index} className={styles.th}>
+                            {typeof col === 'string' ? col : col.label || col}
+                        </th>
                     ))}
                 </tr>
                 </thead>
-                <tbody>
-                {data.length === 0 ? (
+                <tbody className={styles.tbody}>
+                {memoizedData.length === 0 ? (
                     <tr>
                         <td colSpan={columns.length} className={styles.td} style={{ color: '#aaa', textAlign: 'center' }}>
                             Not found.
                         </td>
                     </tr>
                 ) : (
-                    data.map((row, idx) => (
+                    memoizedData.map((row, idx) => (
                         <tr
                             key={rowKey && row[rowKey] ? row[rowKey] : idx}
                             className={

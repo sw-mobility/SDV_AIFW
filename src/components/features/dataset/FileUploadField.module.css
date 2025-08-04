@@ -43,7 +43,7 @@
   gap: var(--spacing-sm);
   margin-bottom: 0;
   flex-wrap: wrap;
-  min-height: 32px;
+  min-height: 28px;
 }
 
 .iconWrap {
@@ -55,7 +55,7 @@
 }
 
 .title {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-normal);
   color: var(--color-text-main);
   line-height: 1.3;
@@ -75,30 +75,250 @@
   align-items: center;
 }
 
+/* 업로드 컨트롤 영역 */
+.uploadControls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* 업로드 모드 선택 */
+.uploadModeSelector {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.modeBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-main);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-weight: var(--font-weight-medium);
+}
+
+.modeBtn:hover {
+  background: var(--color-gray-100);
+  border-color: var(--color-border-secondary);
+}
+
+.activeMode {
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+  color: white;
+}
+
+.activeMode:hover {
+  background: var(--color-blue-dark);
+}
+
+/* 선택 버튼 */
+.selectBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: var(--color-blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.selectBtn:hover {
+  background: var(--color-blue-dark);
+  transform: translateY(-1px);
+}
+
+.selectBtn:active {
+  transform: translateY(0);
+}
+
+/* 폴더 그룹 */
+.folderGroups {
+  margin-bottom: var(--spacing-sm);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  overflow: hidden;
+}
+
+.folderGroup {
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.folderGroup:last-child {
+  border-bottom: none;
+}
+
+.folderHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-gray-50);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-main);
+}
+
+.folderName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileCount {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-normal);
+}
+
+/* 파일 목록 컨테이너 */
+.fileListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
 .fileList {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
   align-items: center;
   margin-bottom: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: var(--spacing-xs);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+}
+
+/* 파일 목록 제어 영역 */
+.fileListControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+}
+
+.totalInfo {
+  color: var(--color-blue);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-normal);
+  flex-shrink: 0;
+}
+
+/* 페이지네이션 컨트롤 */
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.paginationBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: var(--color-blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 5px 10px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.paginationBtn:hover {
+  background: var(--color-blue-dark);
+  transform: translateY(-1px);
+}
+
+.paginationBtn:active {
+  transform: translateY(0);
+}
+
+/* 페이지 네비게이션 */
+.pageNavigation {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  padding: 3px;
+}
+
+.pageBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  cursor: pointer;
+  color: var(--color-text-main);
+  transition: all var(--transition-normal);
+  min-width: 20px;
+  height: 20px;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: var(--color-blue-light);
+  color: var(--color-blue);
+}
+
+.pageBtn:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-main);
+  padding: 0 var(--spacing-xs);
+  min-width: 35px;
+  text-align: center;
 }
 
 .fileTag {
   background: var(--color-gray-50);
   border: 1px solid var(--color-border-primary);
   border-radius: var(--radius-full);
-  padding: 3px 10px 3px 12px;
+  padding: 3px 8px 3px 10px;
   font-size: var(--font-size-xs);
   color: var(--color-text-main);
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   max-width: 180px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: var(--font-weight-normal);
   transition: box-shadow var(--transition-normal);
+  flex-shrink: 0;
 }
 
 .fileTag:focus-within {
@@ -108,8 +328,17 @@
 .fileName {
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 90px;
+  max-width: 80px;
   font-weight: var(--font-weight-normal);
+}
+
+.filePath {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-normal);
+  max-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fileSize {
@@ -123,7 +352,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   margin-left: 2px;
   padding: 0 2px;
   border-radius: 50%;
@@ -138,14 +367,6 @@
 .removeBtn:hover, .removeBtn:focus {
   background: #fee2e2;
   outline: none;
-}
-
-.totalInfo {
-  color: var(--color-blue);
-  font-size: var(--font-size-xs);
-  align-self: center;
-  margin-left: var(--spacing-xs);
-  font-weight: var(--font-weight-normal);
 }
 
 .placeholder {
@@ -168,13 +389,45 @@
   .uploadField {
     padding: var(--spacing-md);
   }
+  
   .fileTag {
-    max-width: 90px;
+    max-width: 140px;
     font-size: var(--font-size-xs);
   }
+  
   .headerRow {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-xs);
+  }
+  
+  .uploadControls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+  
+  .uploadModeSelector {
+    justify-content: center;
+  }
+  
+  .selectBtn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .fileListControls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+  
+  .paginationControls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .fileList {
+    max-height: 200px;
   }
 } 

@@ -258,9 +258,14 @@
 } 
 
 .wideModal {
-  max-width: 900px !important;
-  width: 90vw !important;
-  min-width: 600px;
+  max-width: 1200px !important;
+  width: 95vw !important;
+  min-width: 800px;
+  height: 90vh !important;
+  max-height: 90vh !important;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .confirmModal {

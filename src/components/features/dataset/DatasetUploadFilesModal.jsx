@@ -6,8 +6,9 @@ import FileUploadField from './FileUploadField.jsx';
 /**
  * 데이터셋에 파일을 업로드하는 모달
  * 주요 기능:
- * 다중 파일 업로드
- * 파일 형식 검증
+ * 다중 파일 업로드 (무제한)
+ * 폴더 업로드 지원
+ * 모든 파일 형식 허용
  * 업로드 진행 상태 표시
  * 
  * @param {Object} props
@@ -30,7 +31,7 @@ const DatasetUploadFilesModal = ({ isOpen, onClose, onSave }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Upload Files">
+        <Modal isOpen={isOpen} onClose={onClose} title="Upload Files & Folders">
             <form onSubmit={handleSubmit} className={createModalStyles.formGroup} style={{margin:0}}>
                 <label className={createModalStyles.label}>
                     <FileUploadField 
@@ -38,8 +39,10 @@ const DatasetUploadFilesModal = ({ isOpen, onClose, onSave }) => {
                         setFiles={setFiles} 
                         fileError={fileError} 
                         setFileError={setFileError} 
-                        accept={'.jpg,.jpeg,.png,.gif'} 
-                        multiple 
+                        accept="*" 
+                        multiple={true}
+                        maxSizeMB={2000} // 대용량 데이터셋을 위해 용량 제한 증가
+                        allowFolders={true} // 폴더 선택 허용
                     />
                 </label>
                 {fileError && <div className={createModalStyles.fileError}>{fileError}</div>}

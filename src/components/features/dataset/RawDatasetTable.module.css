@@ -3,10 +3,22 @@
   position: relative;
 }
 
+/* 헤더 섹션 */
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
 .searchWrap {
   position: relative;
   margin-bottom: 16px;
   width: 100%;
+  flex: 1;
+  min-width: 300px;
 }
 
 .searchInput {
@@ -46,26 +58,150 @@
   pointer-events: none;
 }
 
-.clearSearchBtn {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: color 0.2s ease;
+/* 검색 정보 영역 */
+.searchInfo {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.resultCount {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.clearSearchBtn {
+  background: var(--color-gray-100);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-main);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-weight: var(--font-weight-medium);
 }
 
 .clearSearchBtn:hover {
-  color: #6b7280;
-  background: #f3f4f6;
+  background: var(--color-gray-200);
+  border-color: var(--color-border-secondary);
+}
+
+/* 테이블 컨테이너 */
+.tableContainer {
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: white;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) 0;
+  border-top: 1px solid var(--color-border-primary);
+  background: var(--color-bg-secondary);
+  margin-top: var(--spacing-md);
+}
+
+.paginationInfo {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.pageBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: white;
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-main);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-weight: var(--font-weight-medium);
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: var(--color-blue-light);
+  border-color: var(--color-blue);
+  color: var(--color-blue);
+}
+
+.pageBtn:disabled {
+  background: var(--color-gray-50);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  border-color: var(--color-border-primary);
+}
+
+.pageNumbers {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pageNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  background: white;
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-main);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-weight: var(--font-weight-medium);
+}
+
+.pageNumber:hover {
+  background: var(--color-blue-light);
+  border-color: var(--color-blue);
+  color: var(--color-blue);
+}
+
+.activePage {
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+  color: white;
+}
+
+.activePage:hover {
+  background: var(--color-blue-dark);
+  color: white;
+}
+
+/* 빈 상태 */
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  color: var(--color-text-muted);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  margin-top: var(--spacing-md);
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 }
 
 /* 로딩 상태 */
@@ -126,6 +262,16 @@ tr.selectedRow:hover {
 }
 
 @media (max-width: 768px) {
+  .headerSection {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+  
+  .searchWrap {
+    min-width: auto;
+  }
+  
   .searchInput {
     padding: 10px 14px 10px 40px;
     font-size: 14px;
@@ -135,7 +281,17 @@ tr.selectedRow:hover {
     left: 12px;
   }
 
-  .clearSearchBtn {
-    right: 10px;
+  .pagination {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+  
+  .paginationControls {
+    justify-content: center;
+  }
+  
+  .pageNumbers {
+    order: -1;
   }
 }
