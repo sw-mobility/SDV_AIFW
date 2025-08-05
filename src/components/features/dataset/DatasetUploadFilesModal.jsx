@@ -10,13 +10,15 @@ import FileUploadField from './FileUploadField.jsx';
  * 폴더 업로드 지원
  * 모든 파일 형식 허용
  * 업로드 진행 상태 표시
+ * 배치 업로드 진행률 표시
  * 
  * @param {Object} props
  * @param {boolean} props.isOpen - 모달 열림 상태
  * @param {Function} props.onClose - 모달 닫기 핸들러
  * @param {Function} props.onSave - 파일 업로드 핸들러
+ * @param {Object} props.uploadProgress - 업로드 진행률 정보 (배치 업로드용)
  */
-const DatasetUploadFilesModal = ({ isOpen, onClose, onSave }) => {
+const DatasetUploadFilesModal = ({ isOpen, onClose, onSave, uploadProgress = null }) => {
     const [files, setFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -41,8 +43,8 @@ const DatasetUploadFilesModal = ({ isOpen, onClose, onSave }) => {
                         setFileError={setFileError} 
                         accept="*" 
                         multiple={true}
-                        maxSizeMB={2000} // 대용량 데이터셋을 위해 용량 제한 증가
                         allowFolders={true} // 폴더 선택 허용
+                        uploadProgress={uploadProgress} // 배치 업로드 진행률
                     />
                 </label>
                 {fileError && <div className={createModalStyles.fileError}>{fileError}</div>}

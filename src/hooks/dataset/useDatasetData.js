@@ -1,5 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getRawDataset, uploadRawFiles, getLabeledDataset, uploadLabeledFiles, deleteData, downloadDatasetById, downloadDataByPaths } from '../../api/datasets.js';
+import { 
+    getRawDataset, 
+    getLabeledDataset, 
+    deleteData, 
+    uploadRawFiles, 
+    uploadLabeledFiles,
+    uploadRawFilesInBatches,
+    uploadLabeledFilesInBatches,
+    downloadDatasetById, 
+    downloadDataByPaths 
+} from '../../api/datasets.js';
 
 export const useDatasetData = (dataset, isOpen = false) => {
   const [data, setData] = useState(null);
@@ -12,6 +22,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(null);
 
   // 데이터 조회
   const fetchData = useCallback(async () => {
@@ -94,30 +105,60 @@ export const useDatasetData = (dataset, isOpen = false) => {
     
     setUploading(true);
     setUploadError(null);
+    setUploadProgress(null);
     
     try {
       const isLabeled = dataset.datasetType === 'labeled' || dataset.type === 'labeled';
       
+      // 1000개 이상의 파일인 경우 배치 업로드 사용
+      const useBatchUpload = uploadFiles.length > 1000;
+      
       if (isLabeled) {
-        await uploadLabeledFiles({ 
-          files: uploadFiles, 
-          uid: dataset.uid || '', 
-          id: dataset._id, 
-          task_type: dataset.task_type || dataset.taskType, 
-          label_format: dataset.label_format || dataset.labelFormat 
-        });
+        if (useBatchUpload) {
+          await uploadLabeledFilesInBatches({ 
+            files: uploadFiles, 
+            uid: dataset.uid || '', 
+            id: dataset._id,
+            onProgress: (progress) => {
+              // 진행률 업데이트
+              setUploadProgress(progress);
+            }
+          });
+        } else {
+          await uploadLabeledFiles({ 
+            files: uploadFiles, 
+            uid: dataset.uid || '', 
+            id: dataset._id, 
+            task_type: dataset.task_type || dataset.taskType, 
+            label_format: dataset.label_format || dataset.labelFormat 
+          });
+        }
       } else {
-        await uploadRawFiles({ 
-          files: uploadFiles, 
-          uid: dataset.uid || '', 
-          id: dataset._id
-        });
+        if (useBatchUpload) {
+          await uploadRawFilesInBatches({ 
+            files: uploadFiles, 
+            uid: dataset.uid || '', 
+            id: dataset._id,
+            onProgress: (progress) => {
+              // 진행률 업데이트
+              setUploadProgress(progress);
+            }
+          });
+        } else {
+          await uploadRawFiles({ 
+            files: uploadFiles, 
+            uid: dataset.uid || '', 
+            id: dataset._id
+          });
+        }
       }
       
       setUploadFiles([]);
+      setUploadProgress(null);
       setRefreshKey(k => k + 1);
     } catch (err) {
       setUploadError(err.message);
+      setUploadProgress(null);
     } finally {
       setUploading(false);
     }
@@ -177,19 +218,18 @@ export const useDatasetData = (dataset, isOpen = false) => {
   }, []);
 
   return {
-    // 상태
     data,
     loading,
     error,
     selected,
-    setSelected, // setSelected 함수 추가
+    setSelected,
     uploading,
     uploadError,
     uploadFiles,
     showDeleteConfirm,
     downloading,
-    
-    // 핸들러
+    uploadProgress,
+
     handleSelect,
     handleSelectAll,
     handleDelete,
@@ -198,8 +238,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
     handleDownloadSelected,
     updateUploadFiles,
     toggleDeleteConfirm,
-    
-    // 유틸리티
+
     isLabeled: dataset && (dataset.datasetType === 'labeled' || dataset.type === 'labeled')
   };
 }; 

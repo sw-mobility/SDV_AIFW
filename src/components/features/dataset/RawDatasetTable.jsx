@@ -46,14 +46,14 @@ export default function RawDatasetTable({data, onRowClick, selectedId, searchPla
 
   const tableData = paginatedData.map(row => ({
     id: row.id,
-    cell: (
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+    cells: [
+      <div key="name-cell" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
         <span style={{fontWeight: 600, color: '#1e293b'}}>{row.name}</span>
         <span style={{fontSize: 12, color: '#b6c2d6', marginTop: 2}}>
           {row.createdAt ? row.createdAt : (row.lastModified || '-')}
         </span>
       </div>
-    )
+    ]
   }));
 
   const handlePageChange = useCallback((newPage) => {
@@ -101,6 +101,7 @@ export default function RawDatasetTable({data, onRowClick, selectedId, searchPla
           selectedId={selectedId}
           rowKey="id"
           selectedRowClassName={tableStyles.selectedRow}
+          virtualized={false} // 가상화 비활성화
         />
       </div>
 

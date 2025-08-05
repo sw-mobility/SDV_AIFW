@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import { 
     fetchRawDatasets, 
     fetchLabeledDatasets, 
     downloadDatasetById, 
     updateRawDataset, 
     updateLabeledDataset, 
-    deleteDatasets, 
-    uploadRawFiles, 
-    uploadLabeledFiles 
+    deleteDatasets,
+    uploadRawFilesInBatches,
+    uploadLabeledFilesInBatches
 } from '../../api/datasets.js';
 import { uid } from '../../api/uid.js';
 
@@ -42,6 +42,9 @@ export const useDatasets = () => {
     const [downloadingId, setDownloadingId] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
     
+    // 업로드 진행률 상태
+    const [uploadProgress, setUploadProgress] = useState(null);
+
     // Show More 상태
     const [showMoreCount, setShowMoreCount] = useState(5);
 
@@ -151,20 +154,61 @@ export const useDatasets = () => {
 
     // 데이터셋 삭제 실행
     const handleDelete = async (dataset) => {
-        setDeletingId(dataset.did || dataset.id);
+        const datasetId = dataset._id || dataset.id || dataset.did;
+        setDeletingId(datasetId);
+        setError(null); // 이전 에러 초기화
+        
         try {
-            const id = dataset._id;
-            const path = dataset.file_path || dataset.path;
-            
-            await deleteDatasets({
-                uid: uid,
-                target_id_list: [id],
-                target_path_list: path ? [path] : []
+            console.log('Full dataset object:', dataset);
+            console.log('Available dataset fields:', Object.keys(dataset));
+            console.log('Deleting dataset:', { 
+                id: datasetId, 
+                path: dataset.file_path, 
+                dataset,
+                uid: uid
             });
             
-            await refreshCurrentDatasets();
+            // Check for various possible path fields
+            const possiblePathFields = ['file_path', 'path', 'filePath', 'data_path', 'dataPath', 'storage_path', 'storagePath'];
+            let targetPath = null;
+            
+            for (const field of possiblePathFields) {
+                if (dataset[field]) {
+                    targetPath = dataset[field];
+                    console.log(`Found path in field '${field}':`, targetPath);
+                    break;
+                }
+            }
+            
+            if (!targetPath) {
+                console.log('No path field found, using dataset ID as path');
+                targetPath = datasetId;
+            }
+            
+            // 삭제 요청 전송
+            const deleteRequest = {
+                uid: uid,
+                target_id_list: [datasetId],
+                target_path_list: [targetPath]
+            };
+            
+            console.log('Delete request payload:', deleteRequest);
+            
+            await deleteDatasets(deleteRequest);
+            
+            console.log('Dataset deleted successfully');
+            
+            // 삭제 완료 후 데이터 새로고침
+            await fetchDatasetsList();
         } catch (err) {
-            setError(err.message);
+            console.error('Delete error:', err);
+            
+            // AWS S3 에러인 경우 사용자 친화적인 메시지 표시
+            if (err.message.includes('MalformedXML') || err.message.includes('DeleteObjects')) {
+                setError('Failed to delete dataset files. This might be a temporary issue. Please try again in a moment.');
+            } else {
+                setError(err.message || 'Failed to delete dataset. Please try again.');
+            }
         } finally {
             setDeletingId(null);
         }
@@ -184,26 +228,47 @@ export const useDatasets = () => {
         try {
             setLoading(true);
             setError(null);
+            setUploadProgress(null);
+            
+            // 모든 업로드에 배치 업로드 사용 (진행률 표시를 위해)
+            const batchSize = files.length > 1000 ? 1000 : Math.max(1, Math.ceil(files.length / 5)); // 최소 1개, 최대 5개 배치
             
             if (dataType === 'labeled') {
-                await uploadLabeledFiles({ 
+                await uploadLabeledFilesInBatches({ 
                     files, 
                     uid: uid, 
-                    id: uploadTarget._id
+                    id: uploadTarget._id,
+                    batchSize,
+                    onProgress: (progress) => {
+                        // 진행률 업데이트
+                        setUploadProgress(progress);
+                    }
                 });
             } else {
-                await uploadRawFiles({ 
+                await uploadRawFilesInBatches({ 
                     files, 
                     uid: uid, 
-                    id: uploadTarget._id
+                    id: uploadTarget._id,
+                    batchSize,
+                    onProgress: (progress) => {
+                        // 진행률 업데이트
+                        setUploadProgress(progress);
+                    }
                 });
             }
             
+            // 업로드 완료 후 서버 처리 시간을 위한 지연
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             setIsUploadModalOpen(false);
             setUploadTarget(null);
-            await refreshCurrentDatasets();
+            setUploadProgress(null);
+            
+            // 전체 데이터셋 목록 새로고침 (현재 타입과 관계없이)
+            await fetchDatasetsList();
         } catch (err) {
             setError(err.message);
+            setUploadProgress(null);
         } finally {
             setLoading(false);
         }
@@ -308,6 +373,7 @@ export const useDatasets = () => {
         deleteTarget,
         downloadingId,
         deletingId,
+        uploadProgress,
         
         // 핸들러
         handleDownload,

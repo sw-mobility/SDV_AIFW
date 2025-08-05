@@ -48,7 +48,6 @@ const DatasetsTab = () => {
         downloadingId,
         deletingId,
         handleDownload,
-        handleEdit,
         openDeleteConfirm,
         confirmDelete,
         handleUpload,
@@ -62,7 +61,8 @@ const DatasetsTab = () => {
         closeUploadModal,
         closeDataPanel,
         getCurrentDatasets,
-        handleCreated
+        handleCreated,
+        uploadProgress
     } = useDatasets();
 
     const handleToggleShowMore = () => {
@@ -134,8 +134,6 @@ const DatasetsTab = () => {
         ...(LatestDatasetCard ? [LatestDatasetCard] : []),
         ...restDatasetCards
     ];
-    const visibleDatasetCards = showMore ? allDatasetCards : allDatasetCards.slice(0, cardsPerPage);
-
     if (initialLoading) return <Loading fullHeight={true} />;
     if (error) return <ErrorMessage message={error} fullHeight={true} />;
 
@@ -160,7 +158,8 @@ const DatasetsTab = () => {
             <DatasetUploadFilesModal 
                 isOpen={isUploadModalOpen} 
                 onClose={closeUploadModal} 
-                onSave={handleUpload} 
+                onSave={handleUpload}
+                uploadProgress={uploadProgress}
             />
             <DatasetDataPanel
                 open={isDataPanelOpen}

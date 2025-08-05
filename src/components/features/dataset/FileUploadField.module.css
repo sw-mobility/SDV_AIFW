@@ -332,14 +332,7 @@
   font-weight: var(--font-weight-normal);
 }
 
-.filePath {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-normal);
-  max-width: 50px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+
 
 .fileSize {
   color: var(--color-text-muted);
@@ -383,6 +376,15 @@
   font-size: var(--font-size-sm);
   margin-top: 6px;
   font-weight: var(--font-weight-normal);
+}
+
+/* 배치 업로드 진행률 스타일 */
+.batchProgress {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
 }
 
 @media (max-width: 600px) {

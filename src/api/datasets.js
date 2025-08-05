@@ -23,15 +23,43 @@ export async function fetchLabeledDatasets({ uid }) {
 }
 
 export async function deleteDatasets({ uid, target_id_list = [], target_path_list = [] }) {
-    const response = await fetch(`${BASE_URL}/datasets/`, {
+    console.log('Delete datasets request:', { uid, target_id_list, target_path_list });
+    
+    const url = `${BASE_URL}/datasets/`;
+    console.log('Delete URL:', url);
+    
+    const requestBody = { uid, target_id_list, target_path_list };
+    console.log('Request body:', requestBody);
+    console.log('Request body JSON:', JSON.stringify(requestBody));
+    
+    const response = await fetch(url, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, target_id_list, target_path_list }),
+        body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to delete datasets');
+        const errorText = await response.text();
+        console.error('Delete datasets error response:', {
+            status: response.status,
+            statusText: response.statusText,
+            errorText
+        });
+        
+        // Try to parse as JSON for better error handling
+        let errorMessage = errorText;
+        try {
+            const errorJson = JSON.parse(errorText);
+            if (errorJson.detail) {
+                errorMessage = Array.isArray(errorJson.detail) 
+                    ? errorJson.detail.map(d => d.msg).join(', ')
+                    : errorJson.detail;
+            }
+        } catch (e) {
+            // If not JSON, use the text as is
+        }
+        
+        throw new Error(errorMessage || `Failed to delete datasets (${response.status})`);
     }
 
     return { success: true, message: 'Datasets deleted successfully' };
@@ -243,4 +271,79 @@ export async function downloadDataByPaths({ uid, target_path_list, dataset_name 
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
     return true;
+}
+
+// 파일을 배치로 나누어 업로드하는 헬퍼 함수
+const chunkArray = (array, chunkSize) => {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+        chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
+};
+
+// 배치 업로드 함수 (raw files)
+export async function uploadRawFilesInBatches({ files, uid, id, batchSize = 1000, onProgress }) {
+    const batches = chunkArray(files, batchSize);
+    const results = [];
+    
+    for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        const batchNumber = i + 1;
+        const totalBatches = batches.length;
+        
+        // 진행률 콜백 호출
+        if (onProgress) {
+            onProgress({
+                currentBatch: batchNumber,
+                totalBatches,
+                currentBatchSize: batch.length,
+                totalFiles: files.length,
+                uploadedFiles: i * batchSize
+            });
+        }
+        
+        try {
+            const result = await uploadRawFiles({ files: batch, uid, id });
+            results.push(result);
+        } catch (error) {
+            // 배치 업로드 실패 시 에러 정보와 함께 실패
+            throw new Error(`Batch ${batchNumber} upload failed: ${error.message}`);
+        }
+    }
+    
+    return results;
+}
+
+// 배치 업로드 함수 (labeled files)
+export async function uploadLabeledFilesInBatches({ files, uid, id, batchSize = 1000, onProgress }) {
+    const batches = chunkArray(files, batchSize);
+    const results = [];
+    
+    for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        const batchNumber = i + 1;
+        const totalBatches = batches.length;
+        
+        // 진행률 콜백 호출
+        if (onProgress) {
+            onProgress({
+                currentBatch: batchNumber,
+                totalBatches,
+                currentBatchSize: batch.length,
+                totalFiles: files.length,
+                uploadedFiles: i * batchSize
+            });
+        }
+        
+        try {
+            const result = await uploadLabeledFiles({ files: batch, uid, id });
+            results.push(result);
+        } catch (error) {
+            // 배치 업로드 실패 시 에러 정보와 함께 실패
+            throw new Error(`Batch ${batchNumber} upload failed: ${error.message}`);
+        }
+    }
+    
+    return results;
 }

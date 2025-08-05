@@ -1,6 +1,7 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState, useRef } from 'react';
+import { Upload, File, Folder, X, ChevronDown, ChevronUp } from 'lucide-react';
+import ProgressBar from '../../ui/atoms/ProgressBar.jsx';
 import styles from './FileUploadField.module.css';
-import { Upload, ChevronDown, ChevronUp, Folder, File } from 'lucide-react';
 
 /**
  * 파일 업로드를 위한 field
@@ -23,7 +24,8 @@ export default function FileUploadField({
     accept = '*', 
     multiple = true, 
     maxSizeMB = 1000,
-    allowFolders = true 
+    allowFolders = true,
+    uploadProgress
 }) {
     const fileInputRef = useRef();
     const folderInputRef = useRef();
@@ -31,7 +33,6 @@ export default function FileUploadField({
     const [showAllFiles, setShowAllFiles] = useState(false);
     const [filesPerPage] = useState(50); // 한 번에 표시할 파일 수
     const [currentPage, setCurrentPage] = useState(0);
-    const [uploadMode, setUploadMode] = useState('files'); // 'files' or 'folders'
 
     // 파일 검증 로직에서 maxFiles 제한 제거
     const validateFiles = (selected) => {
@@ -57,15 +58,36 @@ export default function FileUploadField({
     const handleDrop = (e) => {
         e.preventDefault();
         setDragActive(false);
-        let selected = Array.from(e.dataTransfer.files);
-        if (!multiple) selected = selected.slice(0, 1);
         
-        if (!validateFiles(selected)) return;
-        setFiles(prev => [...prev, ...selected]);
+        // 드롭된 파일들을 가져오기
+        const droppedFiles = Array.from(e.dataTransfer.files);
+        
+        if (droppedFiles.length === 0) {
+            setFileError && setFileError('No files detected in drop');
+            return;
+        }
+        
+        // 파일 경로 정보 확인
+        const filesWithPathInfo = droppedFiles.map(file => {
+            // 파일 이름에 경로 정보가 포함되어 있는지 확인
+            if (file.name.includes('/') || file.name.includes('\\')) {
+                // 경로 정보가 있는 경우 webkitRelativePath 설정
+                file.webkitRelativePath = file.name;
+            }
+            return file;
+        });
+        
+        if (!multiple && filesWithPathInfo.length > 0) {
+            filesWithPathInfo.splice(1); // 단일 파일만 허용
+        }
+        
+        if (!validateFiles(filesWithPathInfo)) return;
+        setFiles(prev => [...prev, ...filesWithPathInfo]);
     };
     
     const handleDragOver = (e) => {
         e.preventDefault();
+        
         setDragActive(true);
     };
     
@@ -80,10 +102,17 @@ export default function FileUploadField({
         setFileError && setFileError(null);
     };
 
+    const handleClearAll = () => {
+        setFiles([]);
+        setFileError && setFileError(null);
+        setShowAllFiles(false);
+        setCurrentPage(0);
+    };
+
     const totalSizeMB = (files.reduce((a, f) => a + f.size, 0) / (1024 * 1024)).toFixed(1);
 
     // 파일 목록 페이지네이션
-    const paginatedFiles = useMemo(() => {
+    const paginatedFiles = React.useMemo(() => {
         if (showAllFiles) {
             return files;
         }
@@ -106,7 +135,7 @@ export default function FileUploadField({
     };
 
     // 폴더별 파일 그룹화 (UI 표시용)
-    const groupedFiles = useMemo(() => {
+    const groupedFiles = React.useMemo(() => {
         const groups = {};
         files.forEach(file => {
             const path = file.webkitRelativePath || file.name;
@@ -152,64 +181,36 @@ export default function FileUploadField({
         >
             <div className={styles.headerRow}>
                 <span className={styles.iconWrap}><Upload size={20} /></span>
-                <span className={styles.title}>Drag or click to upload files or folders</span>
-                <span className={styles.info}>
-                    (unlimited files, {maxSizeMB}MB total)
-                </span>
+                <span className={styles.title}>Drag files here, or click buttons below for files/folders</span>
             </div>
 
-            {/* 업로드 모드 선택 및 파일/폴더 선택 버튼 */}
+            {/* 파일/폴더 선택 버튼들 */}
             <div className={styles.uploadControls}>
-                <div className={styles.uploadModeSelector}>
-                    <button
-                        type="button"
-                        className={`${styles.modeBtn} ${uploadMode === 'files' ? styles.activeMode : ''}`}
-                        onClick={() => setUploadMode('files')}
-                    >
-                        <File size={14} />
-                        Files
-                    </button>
-                    {allowFolders && (
-                        <button
-                            type="button"
-                            className={`${styles.modeBtn} ${uploadMode === 'folders' ? styles.activeMode : ''}`}
-                            onClick={() => setUploadMode('folders')}
-                        >
-                            <Folder size={14} />
-                            Folders
-                        </button>
-                    )}
-                </div>
-                
                 <button
                     type="button"
                     className={styles.selectBtn}
-                    onClick={() => {
-                        if (uploadMode === 'folders') {
-                            folderInputRef.current && folderInputRef.current.click();
-                        } else {
-                            fileInputRef.current && fileInputRef.current.click();
-                        }
-                    }}
+                    onClick={() => fileInputRef.current && fileInputRef.current.click()}
                 >
-                    {uploadMode === 'folders' ? (
-                        <>
-                            <Folder size={14} />
-                            Select Folders
-                        </>
-                    ) : (
-                        <>
-                            <File size={14} />
-                            Select Files
-                        </>
-                    )}
+                    <File size={14} />
+                    Select Files
                 </button>
+                
+                {allowFolders && (
+                    <button
+                        type="button"
+                        className={styles.selectBtn}
+                        onClick={() => folderInputRef.current && folderInputRef.current.click()}
+                    >
+                        <Folder size={14} />
+                        Select Folders
+                    </button>
+                )}
             </div>
             
             {files && files.length > 0 ? (
                 <div className={styles.fileListContainer}>
                     {/* 폴더별 그룹 표시 */}
-                    {uploadMode === 'folders' && Object.keys(groupedFiles).length > 0 && (
+                    {Object.keys(groupedFiles).length > 1 && (
                         <div className={styles.folderGroups}>
                             {Object.entries(groupedFiles).map(([folder, folderFiles]) => (
                                 <div key={folder} className={styles.folderGroup}>
@@ -252,6 +253,28 @@ export default function FileUploadField({
                         <span className={styles.totalInfo}>
                             Total {files.length} files, {totalSizeMB}MB
                         </span>
+                        
+                        {/* Clear All 버튼 */}
+                        <button
+                            type="button"
+                            className={styles.clearAllBtn}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleClearAll();
+                            }}
+                            style={{
+                                background: '#ef4444',
+                                color: 'white',
+                                border: 'none',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                cursor: 'pointer',
+                                marginLeft: '8px'
+                            }}
+                        >
+                            Clear All
+                        </button>
                         
                         {hasMoreFiles && (
                             <div className={styles.paginationControls}>
@@ -319,7 +342,10 @@ export default function FileUploadField({
                 </div>
             ) : (
                 <span className={styles.placeholder}>
-                    {dragActive ? 'Drop files or folders here!' : ' '}
+                    {dragActive 
+                        ? 'Drop files here!' 
+                        : 'No files selected'
+                    }
                 </span>
             )}
             
@@ -348,6 +374,28 @@ export default function FileUploadField({
             )}
             
             {fileError && <div className={styles.errorMsg}>{getFriendlyError(fileError)}</div>}
+            
+            {/* 배치 업로드 진행률 표시 */}
+            {uploadProgress && (
+                <div className={styles.batchProgress}>
+                    <ProgressBar 
+                        percentage={Math.round((uploadProgress.currentBatch / uploadProgress.totalBatches) * 100)} 
+                        label={`Uploading: ${uploadProgress.uploadedFiles} / ${uploadProgress.totalFiles} files (Batch ${uploadProgress.currentBatch}/${uploadProgress.totalBatches})`}
+                        status={uploadProgress.currentBatch === uploadProgress.totalBatches ? "success" : "running"}
+                        completeText="Upload completed!"
+                    />
+                    {uploadProgress.currentBatch < uploadProgress.totalBatches && (
+                        <div style={{ 
+                            fontSize: '12px', 
+                            color: '#6b7280', 
+                            marginTop: '8px',
+                            textAlign: 'center'
+                        }}>
+                            Processing batch {uploadProgress.currentBatch} of {uploadProgress.totalBatches}...
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 } 

@@ -4,10 +4,13 @@ import styles from './Dataset.module.css';
 import Button from '../../ui/atoms/Button.jsx';
 import Loading from '../../ui/atoms/Loading.jsx';
 import ErrorMessage from '../../ui/atoms/ErrorMessage.jsx';
-import Table from '../../ui/atoms/Table.jsx';
+import * as TableModule from '../../ui/atoms/Table.jsx';
 import FileUploadField from './FileUploadField.jsx';
 import { useDatasetData } from '../../../hooks/dataset/useDatasetData.js';
 import { Trash2, Download, Database, Tag, Search } from 'lucide-react';
+import { getFileNameOnly } from '../../../utils/fileUtils.js';
+
+const Table = TableModule.default;
 
 /**
  * 데이터셋 클릭 시 나타나는 상세 정보 모달
@@ -46,29 +49,37 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         handleDownloadSelected,
         updateUploadFiles,
         toggleDeleteConfirm,
-        isLabeled
+        isLabeled,
+        uploadProgress // 배치 업로드 진행률 추가
     } = useDatasetData(dataset, open);
 
     const titleIcon = isLabeled ? <Tag size={20} /> : <Database size={20} />;
+    const [debouncedSearch, setDebouncedSearch] = useState(search);
+    
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 150); // 150ms 디바운싱
+        
+        return () => clearTimeout(timer);
+    }, [search]);
 
-    // 검색된 데이터 필터링
     const filteredData = useMemo(() => {
         if (!data?.data_list || !Array.isArray(data.data_list)) {
             return [];
         }
         
-        if (!search) return data.data_list;
+        if (!debouncedSearch) return data.data_list;
         
         return data.data_list.filter(row => 
-            row.name?.toLowerCase().includes(search.toLowerCase()) ||
-            row.type?.toLowerCase().includes(search.toLowerCase()) ||
-            row.file_format?.toLowerCase().includes(search.toLowerCase()) ||
-            (row.created_at && new Date(row.created_at).toLocaleString().toLowerCase().includes(search.toLowerCase()))
+            row.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+            row.type?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+            row.file_format?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+            (row.created_at && new Date(row.created_at).toLocaleString().toLowerCase().includes(debouncedSearch.toLowerCase()))
         );
-    }, [data?.data_list, search]);
+    }, [data?.data_list, debouncedSearch]);
 
-    // 검색된 데이터를 기준으로 Select All 처리
-    const handleSelectAll = () => {
+    const handleSelectAll = React.useCallback(() => {
         if (!filteredData || !Array.isArray(filteredData)) return;
         
         const filteredIds = filteredData.map(d => d._id).filter(Boolean);
@@ -81,45 +92,78 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
             // 검색된 항목 중 선택되지 않은 것들을 선택
             setSelected(prev => [...new Set([...prev, ...filteredIds])]);
         }
-    };
+    }, [filteredData, selected]);
+    const handleCheckboxSelect = React.useCallback((row) => {
+        setSelected(prev => {
+            const newSelected = prev.includes(row._id) 
+                ? prev.filter(id => id !== row._id)
+                : [...prev, row._id];
+            return newSelected;
+        });
+    }, []);
 
-    // Table columns/data 변환
-    const columns = [
-        '', 'Name', 'Type', 'Format', 'Created'
-    ];
+    // 체크박스 상태를 Set으로 관리 성능 최적화
+    const selectedSet = React.useMemo(() => new Set(selected), [selected]);
+
+    // 체크박스 컴포넌트를 별도로 생성 성능 최적화
+    const CheckboxCell = React.memo(({ rowId, isSelected, onSelect }) => (
+        <input 
+            type="checkbox" 
+            checked={isSelected} 
+            onChange={e => { 
+                e.stopPropagation(); 
+                e.preventDefault();
+                onSelect(); 
+            }} 
+            onClick={e => e.stopPropagation()} 
+            style={{ cursor: 'pointer' }}
+        />
+    ));
 
     const tableData = React.useMemo(() => {
         return filteredData
             .filter(row => row && typeof row === 'object' && row._id)
-            .map(row => ({
-                _id: row._id || '',
-                cells: [
-                    <input 
-                        type="checkbox" 
-                        checked={selected.includes(row._id)} 
-                        onChange={e => { e.stopPropagation(); handleSelect(row); }} 
-                        onClick={e => e.stopPropagation()} 
-                        key={row._id} 
-                    />,
-                    row.name || 'N/A',
-                    row.type || 'N/A',
-                    row.file_format || 'N/A',
-                    row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'
-                ]
-            }));
-    }, [filteredData, selected, handleSelect]);
+            .map(row => {
+                const fileName = getFileNameOnly(row.name);
+                
+                return {
+                    _id: row._id || '',
+                    cells: [
+                        <CheckboxCell 
+                            key={row._id}
+                            rowId={row._id}
+                            isSelected={selectedSet.has(row._id)}
+                            onSelect={() => handleCheckboxSelect(row)}
+                        />,
+                        <span 
+                            key="filename" 
+                            title={row.name || 'N/A'}
+                            style={{ cursor: 'default' }}
+                        >
+                            {fileName || 'N/A'}
+                        </span>,
+                        row.type || 'N/A',
+                        row.file_format || 'N/A',
+                        row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'
+                    ]
+                };
+            });
+    }, [filteredData, selectedSet, handleCheckboxSelect]);
 
-    // Select All 체크박스 상태 계산
     const selectAllChecked = filteredData.length > 0 && filteredData.every(row => selected.includes(row._id));
     const selectAllIndeterminate = filteredData.length > 0 && filteredData.some(row => selected.includes(row._id)) && !selectAllChecked;
 
-    // rowKey는 _id로 지정
     return (
         <Modal isOpen={open} onClose={onClose} title="Dataset Details" titleIcon={titleIcon} className={styles.wideModal}>
             {loading && <Loading />}
             {error && <ErrorMessage message={error} />}
             {data && typeof data === 'object' && data.name && data.data_list && Array.isArray(data.data_list) && (
-                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px' }}>
+                <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    height: '100%', 
+                    gap: '16px'
+                }}>
                     <div className={styles.detailInfo} style={{ borderRadius: 12, background: '#f8f9fb', padding: 16, boxShadow: '0 1px 4px #0001', display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
                         <div style={{ fontWeight: 600, fontSize: 18 }}>{data.name}</div>
                         <div style={{ color: '#888', marginBottom: 4 }}>{data.description || <span style={{ color: '#bbb' }}>No description</span>}</div>
@@ -146,8 +190,8 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                             setFileError={() => {}} // useDatasetData에서 처리
                             accept="*"
                             multiple={true}
-                            maxSizeMB={2000} // 대용량 데이터셋을 위해 용량 제한 증가
                             allowFolders={true} // 폴더 선택 허용
+                            uploadProgress={uploadProgress} // 배치 업로드 진행률
                         />
                         <Button
                             type="submit"
@@ -167,7 +211,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                     </form>
 
                     {/* 검색 및 선택 컨트롤 */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: '12px', flexShrink: 0 }}>
                         {/* 검색 영역 */}
                         <div style={{ position: 'relative', flex: 1, maxWidth: 400 }}>
                             <Search size={18} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
@@ -238,32 +282,39 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                         </div>
                     </div>
 
-                    {/* 테이블 영역 - 남은 공간을 모두 차지 */}
+                    {/* Select All 체크박스 */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '8px', flexShrink: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input 
+                                type="checkbox" 
+                                checked={selectAllChecked}
+                                indeterminate={selectAllIndeterminate || undefined}
+                                onChange={handleSelectAll}
+                                style={{ margin: 0, cursor: 'pointer' }}
+                            />
+                            <span style={{ fontSize: '12px', color: '#6b7280', cursor: 'pointer' }} onClick={handleSelectAll}>
+                                Select All
+                            </span>
+                            {selected.length > 0 && (
+                                <span style={{ fontSize: '12px', color: '#3b82f6' }}>
+                                    ({selected.length} selected)
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* 테이블 영역 - 남은 공간을 모두 차지하고 스크롤 가능 */}
                     <div style={{ 
                         width: '100%', 
                         flex: 1, 
-                        minHeight: 0, 
-                        maxHeight: '400px',
-                        overflow: 'hidden',
+                        minHeight: 0,
                         display: 'flex',
                         flexDirection: 'column'
                     }}>
                         <Table
                             columns={[
-                                // Select All 체크박스 헤더
-                                <div key="select-all" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={selectAllChecked}
-                                        indeterminate={selectAllIndeterminate}
-                                        onChange={handleSelectAll}
-                                        onClick={e => e.stopPropagation()}
-                                        style={{ margin: 0 }}
-                                    />
-                                    <span style={{ fontSize: '12px', color: '#6b7280' }}>
-                                        {selectAllIndeterminate ? `${selected.length}/${filteredData.length}` : (selectAllChecked ? `${filteredData.length}/${filteredData.length}` : 'All')}
-                                    </span>
-                                </div>,
+                                // 체크박스 컬럼 헤더 (빈 문자열로 표시)
+                                '',
                                 'Name', 'Type', 'Format', 'Created'
                             ]}
                             data={tableData.map(row => row.cells)}
@@ -275,6 +326,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                             selectedId={null}
                             selectedRowClassName={styles.selectedRow}
                             maxHeight="100%"
+                            virtualized={true}
                         />
                     </div>
 

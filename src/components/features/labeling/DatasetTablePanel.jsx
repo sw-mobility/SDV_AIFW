@@ -1,7 +1,9 @@
 import React from 'react';
 import { Database, Loader2 } from 'lucide-react';
-import DatasetTable from '../dataset/RawDatasetTable.jsx';
+import * as RawDatasetTableModule from '../dataset/RawDatasetTable.jsx';
 import styles from './DatasetTablePanel.module.css';
+
+const DatasetTable = RawDatasetTableModule.default;
 
 /**
  * 라벨링 페이지에서 데이터셋 테이블을 표시하는 패널

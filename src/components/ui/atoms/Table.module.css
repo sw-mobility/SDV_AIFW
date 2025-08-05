@@ -6,12 +6,15 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .thead {
@@ -22,70 +25,216 @@
   flex-shrink: 0;
 }
 
+.thead table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* 테이블 레이아웃 고정 */
+}
+
 .th {
-  padding: var(--spacing-md) var(--spacing-xl);
+  padding: 12px 16px;
   text-align: left;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: 12px;
+  font-weight: 600;
   color: var(--color-text-secondary);
   white-space: nowrap;
   background: var(--color-bg-secondary);
   border-bottom: 1px solid var(--color-border-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+/* 체크박스 컬럼 스타일 */
+.th:first-child {
+  width: 50px;
+  text-align: left;
+  padding: 12px 16px;
+}
+
+/* Name 컬럼 - 가장 넓게 */
+.th:nth-child(2) {
+  width: calc(45% - 12.5px);
+  text-align: left;
+  padding: 12px 16px;
+}
+
+/* Type 컬럼 */
+.th:nth-child(3) {
+  width: calc(25% - 12.5px);
+  text-align: left;
+  padding: 12px 16px;
+}
+
+/* Format 컬럼 */
+.th:nth-child(4) {
+  width: calc(5% - 12.5px);
+  text-align: left;
+  padding: 12px 16px;
+}
+
+/* Created 컬럼 */
+.th:nth-child(5) {
+  width: calc(25% - 12.5px);
+  text-align: left;
+  padding: 12px 16px;
 }
 
 .tbody {
   flex: 1;
   overflow-y: auto;
-  max-height: none;
+  overflow-x: hidden;
+  display: block;
+  max-height: 100%;
+  /* 스크롤 성능 최적화 */
+  will-change: scroll-position;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tbody table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* 테이블 레이아웃 고정 */
 }
 
 .td {
-  padding: var(--spacing-md) var(--spacing-xl);
-  font-size: var(--font-size-sm);
+  padding: 12px 16px;
+  font-size: 14px;
   color: var(--color-text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   border-bottom: 1px solid var(--color-border-light);
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+/* 체크박스 컬럼 스타일 */
+.td:first-child {
+  width: 50px;
+  text-align: center;
+  padding: 12px 16px;
+}
+
+/* Name 컬럼 - 가장 넓게, 툴팁 추가 */
+.td:nth-child(2) {
+  width: calc(45% - 12.5px);
+  text-align: left;
+  position: relative;
+  padding: 12px 16px;
+}
+
+/* Type 컬럼 */
+.td:nth-child(3) {
+  width: calc(25% - 12.5px);
+  text-align: left;
+  color: #6b7280;
+  font-weight: 500;
+  padding: 12px 16px;
+}
+
+/* Format 컬럼 */
+.td:nth-child(4) {
+  width: calc(5% - 12.5px);
+  text-align: left;
+  color: #6b7280;
+  font-weight: 500;
+  padding: 12px 16px;
+}
+
+/* Created 컬럼 */
+.td:nth-child(5) {
+  width: calc(25% - 12.5px);
+  text-align: left;
+  color: #6b7280;
+  padding: 12px 16px;
 }
 
 .tdCreatedAt {
   font-size: 12px;
-  color: #b6c2d6;
+  color: #6b7280;
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  max-width: 140px;
 }
 
 .tr {
-  transition: background 0.18s, box-shadow 0.18s;
-  border-radius: 8px;
-}
-
-.tr:hover:not(.selectedRow) {
-  background: #f0f7ff;
-  box-shadow: none;
+  transition: all 0.15s ease;
+  border-radius: 0;
+  background: transparent;
   cursor: pointer;
 }
 
+.tr:hover:not(.selectedRow) {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
 .selectedRow {
-  background: #b6e0fe !important;
+  background: #eff6ff !important;
   color: var(--color-text-main);
-  font-weight: 600;
-  border-left: 4px solid #4f8cff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.10);
-  transition: background 0.15s, border 0.15s;
+  font-weight: 500;
+  border-left: 3px solid #3b82f6;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
+  transition: all 0.15s ease;
 }
 
 .emptyCell {
-  color: #aaa;
-  font-size: 15px;
+  color: #9ca3af;
+  font-size: 14px;
   font-style: italic;
   text-align: center;
-  padding: 18px 0;
+  padding: 20px 0;
+}
+
+/* 스크롤바 스타일링 */
+.tbody::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tbody::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.tbody::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.tbody::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* 가상화된 행 스타일 */
+.virtualized-row {
+  position: absolute;
+  width: 100%;
+  height: 48px;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 체크박스 스타일링 */
+.td input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  border: 2px solid #d1d5db;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+}
+
+.td input[type="checkbox"]:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.td input[type="checkbox"]:hover {
+  border-color: #3b82f6;
 }
 
 /* 대용량 데이터를 위한 스크롤 최적화 */
@@ -130,12 +279,12 @@
   }
   
   .th, .td {
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-size: var(--font-size-xs);
+    padding: 12px 16px;
+    font-size: 13px;
   }
   
   .tdCreatedAt {
     font-size: 11px;
-    max-width: 80px;
+    max-width: 100px;
   }
 }
