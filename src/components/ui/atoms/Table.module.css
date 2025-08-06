@@ -28,7 +28,7 @@
 .thead table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; /* 테이블 레이아웃 고정 */
+  table-layout: auto; /* 테이블 레이아웃 자동 조정 */
 }
 
 .th {
@@ -45,39 +45,62 @@
   box-sizing: border-box;
 }
 
-/* 체크박스 컬럼 스타일 */
-.th:first-child {
+/* 기본 컬럼 스타일 - 유연한 너비 */
+.th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+/* 특정 컬럼 수에 따른 너비 조정 */
+/* 2개 컬럼 */
+.th:nth-child(1):nth-last-child(2),
+.th:nth-child(2):nth-last-child(1) {
+  width: 50%;
+}
+
+/* 3개 컬럼 */
+.th:nth-child(1):nth-last-child(3),
+.th:nth-child(2):nth-last-child(2),
+.th:nth-child(3):nth-last-child(1) {
+  width: 33.333%;
+}
+
+/* 4개 컬럼 */
+.th:nth-child(1):nth-last-child(4),
+.th:nth-child(2):nth-last-child(3),
+.th:nth-child(3):nth-last-child(2),
+.th:nth-child(4):nth-last-child(1) {
+  width: 25%;
+}
+
+/* 5개 이상 컬럼 - 기본 너비 (DatasetDataPanel에서는 별도 스타일 적용) */
+.th:nth-child(1):nth-last-child(n+5) {
   width: 50px;
-  text-align: left;
-  padding: 12px 16px;
 }
 
-/* Name 컬럼 - 가장 넓게 */
-.th:nth-child(2) {
+.th:nth-child(2):nth-last-child(n+4) {
   width: calc(45% - 12.5px);
-  text-align: left;
-  padding: 12px 16px;
 }
 
-/* Type 컬럼 */
-.th:nth-child(3) {
+.th:nth-child(3):nth-last-child(n+3) {
   width: calc(25% - 12.5px);
-  text-align: left;
-  padding: 12px 16px;
 }
 
-/* Format 컬럼 */
-.th:nth-child(4) {
+.th:nth-child(4):nth-last-child(n+2) {
   width: calc(5% - 12.5px);
-  text-align: left;
-  padding: 12px 16px;
 }
 
-/* Created 컬럼 */
-.th:nth-child(5) {
+.th:nth-child(5):nth-last-child(n+1) {
   width: calc(25% - 12.5px);
-  text-align: left;
-  padding: 12px 16px;
 }
 
 .tbody {
@@ -94,7 +117,7 @@
 .tbody table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; /* 테이블 레이아웃 고정 */
+  table-layout: auto; /* 테이블 레이아웃 자동 조정 */
 }
 
 .td {
@@ -109,45 +132,71 @@
   box-sizing: border-box;
 }
 
-/* 체크박스 컬럼 스타일 */
-.td:first-child {
-  width: 50px;
-  text-align: center;
+/* 기본 td 스타일 - 유연한 너비 */
+.td {
   padding: 12px 16px;
+  font-size: 14px;
+  color: var(--color-text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid var(--color-border-light);
+  vertical-align: middle;
+  box-sizing: border-box;
 }
 
-/* Name 컬럼 - 가장 넓게, 툴팁 추가 */
-.td:nth-child(2) {
+/* 특정 컬럼 수에 따른 너비 조정 */
+/* 2개 컬럼 */
+.td:nth-child(1):nth-last-child(2),
+.td:nth-child(2):nth-last-child(1) {
+  width: 50%;
+}
+
+/* 3개 컬럼 */
+.td:nth-child(1):nth-last-child(3),
+.td:nth-child(2):nth-last-child(2),
+.td:nth-child(3):nth-last-child(1) {
+  width: 33.333%;
+}
+
+/* 4개 컬럼 */
+.td:nth-child(1):nth-last-child(4),
+.td:nth-child(2):nth-last-child(3),
+.td:nth-child(3):nth-last-child(2),
+.td:nth-child(4):nth-last-child(1) {
+  width: 25%;
+}
+
+/* 5개 이상 컬럼 - 기본 너비 (DatasetDataPanel에서는 별도 스타일 적용) */
+.td:nth-child(1):nth-last-child(n+5) {
+  width: 50px;
+  text-align: center;
+}
+
+.td:nth-child(2):nth-last-child(n+4) {
   width: calc(45% - 12.5px);
   text-align: left;
   position: relative;
-  padding: 12px 16px;
 }
 
-/* Type 컬럼 */
-.td:nth-child(3) {
+.td:nth-child(3):nth-last-child(n+3) {
   width: calc(25% - 12.5px);
   text-align: left;
   color: #6b7280;
   font-weight: 500;
-  padding: 12px 16px;
 }
 
-/* Format 컬럼 */
-.td:nth-child(4) {
+.td:nth-child(4):nth-last-child(n+2) {
   width: calc(5% - 12.5px);
   text-align: left;
   color: #6b7280;
   font-weight: 500;
-  padding: 12px 16px;
 }
 
-/* Created 컬럼 */
-.td:nth-child(5) {
+.td:nth-child(5):nth-last-child(n+1) {
   width: calc(25% - 12.5px);
   text-align: left;
   color: #6b7280;
-  padding: 12px 16px;
 }
 
 .tdCreatedAt {

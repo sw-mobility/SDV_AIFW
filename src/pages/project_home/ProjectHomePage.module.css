@@ -132,3 +132,87 @@
   font-size: 15px;
   color: var(--color-text-muted);
 }
+
+/* 프로젝트 홈 페이지 테이블 스타일 */
+.card :global(.table-container) {
+  max-height: 300px;
+  border: none;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.card :global(.table-container .thead) {
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card :global(.table-container .th) {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  padding: 8px 12px;
+  background: #f1f5f9;
+}
+
+.card :global(.table-container .td) {
+  font-size: 13px;
+  padding: 8px 12px;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.card :global(.table-container .tr:hover) {
+  background: #f1f5f9;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 프로젝트 홈 페이지 테이블 컬럼 너비 조정 */
+.card :global(.table-container .th:nth-child(1):nth-last-child(2)),
+.card :global(.table-container .td:nth-child(1):nth-last-child(2)) {
+  width: 60%;
+}
+
+.card :global(.table-container .th:nth-child(2):nth-last-child(1)),
+.card :global(.table-container .td:nth-child(2):nth-last-child(1)) {
+  width: 40%;
+}
+
+.card :global(.table-container .th:nth-child(1):nth-last-child(4)),
+.card :global(.table-container .td:nth-child(1):nth-last-child(4)) {
+  width: 40%;
+}
+
+.card :global(.table-container .th:nth-child(2):nth-last-child(3)),
+.card :global(.table-container .td:nth-child(2):nth-last-child(3)) {
+  width: 20%;
+}
+
+.card :global(.table-container .th:nth-child(3):nth-last-child(2)),
+.card :global(.table-container .td:nth-child(3):nth-last-child(2)) {
+  width: 20%;
+}
+
+.card :global(.table-container .th:nth-child(4):nth-last-child(1)),
+.card :global(.table-container .td:nth-child(4):nth-last-child(1)) {
+  width: 20%;
+}
+
+/* 테이블 내부 스크롤 최적화 */
+.card :global(.table-container .tbody) {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* 테이블 행 높이 조정 */
+.card :global(.table-container .tr) {
+  height: 40px;
+}
+
+/* 테이블 셀 텍스트 오버플로우 처리 */
+.card :global(.table-container .td) {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

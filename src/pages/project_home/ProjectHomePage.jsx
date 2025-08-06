@@ -143,7 +143,7 @@ const ProjectHomePage = () => {
       </div>
       <Grid container spacing={3} justifyContent="center">
         {/* Resource Utilization */}
-        <Grid column={{ xs: 12, md: 10 }}>
+        <Grid item xs={12} md={10}>
           <div className={styles.card}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
               <div>
@@ -171,7 +171,7 @@ const ProjectHomePage = () => {
           </div>
         </Grid>
         {/* Pod Status & Alerts */}
-        <Grid column={{ xs: 12, md: 5 }}>
+        <Grid item xs={12} md={5}>
           <div className={styles.card}>
             <div className={styles.cardTitle}>Pod Status Distribution</div>
             <Box sx={{ width: 180, mx: 'auto' }}>
@@ -194,7 +194,7 @@ const ProjectHomePage = () => {
           </div>
         </Grid>
         {/* Dataset & Code Tables */}
-        <Grid column={{ xs: 12, md: 5 }}>
+        <Grid item xs={12} md={5}>
           <div className={styles.card}>
             <div className={styles.cardTitle}>Recent Dataset List</div>
             <Table
@@ -204,6 +204,8 @@ const ProjectHomePage = () => {
                 ["Dataset B", "v2.0", "5GB", "2023-09-10"],
                 ["Dataset C", "v1.5", "8GB", "2023-09-08"],
               ]}
+              rowKey={null} // 단순 배열 데이터이므로 rowKey 비활성화
+              virtualized={false} // 작은 데이터이므로 가상화 비활성화
             />
           </div>
           <div className={styles.card}>
@@ -215,6 +217,8 @@ const ProjectHomePage = () => {
                 ["train.py", "2023-09-09"],
                 ["test.py", "2023-09-05"],
               ]}
+              rowKey={null} // 단순 배열 데이터이므로 rowKey 비활성화
+              virtualized={false} // 작은 데이터이므로 가상화 비활성화
             />
           </div>
         </Grid>

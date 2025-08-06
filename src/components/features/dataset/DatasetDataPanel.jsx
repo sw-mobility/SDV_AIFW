@@ -329,7 +329,11 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                             selectedRowClassName={styles.selectedRow}
                             maxHeight="100%"
                             virtualized={true}
+                            columnWidths={['50px', '45%', '20%', '10%', '25%']}
+                            tableLayout="fixed"
                         />
+
+
                     </div>
 
                     {/* 빈 검색 결과 상태 */}

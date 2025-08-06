@@ -293,4 +293,107 @@
   max-width: 360px !important;
   width: 95vw !important;
   min-width: 280px;
+}
+
+/* DatasetDataPanel 테이블 전용 스타일 */
+.wideModal :global(.table-container) {
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: white;
+}
+
+.wideModal :global(.table-container .thead) {
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.wideModal :global(.table-container .th) {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding: 12px 16px;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.wideModal :global(.table-container .td) {
+  font-size: 14px;
+  color: var(--color-text-main);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border-light);
+  vertical-align: middle;
+}
+
+/* DatasetDataPanel 테이블 컬럼 너비 조정 - 더 구체적인 선택자 사용 */
+.wideModal :global(.table-container .thead table th:nth-child(1)),
+.wideModal :global(.table-container .tbody table td:nth-child(1)) {
+  width: 50px !important; /* 체크박스 컬럼 */
+  text-align: center !important;
+}
+
+.wideModal :global(.table-container .thead table th:nth-child(2)),
+.wideModal :global(.table-container .tbody table td:nth-child(2)) {
+  width: 45% !important; /* Name 컬럼 - 가장 넓게 */
+  text-align: left !important;
+}
+
+.wideModal :global(.table-container .thead table th:nth-child(3)),
+.wideModal :global(.table-container .tbody table td:nth-child(3)) {
+  width: 25% !important; /* Type 컬럼 */
+  text-align: left !important;
+  color: #6b7280 !important;
+  font-weight: 500 !important;
+}
+
+.wideModal :global(.table-container .thead table th:nth-child(4)),
+.wideModal :global(.table-container .tbody table td:nth-child(4)) {
+  width: 5% !important; /* Format 컬럼 */
+  text-align: left !important;
+  color: #6b7280 !important;
+  font-weight: 500 !important;
+}
+
+.wideModal :global(.table-container .thead table th:nth-child(5)),
+.wideModal :global(.table-container .tbody table td:nth-child(5)) {
+  width: 25% !important; /* Created 컬럼 */
+  text-align: left !important;
+  color: #6b7280 !important;
+}
+
+/* DatasetDataPanel 테이블 행 스타일 */
+.wideModal :global(.table-container .tr) {
+  transition: all 0.15s ease;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.wideModal :global(.table-container .tr:hover:not(.selectedRow)) {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.wideModal :global(.table-container .selectedRow) {
+  background: #eff6ff !important;
+  color: var(--color-text-main);
+  font-weight: 500;
+  border-left: 3px solid #3b82f6;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
+  transition: all 0.15s ease;
+}
+
+/* DatasetDataPanel 테이블 스크롤 최적화 */
+.wideModal :global(.table-container .tbody) {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* DatasetDataPanel 테이블 셀 텍스트 오버플로우 처리 */
+.wideModal :global(.table-container .td) {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 } 

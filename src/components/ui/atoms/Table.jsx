@@ -24,7 +24,9 @@ export default function Table({
     rowKey = 'id', 
     selectedRowClassName,
     maxHeight = 'auto',
-    virtualized = true
+    virtualized = true,
+    columnWidths = null,
+    tableLayout = 'auto'
 }) {
     const containerRef = useRef(null);
     const [scrollTop, setScrollTop] = useState(0);
@@ -93,22 +95,24 @@ export default function Table({
         if (row.cells && Array.isArray(row.cells)) {
             // cells 배열이 있는 경우 (DatasetDataPanel에서 전달하는 구조)
             return row.cells.map((cell, i) => (
-                <td
-                    key={`cell-${i}`}
-                    className={i === createdAtIdx ? styles.tdCreatedAt : styles.td}
-                >
-                    {cell}
-                </td>
+                                                                    <td
+                                                        key={`cell-${i}`}
+                                                        className={i === createdAtIdx ? styles.tdCreatedAt : styles.td}
+                                                        style={columnWidths && columnWidths[i] ? { width: columnWidths[i] } : {}}
+                                                    >
+                                                        {cell}
+                                                    </td>
             ));
         } else if (row.cell !== undefined) {
             // 단일 cell이 있는 경우
-            return <td key="single-cell" className={styles.td}>{row.cell}</td>;
+            return <td key="single-cell" className={styles.td} style={columnWidths && columnWidths[0] ? { width: columnWidths[0] } : {}}>{row.cell}</td>;
         } else if (Array.isArray(row)) {
             // 일반 배열인 경우
             return row.map((cell, i) => (
                 <td
                     key={`array-cell-${i}`}
                     className={i === createdAtIdx ? styles.tdCreatedAt : styles.td}
+                    style={columnWidths && columnWidths[i] ? { width: columnWidths[i] } : {}}
                 >
                     {cell}
                 </td>
@@ -127,11 +131,15 @@ export default function Table({
         <div className={styles['table-container']} style={{ maxHeight }}>
             <div className={styles.table}>
                 <div className={styles.thead}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: tableLayout }}>
                         <thead>
                             <tr>
                                 {columns.map((col, index) => (
-                                    <th key={index} className={styles.th}>
+                                    <th 
+                                        key={index} 
+                                        className={styles.th}
+                                        style={columnWidths && columnWidths[index] ? { width: columnWidths[index] } : {}}
+                                    >
                                         {typeof col === 'string' ? col : col.label || col}
                                     </th>
                                 ))}
@@ -152,10 +160,10 @@ export default function Table({
                                 const safeVirtualIndex = virtualRow.virtualIndex !== undefined ? virtualRow.virtualIndex : index;
                                 return (
                                     <div key={`virtual-row-${safeVirtualIndex}`} style={virtualRow.style}>
-                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: tableLayout }}>
                                             <tbody>
                                                 <tr
-                                                    key={`tr-${safeVirtualIndex}-${rowKey && row && row[rowKey] ? row[rowKey] : safeVirtualIndex}`}
+                                                    key={`tr-${safeVirtualIndex}-${rowKey && row && row[rowKey] ? row[rowKey] : `row-${safeVirtualIndex}`}`}
                                                     className={
                                                         styles.tr +
                                                         (selectedId && rowKey && row && row[rowKey] === selectedId
@@ -173,7 +181,7 @@ export default function Table({
                             })}
                         </div>
                     ) : (
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: tableLayout }}>
                             <tbody>
                             {memoizedData.length === 0 ? (
                                 <tr>
@@ -184,7 +192,7 @@ export default function Table({
                             ) : (
                                 memoizedData.map((row, idx) => (
                                     <tr
-                                        key={rowKey && row && row[rowKey] ? row[rowKey] : idx}
+                                        key={rowKey && row && row[rowKey] ? row[rowKey] : `row-${idx}`}
                                         className={
                                             styles.tr +
                                             (selectedId && rowKey && row && row[rowKey] === selectedId
@@ -224,7 +232,9 @@ Table.propTypes = {
         PropTypes.string,
         PropTypes.number
     ]),
-    virtualized: PropTypes.bool
+    virtualized: PropTypes.bool,
+    columnWidths: PropTypes.arrayOf(PropTypes.string),
+    tableLayout: PropTypes.oneOf(['auto', 'fixed'])
 };
 
 // 기본 props
