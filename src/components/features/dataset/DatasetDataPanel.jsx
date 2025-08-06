@@ -50,7 +50,8 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         updateUploadFiles,
         toggleDeleteConfirm,
         isLabeled,
-        uploadProgress // 배치 업로드 진행률 추가
+        uploadProgress, // 배치 업로드 진행률 추가
+        refreshKey // refreshKey 추가
     } = useDatasetData(dataset, open);
 
     const titleIcon = isLabeled ? <Tag size={20} /> : <Database size={20} />;
@@ -148,7 +149,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                     ]
                 };
             });
-    }, [filteredData, selectedSet, handleCheckboxSelect]);
+    }, [filteredData, selectedSet, handleCheckboxSelect, data?.data_list?.length]); // data_list 길이도 의존성에 추가
 
     const selectAllChecked = filteredData.length > 0 && filteredData.every(row => selected.includes(row._id));
     const selectAllIndeterminate = filteredData.length > 0 && filteredData.some(row => selected.includes(row._id)) && !selectAllChecked;
@@ -312,6 +313,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                         flexDirection: 'column'
                     }}>
                         <Table
+                            key={`table-${data?.data_list?.length || 0}-${refreshKey || 0}`} // 데이터 변경 시 테이블 리렌더링
                             columns={[
                                 // 체크박스 컬럼 헤더 (빈 문자열로 표시)
                                 '',

@@ -53,7 +53,9 @@ const ValidationWorkspace = ({
           <ProgressBar
             percentage={progress}
             status={status === 'success' ? 'success' : status === 'error' ? 'error' : 'running'}
+            runningText="Validation in progress..."
             completeText="Validation completed!"
+            errorText="Validation failed."
           />
         </div>
       )}

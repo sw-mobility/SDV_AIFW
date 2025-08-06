@@ -155,7 +155,12 @@ export const useDatasetData = (dataset, isOpen = false) => {
       
       setUploadFiles([]);
       setUploadProgress(null);
-      setRefreshKey(k => k + 1);
+      
+      // 업로드 완료 후 잠시 대기 후 데이터 새로고침
+      setTimeout(() => {
+        setRefreshKey(k => k + 1);
+        console.log('Dataset data refreshed after upload');
+      }, 1000); // 1초 대기
     } catch (err) {
       setUploadError(err.message);
       setUploadProgress(null);
@@ -229,6 +234,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
     showDeleteConfirm,
     downloading,
     uploadProgress,
+    refreshKey, // refreshKey 추가
 
     handleSelect,
     handleSelectAll,

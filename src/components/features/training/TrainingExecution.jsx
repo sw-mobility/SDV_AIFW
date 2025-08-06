@@ -44,7 +44,13 @@ const TrainingExecution = ({
       </div>
       <div className={styles.statusCard}>
         <div>
-          <ProgressBar percentage={progress} status={status} completeText={completeText} />
+          <ProgressBar 
+            percentage={progress} 
+            status={status} 
+            runningText="Training in progress..."
+            completeText={completeText || "Training completed!"}
+            errorText="Training failed."
+          />
         </div>
         <div className={styles.logBox}>
           {logs.length === 0 ? (

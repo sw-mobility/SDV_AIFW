@@ -42,6 +42,13 @@ const ParameterEditor = ({
     return Math.ceil(range / 100);
   };
 
+  // 현재 값 가져오기 (기본값 포함)
+  const getCurrentValue = () => {
+    return algoParams[currentParam.key] !== undefined 
+      ? algoParams[currentParam.key] 
+      : currentParam.default;
+  };
+
   return (
     <div className={styles.paramCard + ' ' + styles.paramCardActive}>
       <div className={styles.paramRowHeader}>
@@ -61,7 +68,7 @@ const ParameterEditor = ({
             min={currentParam.min}
             max={currentParam.max}
             step={getSliderStep(currentParam)}
-            value={algoParams[currentParam.key] ?? currentParam.default}
+            value={getCurrentValue()}
             onChange={(_, v) => handleParamChange(currentParam.key, v, currentParam)}
             sx={{ 
               width: 180, 
@@ -80,7 +87,7 @@ const ParameterEditor = ({
           />
           <input
             type="number"
-            value={algoParams[currentParam.key] ?? currentParam.default}
+            value={getCurrentValue()}
             min={currentParam.min}
             max={currentParam.max}
             step={currentParam.step || getSliderStep(currentParam)}
@@ -92,7 +99,7 @@ const ParameterEditor = ({
       ) : currentParam.type === 'select' ? (
         <select
           className={styles.paramInput}
-          value={algoParams[currentParam.key] ?? currentParam.default}
+          value={getCurrentValue()}
           onChange={e => handleParamChange(currentParam.key, e.target.value, currentParam)}
           style={{ width: 180 }}
         >
@@ -103,19 +110,23 @@ const ParameterEditor = ({
       ) : currentParam.type === 'checkbox' ? (
         <div className={styles.switchContainer}>
           <Switch
-            checked={algoParams[currentParam.key] ?? currentParam.default}
+            checked={getCurrentValue()}
             onChange={e => handleParamChange(currentParam.key, e.target.checked, currentParam)}
             color="primary"
             size="medium"
           />
+          <span style={{ marginLeft: 8, fontSize: '14px', color: '#666' }}>
+            {getCurrentValue() ? 'Enabled' : 'Disabled'}
+          </span>
         </div>
       ) : (
         <input
           type="text"
           className={styles.paramInput}
-          value={algoParams[currentParam.key] ?? currentParam.default}
+          value={getCurrentValue()}
           onChange={e => handleParamChange(currentParam.key, e.target.value, currentParam)}
           style={{ width: 180 }}
+          placeholder={currentParam.placeholder || ''}
         />
       )}
       

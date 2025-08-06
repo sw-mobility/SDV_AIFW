@@ -133,7 +133,9 @@ export default function LabelingWorkspace({ dataset }) {
               <ProgressBar
                   percentage={progress}
                   status={status}
+                  runningText="Labeling in progress..."
                   completeText="Labeling completed successfully!"
+                  errorText="Labeling failed."
               />
             </div>
         )}

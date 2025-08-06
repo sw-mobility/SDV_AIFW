@@ -126,7 +126,13 @@ const OptimizationPage = () => {
                 {status === 'error' && <span className={styles.statusError}>Error</span>}
               </div>
               <div style={{ margin: '16px 0' }}>
-                <ProgressBar percentage={progress} status={status} />
+                <ProgressBar 
+                  percentage={progress} 
+                  status={status}
+                  runningText="Optimization in progress..."
+                  completeText="Optimization completed!"
+                  errorText="Optimization failed."
+                />
               </div>
               {logs && logs.length > 0 && (
                 <div className={styles.logSection}>

@@ -16,7 +16,7 @@ import styles from './FileUploadField.module.css';
  * @returns {Element}
  * @constructor
  */
-export default function FileUploadField({ 
+const FileUploadField = ({ 
     files, 
     setFiles, 
     fileError, 
@@ -26,7 +26,7 @@ export default function FileUploadField({
     maxSizeMB = 1000,
     allowFolders = true,
     uploadProgress
-}) {
+}) => {
     const fileInputRef = useRef();
     const folderInputRef = useRef();
     const [dragActive, setDragActive] = useState(false);
@@ -87,7 +87,6 @@ export default function FileUploadField({
     
     const handleDragOver = (e) => {
         e.preventDefault();
-        
         setDragActive(true);
     };
     
@@ -382,7 +381,9 @@ export default function FileUploadField({
                         percentage={Math.round((uploadProgress.currentBatch / uploadProgress.totalBatches) * 100)} 
                         label={`Uploading: ${uploadProgress.uploadedFiles} / ${uploadProgress.totalFiles} files (Batch ${uploadProgress.currentBatch}/${uploadProgress.totalBatches})`}
                         status={uploadProgress.currentBatch === uploadProgress.totalBatches ? "success" : "running"}
+                        runningText="Uploading files..."
                         completeText="Upload completed!"
+                        errorText="Upload failed."
                     />
                     {uploadProgress.currentBatch < uploadProgress.totalBatches && (
                         <div style={{ 
@@ -398,4 +399,6 @@ export default function FileUploadField({
             )}
         </div>
     );
-} 
+};
+
+export default FileUploadField; 

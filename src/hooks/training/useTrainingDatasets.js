@@ -14,16 +14,10 @@ export const useTrainingDatasets = () => {
     try {
       const res = await fetchLabeledDatasets({ uid });
       const formattedDatasets = (res.data || []).map(ds => ({
-        id: ds.did || ds._id,
-        name: ds.name,
-        type: ds.type,
+        ...ds, // Keep all original fields including did, _id, etc.
+        id: ds.did || ds._id, // Add id field for backward compatibility
         size: ds.total,
         labelCount: ds.total,
-        description: ds.description,
-        task_type: ds.task_type,
-        label_format: ds.label_format,
-        origin_raw: ds.origin_raw,
-        created_at: ds.created_at,
       }));
       setDatasets(formattedDatasets);
       return formattedDatasets;

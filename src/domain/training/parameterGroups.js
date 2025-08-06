@@ -3,7 +3,8 @@ export const PARAMETER_GROUPS = {
   PROJECT_INFO: 'Project Information',
   TRAINING: 'Training Parameters',
   MODEL: 'Model Parameters',
-  DATA: 'Data Parameters'
+  DATA: 'Data Parameters',
+  ADVANCED: 'Advanced Parameters'
 };
 
 export const PROJECT_INFO_PARAMS = ['model_version', 'model_size', 'task_type'];
@@ -32,6 +33,12 @@ export const validateParam = (param, value) => {
     if (param.required && (!value || value === '')) {
       error = `${param.label}을(를) 입력하세요.`;
     }
+  } else if (param.type === 'select') {
+    if (param.required && (!value || value === '')) {
+      error = `${param.label}을(를) 선택하세요.`;
+    }
+  } else if (param.type === 'checkbox') {
+    // checkbox는 boolean 값이므로 별도 검증 불필요
   }
   
   return { isValid: error === '', error };
@@ -70,9 +77,9 @@ export const getParameterGroupsByAlgorithm = (algorithm) => {
     {
       group: PARAMETER_GROUPS.PROJECT_INFO,
       params: [
-        { key: 'model_version', label: 'Model Version', type: 'text', required: true },
-        { key: 'model_size', label: 'Model Size', type: 'text', required: true },
-        { key: 'task_type', label: 'Task Type', type: 'text', required: true },
+        { key: 'model_version', label: 'Model Version', type: 'text', required: true, default: 'v1.0' },
+        { key: 'model_size', label: 'Model Size', type: 'text', required: true, default: 'medium' },
+        { key: 'task_type', label: 'Task Type', type: 'text', required: true, default: 'training' },
         { key: 'project_name', label: 'Project Name', type: 'text', required: true },
         { key: 'description', label: 'Description', type: 'text' }
       ]
@@ -80,40 +87,73 @@ export const getParameterGroupsByAlgorithm = (algorithm) => {
     {
       group: PARAMETER_GROUPS.TRAINING,
       params: [
-        { key: 'epochs', label: 'Epochs', type: 'number', min: 1, max: 1000, default: 100, step: 1 },
-        { key: 'batch_size', label: 'Batch Size', type: 'number', min: 1, max: 512, default: 32, step: 1 },
-        { key: 'learning_rate', label: 'Learning Rate', type: 'number', min: 0.0001, max: 1, default: 0.001, step: 0.0001 },
-        { key: 'optimizer', label: 'Optimizer', type: 'text', default: 'adam' }
+        { key: 'epochs', label: 'Epochs', type: 'number', min: 1, max: 1000, default: 50, step: 1, desc: 'Number of training epochs' },
+        { key: 'batch_size', label: 'Batch Size', type: 'number', min: 1, max: 512, default: 16, step: 1, desc: 'Batch size for training' },
+        { key: 'learning_rate', label: 'Learning Rate (lr0)', type: 'number', min: 0.0001, max: 1, default: 0.01, step: 0.001, desc: 'Initial learning rate' },
+        { key: 'optimizer', label: 'Optimizer', type: 'select', options: ['SGD', 'Adam', 'AdamW'], default: 'SGD', desc: 'Optimizer algorithm' }
       ]
     },
     {
       group: PARAMETER_GROUPS.MODEL,
       params: [
-        { key: 'model_type', label: 'Model Type', type: 'text', default: 'yolo' },
-        { key: 'input_size', label: 'Input Size', type: 'number', min: 224, max: 1024, default: 640, step: 32 },
-        { key: 'num_classes', label: 'Number of Classes', type: 'number', min: 1, max: 1000, default: 80, step: 1 }
+        { key: 'model_type', label: 'Model Type', type: 'text', default: 'yolo', desc: 'Model architecture type' },
+        { key: 'input_size', label: 'Input Size (imgsz)', type: 'number', min: 224, max: 1024, default: 640, step: 32, desc: 'Input image size' },
+        { key: 'num_classes', label: 'Number of Classes', type: 'number', min: 1, max: 1000, default: 80, step: 1, desc: 'Number of classes to detect' }
       ]
     },
     {
       group: PARAMETER_GROUPS.DATA,
       params: [
-        { key: 'data_path', label: 'Data Path', type: 'text', required: true },
-        { key: 'validation_split', label: 'Validation Split', type: 'number', min: 0.1, max: 0.5, default: 0.2, step: 0.05 },
-        { key: 'augmentation', label: 'Data Augmentation', type: 'text', default: 'basic' }
+        { key: 'data_path', label: 'Data Path', type: 'text', required: true, desc: 'Path to dataset' },
+        { key: 'validation_split', label: 'Validation Split', type: 'number', min: 0.1, max: 0.5, default: 0.2, step: 0.05, desc: 'Validation data ratio' },
+        { key: 'augmentation', label: 'Data Augmentation', type: 'checkbox', default: true, desc: 'Enable data augmentation' }
       ]
     }
   ];
 
-  // 알고리즘별 특화 파라미터 추가
+  // YOLO 특화 파라미터 추가
   if (algorithm === 'YOLO') {
-    baseGroups[2].params.push(
-      { key: 'yolo_version', label: 'YOLO Version', type: 'text', default: 'v8', desc: 'YOLO version to use' },
-      { key: 'confidence_threshold', label: 'Confidence Threshold', type: 'number', min: 0.1, max: 1, default: 0.5, step: 0.01 }
+    baseGroups[1].params.push(
+      { key: 'lrf', label: 'Final LR Factor', type: 'number', min: 0.01, max: 1, default: 0.1, step: 0.01, desc: 'Final learning rate factor' },
+      { key: 'momentum', label: 'Momentum', type: 'number', min: 0, max: 1, default: 0.937, step: 0.001, desc: 'SGD momentum/Adam beta1' },
+      { key: 'weight_decay', label: 'Weight Decay', type: 'number', min: 0, max: 0.01, default: 0.0005, step: 0.0001, desc: 'Optimizer weight decay' },
+      { key: 'patience', label: 'Patience', type: 'number', min: 1, max: 100, default: 20, step: 1, desc: 'Early stopping patience' },
+      { key: 'warmup_epochs', label: 'Warmup Epochs', type: 'number', min: 0, max: 10, default: 3, step: 1, desc: 'Warmup epochs' },
+      { key: 'warmup_momentum', label: 'Warmup Momentum', type: 'number', min: 0, max: 1, default: 0.8, step: 0.1, desc: 'Warmup initial momentum' },
+      { key: 'warmup_bias_lr', label: 'Warmup Bias LR', type: 'number', min: 0, max: 1, default: 0.1, step: 0.01, desc: 'Warmup initial bias lr' }
     );
+    
+    baseGroups[2].params.push(
+      { key: 'model', label: 'Model', type: 'select', options: ['yolov8n', 'yolov8s', 'yolov8m', 'yolov8l', 'yolov8x'], default: 'yolov8n', desc: 'YOLO model variant' },
+      { key: 'device', label: 'Device', type: 'select', options: ['cpu', 'cuda:0', 'cuda:1'], default: 'cuda:0', desc: 'Training device' },
+      { key: 'save_period', label: 'Save Period', type: 'number', min: 1, max: 50, default: 5, step: 1, desc: 'Save checkpoint every x epochs' },
+      { key: 'workers', label: 'Workers', type: 'number', min: 0, max: 16, default: 4, step: 1, desc: 'Number of worker threads' },
+      { key: 'pretrained', label: 'Use Pretrained', type: 'checkbox', default: true, desc: 'Use pretrained weights' },
+      { key: 'seed', label: 'Random Seed', type: 'number', min: 0, max: 999999, default: 42, step: 1, desc: 'Random seed for reproducibility' },
+      { key: 'dropout', label: 'Dropout', type: 'number', min: 0, max: 1, default: 0.0, step: 0.1, desc: 'Dropout rate' },
+      { key: 'label_smoothing', label: 'Label Smoothing', type: 'number', min: 0, max: 1, default: 0.0, step: 0.1, desc: 'Label smoothing epsilon' }
+    );
+
+    // Advanced parameters group for YOLO
+    baseGroups.push({
+      group: PARAMETER_GROUPS.ADVANCED,
+      params: [
+        { key: 'split_ratio', label: 'Split Ratio', type: 'text', default: '[0.8, 0.2]', desc: 'Train/val split ratio (JSON array)' },
+        { key: 'cache', label: 'Cache Images', type: 'checkbox', default: false, desc: 'Cache images for faster training' },
+        { key: 'rect', label: 'Rectangular Training', type: 'checkbox', default: false, desc: 'Rectangular training' },
+        { key: 'resume', label: 'Resume Path', type: 'text', default: '', desc: 'Resume training from checkpoint' },
+        { key: 'amp', label: 'Mixed Precision', type: 'checkbox', default: true, desc: 'Use automatic mixed precision' },
+        { key: 'single_cls', label: 'Single Class', type: 'checkbox', default: false, desc: 'Train as single-class dataset' },
+        { key: 'cos_lr', label: 'Cosine LR', type: 'checkbox', default: false, desc: 'Use cosine LR scheduler' },
+        { key: 'close_mosaic', label: 'Close Mosaic', type: 'number', min: 0, max: 20, default: 0, step: 1, desc: 'Disable mosaic augmentation' },
+        { key: 'overlap_mask', label: 'Overlap Mask', type: 'checkbox', default: false, desc: 'Masks should overlap during training' },
+        { key: 'mask_ratio', label: 'Mask Ratio', type: 'number', min: 0, max: 10, default: 0.0, step: 0.1, desc: 'Mask downsample ratio' }
+      ]
+    });
   } else if (algorithm === 'ResNet') {
     baseGroups[2].params.push(
       { key: 'resnet_depth', label: 'ResNet Depth', type: 'number', min: 18, max: 152, default: 50, step: 1 },
-      { key: 'pretrained', label: 'Use Pretrained', type: 'text', default: 'true' }
+      { key: 'pretrained', label: 'Use Pretrained', type: 'checkbox', default: true }
     );
   }
 
