@@ -118,7 +118,7 @@ export const useProjects = () => {
             setLoading(true);
             setError(null);
             
-            await deleteProject({ id: projectId, uid });
+            await deleteProject({ uid, id: projectId});
             await fetchProjectsList();
         } catch (err) {
             setError(err.message);
@@ -130,7 +130,7 @@ export const useProjects = () => {
     // 삭제 확인 모달에서 삭제 실행
     const confirmDelete = async () => {
         if (deleteTarget) {
-            await handleDeleteProject(deleteTarget._id || deleteTarget.id);
+            await handleDeleteProject(deleteTarget._id);
             setIsDeleteConfirmOpen(false);
             setDeleteTarget(null);
         }

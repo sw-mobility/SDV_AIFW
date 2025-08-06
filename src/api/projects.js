@@ -53,8 +53,8 @@ export async function updateProject({ id, uid, name, description }) {
     return { success: true, data, message: 'Project updated successfully' };
 }
 
-export async function deleteProject({ id, uid }) {
-    const url = `${BASE_URL}/projects/projects/delete?id=${encodeURIComponent(id)}&uid=${encodeURIComponent(uid)}`;
+export async function deleteProject({uid, id}) {
+    const url = `${BASE_URL}/projects/projects/?uid=${encodeURIComponent(uid)}&project_id=${encodeURIComponent(id)}`;
     const response = await fetch(url, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
