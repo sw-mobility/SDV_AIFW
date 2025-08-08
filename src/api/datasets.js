@@ -1,5 +1,18 @@
 const BASE_URL = 'http://localhost:5002';
 
+// 파일명에서 경로를 제거하는 유틸리티 함수
+function sanitizeFileName(file) {
+    // 파일명에서 경로 부분을 제거하고 파일명만 추출
+    const originalName = file.name || file.filename || 'unnamed';
+    const fileName = originalName.split('/').pop().split('\\').pop();
+    
+    // 새로운 File 객체 생성 (파일명만 변경)
+    return new File([file], fileName, {
+        type: file.type,
+        lastModified: file.lastModified
+    });
+}
+
 export async function fetchRawDatasets({ uid }) {
     const url = `${BASE_URL}/datasets/raw/?uid=${encodeURIComponent(uid)}`;
     const response = await fetch(url);
@@ -80,9 +93,12 @@ export async function deleteData({ uid, target_id_list = [], target_path_list = 
     return { success: true, message: 'Data deleted successfully' };
 }
 
-export async function uploadLabeledFiles({ files, uid, id}) {
+export async function uploadLabeledFiles({ files, uid, id }) {
     const formData = new FormData();
-    for (const file of files) formData.append('files', file);
+    for (const file of files) {
+        const sanitizedFile = sanitizeFileName(file);
+        formData.append('files', sanitizedFile);
+    }
     formData.append('uid', uid);
     formData.append('id', id);
     const response = await fetch(`${BASE_URL}/datasets/labeled/upload`, {
@@ -173,7 +189,10 @@ export async function updateRawDataset({ uid, id, name, description, type }) {
 
 export async function uploadRawFiles({ files, uid, id }) {
     const formData = new FormData();
-    for (const file of files) formData.append('files', file);
+    for (const file of files) {
+        const sanitizedFile = sanitizeFileName(file);
+        formData.append('files', sanitizedFile);
+    }
     formData.append('uid', uid);
     formData.append('id', id);
     const response = await fetch(`${BASE_URL}/datasets/raw/upload`, {
@@ -316,7 +335,7 @@ export async function uploadRawFilesInBatches({ files, uid, id, batchSize = 1000
 }
 
 // 배치 업로드 함수 (labeled files)
-export async function uploadLabeledFilesInBatches({ files, uid, id, batchSize = 1000, onProgress }) {
+export async function uploadLabeledFilesInBatches({ files, uid, id, task_type, label_format, batchSize = 1000, onProgress }) {
     const batches = chunkArray(files, batchSize);
     const results = [];
     
@@ -337,7 +356,7 @@ export async function uploadLabeledFilesInBatches({ files, uid, id, batchSize = 
         }
         
         try {
-            const result = await uploadLabeledFiles({ files: batch, uid, id });
+            const result = await uploadLabeledFiles({ files: batch, uid, id, task_type, label_format });
             results.push(result);
         } catch (error) {
             // 배치 업로드 실패 시 에러 정보와 함께 실패

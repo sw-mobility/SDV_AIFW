@@ -128,9 +128,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
           await uploadLabeledFiles({ 
             files: uploadFiles, 
             uid: dataset.uid || '', 
-            id: dataset._id, 
-            task_type: dataset.task_type || dataset.taskType, 
-            label_format: dataset.label_format || dataset.labelFormat 
+            id: dataset._id
           });
         }
       } else {

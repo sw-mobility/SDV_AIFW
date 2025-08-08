@@ -31,12 +31,10 @@ const FileUploadField = ({
     const folderInputRef = useRef();
     const [dragActive, setDragActive] = useState(false);
     const [showAllFiles, setShowAllFiles] = useState(false);
-    const [filesPerPage] = useState(50); // 한 번에 표시할 파일 수
+    const [filesPerPage] = useState(50);
     const [currentPage, setCurrentPage] = useState(0);
 
-    // 파일 검증 로직에서 maxFiles 제한 제거
     const validateFiles = (selected) => {
-        // 파일 형식 제한 제거 - 모든 파일 허용
         const totalSize = [...files, ...selected].reduce((a, f) => a + f.size, 0);
         if (totalSize > maxSizeMB * 1024 * 1024) {
             setFileError(`전체 파일 용량이 ${maxSizeMB}MB를 초과할 수 없습니다.`);
@@ -54,12 +52,10 @@ const FileUploadField = ({
         setFiles(prev => [...prev, ...selected]);
     };
 
-    // drag and drop 지원
     const handleDrop = (e) => {
         e.preventDefault();
         setDragActive(false);
-        
-        // 드롭된 파일들을 가져오기
+
         const droppedFiles = Array.from(e.dataTransfer.files);
         
         if (droppedFiles.length === 0) {
@@ -70,7 +66,7 @@ const FileUploadField = ({
         // 파일 경로 정보 확인
         const filesWithPathInfo = droppedFiles.map(file => {
             // 파일 이름에 경로 정보가 포함되어 있는지 확인
-            if (file.name.includes('/') || file.name.includes('\\')) {
+            if (file.name.includes('/')) {
                 // 경로 정보가 있는 경우 webkitRelativePath 설정
                 file.webkitRelativePath = file.name;
             }
