@@ -230,15 +230,7 @@
     padding-left: 12px;
 }
 
-.fileExtDot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-right: 6px;
-    vertical-align: middle;
-    flex-shrink: 0;
-}
+
 
 /* Snapshot Save Buttons */
 .snapshotSidebarBtnsWrap {

@@ -27,3 +27,6 @@ export { useDatasetData } from './dataset/useDatasetData.js';
 
 // Optimization hooks
 export { default } from './optimization/useOptimizationState.js';
+
+// Editor hooks
+export { useCodeEditor } from './editor/useCodeEditor.js';

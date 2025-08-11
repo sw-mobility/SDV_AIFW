@@ -1,0 +1,150 @@
+/* 전체 페이지 컨테이너 - Training Page와 동일한 구조 */
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  background: var(--color-bg-primary);
+  box-sizing: border-box;
+}
+
+.pageHeader {
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.pageDescription {
+  color: #64748b;
+  font-size: 16px;
+  margin: 0 0 24px 0;
+  line-height: 1.4;
+}
+
+.selectorSection {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.statusSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.successMessage {
+  color: #059669;
+  font-weight: 500;
+  padding: 8px 12px;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.lastSaved {
+  color: #64748b;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.lastSavedContainer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 16px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 0;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+  color: #64748b;
+}
+
+.emptyState h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* 에디터 섹션 - 전체 높이 차지 */
+.editorSection {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-primary);
+}
+
+.editorContainer {
+  flex: 1;
+  min-height: 600px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container,
+  .editorContainer {
+    padding: 0 20px;
+  }
+  
+  .pageTitle {
+    font-size: 24px;
+  }
+  
+  .pageDescription {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 900px) {
+  .container,
+  .editorContainer {
+    padding: 0 20px;
+  }
+}

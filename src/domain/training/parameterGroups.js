@@ -11,7 +11,9 @@ export const PROJECT_INFO_PARAMS = ['model_version', 'model_size', 'task_type'];
 
 // Algorithm options for selector
 export const algorithmOptions = [
-  { value: 'YOLO', label: 'YOLO' },
+  { value: 'yolo_v5', label: 'YOLOv5' },
+  { value: 'yolo_v8', label: 'YOLOv8' },
+  { value: 'yolo_v11', label: 'YOLOv11' },
   { value: 'ResNet', label: 'ResNet' },
   { value: 'SSD', label: 'SSD' },
   { value: 'Faster R-CNN', label: 'Faster R-CNN' }

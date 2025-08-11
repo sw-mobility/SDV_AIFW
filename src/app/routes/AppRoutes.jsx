@@ -4,6 +4,7 @@ import {BrowserRouter as Router, Routes, Route, Navigate, Outlet} from 'react-ro
 import IndexPage from '../../pages/index_page/IndexPage.jsx';
 import ProjectHomePage from '../../pages/project_home/ProjectHomePage.jsx';
 import TrainingPage from '../../pages/training_page/TrainingPage.jsx';
+import EditorPage from '../../pages/editor_page/EditorPage.jsx';
 import LabelingPage from '../../pages/labeling_page/LabelingPage.jsx';
 import OptimizationPage from '../../pages/optimization_page/OptimizationPage.jsx';
 import ValidationPage from '../../pages/validation_page/ValidationPage.jsx';
@@ -37,6 +38,7 @@ const AppRoutes = () => (<Router>
             <Route path="/projects/:projectName" element={<MainLayout/>}>
                 <Route index element={<ProjectHomePage/>}/>
                 <Route path="training" element={<TrainingPage/>}/>
+                <Route path="editor" element={<EditorPage/>}/>
                 <Route path="labeling" element={<LabelingPage/>}/>
                 <Route path="optimization" element={<OptimizationPage/>}/>
                 <Route path="validation" element={<ValidationPage/>}/>

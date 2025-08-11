@@ -1,0 +1,154 @@
+import { uid } from './uid.js';
+
+/**
+ * IDE 코드베이스 API
+ * 실제 백엔드 API와 연동
+ */
+
+const API_BASE_URL = 'http://localhost:5002';
+
+/**
+ * 코드베이스 조회 API
+ * @param {string} algorithm - 선택된 알고리즘 (yolo_v5, yolo_v8, yolo_v11)
+ * @returns {Promise<{tree: Array, files: Object}>}
+ */
+export const fetchCodeTemplate = async (algorithm) => {
+  try {
+    // algorithm을 cid로 매핑 (yolo_v5 -> yolo, yolo_v8 -> yolo, yolo_v11 -> yolo)
+    const cid = mapAlgorithmToCid(algorithm);
+    
+    const response = await fetch(
+      `${API_BASE_URL}/IDE/codebase?uid=${encodeURIComponent(uid)}&cid=${encodeURIComponent(cid)}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch codebase: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    // 백엔드 응답을 프론트엔드 형식으로 변환
+    return transformCodebaseResponse(data, algorithm);
+  } catch (error) {
+    console.error('Error fetching codebase:', error);
+    throw error;
+  }
+};
+
+/**
+ * 코드베이스 저장 API (추후 구현 예정)
+ * @param {string} algorithm - 알고리즘
+ * @param {string} projectId - 프로젝트 ID
+ * @param {Object} files - 업데이트할 파일들
+ * @returns {Promise<Object>}
+ */
+export const saveCodeTemplate = async (algorithm, projectId, files) => {
+  try {
+    // 현재는 저장 API가 없으므로 성공 응답 반환
+    console.log('Save functionality not implemented yet', { algorithm, projectId, files });
+    
+    return {
+      success: true,
+      snapshotId: `snapshot_${Date.now()}`,
+      algorithm,
+      projectId,
+      savedAt: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error saving code template:', error);
+    throw error;
+  }
+};
+
+/**
+ * 알고리즘 이름을 cid로 매핑
+ * @param {string} algorithm - 프론트엔드 알고리즘 이름
+ * @returns {string} 백엔드 cid
+ */
+const mapAlgorithmToCid = (algorithm) => {
+  const algorithmToCidMap = {
+    'yolo_v5': 'yolo',
+    'yolo_v8': 'yolo', 
+    'yolo_v11': 'yolo'
+  };
+  
+  return algorithmToCidMap[algorithm] || 'yolo';
+};
+
+/**
+ * 백엔드 응답을 프론트엔드 형식으로 변환
+ * @param {Object} backendData - 백엔드 응답 데이터
+ * @param {string} algorithm - 알고리즘 이름
+ * @returns {Object} 프론트엔드 형식 데이터
+ */
+const transformCodebaseResponse = (backendData, algorithm) => {
+  // 백엔드 응답: { tree: [...], files: { "path": "content" } }
+  // 프론트엔드 기대: { fileStructure: [...], files: { "filename": { code: "...", language: "..." } } }
+  
+  const fileStructure = backendData.tree || [];
+  const transformedFiles = {};
+  
+  // files 객체를 프론트엔드 형식으로 변환
+  if (backendData.files) {
+    Object.entries(backendData.files).forEach(([filePath, content]) => {
+      // 파일 경로에서 파일명만 추출 (중복 방지를 위해 전체 경로를 키로 사용)
+      const fileName = getFileNameFromPath(filePath);
+      const language = getLanguageFromFileName(fileName);
+      
+      // 모든 파일에 대해 전체 경로를 키로 사용하여 중복 방지
+      const fileKey = filePath;
+      
+      transformedFiles[fileKey] = {
+        code: content,
+        language: language,
+        path: filePath, // 원본 경로 정보 보존
+        name: fileName  // 파일명 정보 보존
+      };
+    });
+  }
+  
+  return {
+    algorithm,
+    fileStructure,
+    files: transformedFiles,
+    lastModified: new Date().toISOString(),
+    version: '1.0.0'
+  };
+};
+
+/**
+ * 파일 경로에서 파일명 추출
+ * @param {string} filePath - 파일 경로
+ * @returns {string} 파일명
+ */
+const getFileNameFromPath = (filePath) => {
+  return filePath.split('/').pop() || filePath;
+};
+
+/**
+ * 파일명에서 언어 감지
+ * @param {string} fileName - 파일명
+ * @returns {string} 프로그래밍 언어
+ */
+const getLanguageFromFileName = (fileName) => {
+  const ext = fileName.split('.').pop()?.toLowerCase();
+  const extensionMap = {
+    'py': 'python', 'pyc': 'python', 'pyo': 'python', 'pyz': 'python', 'js': 'javascript', 'ts': 'typescript', 'json': 'json',
+    'yaml': 'yaml',
+    'yml': 'yaml',
+    'txt': 'plaintext',
+    'md': 'markdown',
+    'sh': 'shell',
+    'cfg': 'ini',
+    'conf': 'ini',
+    'html': 'html',
+    'css': 'css',
+    'cpp': 'cpp',
+    'c': 'c',
+    'java': 'java'
+  };
+  
+  return extensionMap[ext] || 'plaintext';
+};
+
+

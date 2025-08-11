@@ -15,6 +15,9 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@exuanbo/file-icons-js": "^3.3.0",
+    "@iconify-json/vscode-icons": "^1.2.27",
+    "@iconify/react": "^6.0.0",
     "@monaco-editor/react": "^4.7.0",
     "@mui/material": "^7.2.0",
     "lucide-react": "^0.525.0",
