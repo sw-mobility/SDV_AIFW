@@ -108,4 +108,159 @@
     .content {
         padding: var(--spacing-md);
     }
+}
+
+/* Form styles for SnapshotModal */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--spacing-xl);
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-main);
+    margin-bottom: var(--spacing-md);
+    letter-spacing: 0.3px;
+}
+
+.input,
+.textarea,
+.select {
+    width: 100%;
+    padding: var(--spacing-lg);
+    border: 2px solid var(--color-border-primary);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-main);
+    transition: all var(--transition-normal);
+    box-sizing: border-box;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+    outline: none;
+    border-color: var(--color-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: white;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.formActions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+    margin-top: var(--spacing-2xl);
+}
+
+/* Button styles matching CreateModal */
+.cancelButton {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    border: 2px solid var(--color-border-primary);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    min-width: 100px;
+}
+
+.cancelButton:hover {
+    background-color: var(--color-gray-100);
+    color: var(--color-text-main);
+    border-color: var(--color-border-focus);
+    transform: translateY(-1px);
+}
+
+.submitButton {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    background: #3B82F6;
+    color: white;
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+.submitButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.submitButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.submitButton:hover:not(:disabled)::before {
+    opacity: 0.1;
+}
+
+.submitButton:disabled {
+    background: var(--color-gray-300);
+    border-color: var(--color-gray-300);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.submitButton:disabled::before {
+    opacity: 0;
+}
+
+@media (max-width: 768px) {
+    .formRow {
+        grid-template-columns: 1fr;
+    }
+    
+    .formActions {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .cancelButton,
+    .submitButton {
+        width: 100%;
+        min-width: auto;
+    }
 } 

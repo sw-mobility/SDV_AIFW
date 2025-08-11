@@ -4,7 +4,7 @@ import {
     Tag,
     Zap,
     CheckSquare,
-    Settings, DownloadCloud, Cpu, Rocket,
+    Settings, DownloadCloud, Cpu, Rocket, Code,
 } from "lucide-react";
 import styles from "./Layout.module.css";
 import { NavLink, useParams } from "react-router-dom";
@@ -16,6 +16,7 @@ const menuItems = [
     {label: "Home", icon: Home, path: ""},
     {label: "labeling", icon: Tag, path: "labeling"},
     {label: "Training", icon: Cpu, path: "training"},
+    {label: "Code Editor", icon: Code, path: "editor"},
     {label: "Optimization", icon: Zap, path: "optimization"},
     {label: "Validation", icon: CheckSquare, path: "validation"},
     {label: "Deployment", icon: Rocket, path: "deployment"},

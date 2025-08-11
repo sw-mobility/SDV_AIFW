@@ -65,9 +65,36 @@
 
 .file-tree {
     font-size: 13px;
-    overflow-y: auto;
-    overflow-x: hidden; /* 가로 스크롤 방지 */
+    overflow: hidden; /* 가상화 리스트가 스크롤 처리 */
     max-height: calc(100vh - 200px);
+}
+
+/* 가상화된 파일 트리 스타일 */
+.virtualized-file-tree {
+    width: 100% !important;
+    outline: none;
+}
+
+.virtualized-file-tree:focus {
+    outline: none;
+}
+
+/* 가상화 리스트의 스크롤바 스타일링 */
+.virtualized-file-tree::-webkit-scrollbar {
+    width: 6px;
+}
+
+.virtualized-file-tree::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.virtualized-file-tree::-webkit-scrollbar-thumb {
+    background: #ced4da;
+    border-radius: 3px;
+}
+
+.virtualized-file-tree::-webkit-scrollbar-thumb:hover {
+    background: #adb5bd;
 }
 
 .file-item {
@@ -232,7 +259,7 @@
 
 
 
-/* Snapshot Save Buttons */
+/* Snapshot Save Button */
 .snapshotSidebarBtnsWrap {
     width: 100%;
     margin-top: auto;
@@ -242,6 +269,43 @@
     align-items: stretch;
     background: #ffffff;
     border-top: 1px solid #e9ecef;
+}
+
+.snapshotSaveBtn {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.snapshotSaveBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.snapshotSaveBtn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.snapshotSaveBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    background: #e5e7eb;
+    color: #9ca3af;
 }
 
 .snapshotInputWrapper {

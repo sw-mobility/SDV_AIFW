@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchCodeTemplate, saveCodeTemplate } from '../../api/codeTemplates.js';
+import { fetchCodeTemplate, saveCodeTemplate, saveSnapshot } from '../../api/codeTemplates.js';
 import { useParams } from 'react-router-dom';
+import { uid } from '../../api/uid.js';
 
 /**
  * 코드 에디터를 위한 커스텀 훅
@@ -104,7 +105,7 @@ export const useCodeEditor = (selectedAlgorithm) => {
   }, []);
 
   /**
-   * 변경사항 저장
+   * 변경사항 저장 (기존 방식)
    */
   const saveChanges = useCallback(async () => {
     if (!selectedAlgorithm || !hasUnsavedChanges) {
@@ -137,6 +138,72 @@ export const useCodeEditor = (selectedAlgorithm) => {
       setLoading(false);
     }
   }, [selectedAlgorithm, projectName, files, hasUnsavedChanges]);
+
+  /**
+   * 스냅샷 저장
+   */
+  const saveSnapshotData = useCallback(async (snapshotMetadata) => {
+    if (!selectedAlgorithm) {
+      return { success: false, message: 'No algorithm selected' };
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // 현재 파일 구조와 내용을 API 형식으로 변환
+      const snapshotData = {
+        data: {
+          tree: fileStructure,
+          files: Object.fromEntries(
+            Object.entries(files).map(([filePath, fileData]) => [
+              filePath,
+              fileData.code || ''
+            ])
+          )
+        },
+        request: {
+          uid: uid,
+          name: snapshotMetadata.name,
+          algorithm: mapAlgorithmToCid(selectedAlgorithm),
+          stage: snapshotMetadata.stage,
+          task_type: snapshotMetadata.task_type,
+          description: snapshotMetadata.description
+        }
+      };
+      
+      const result = await saveSnapshot(uid, snapshotData);
+      
+      if (result.success) {
+        setHasUnsavedChanges(false);
+        setLastSavedAt(new Date());
+      }
+      
+      return result;
+      
+    } catch (err) {
+      setError(err.message);
+      return {
+        success: false,
+        message: err.message
+      };
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedAlgorithm, fileStructure, files]);
+
+  /**
+   * 알고리즘을 cid로 매핑
+   */
+  const mapAlgorithmToCid = (algorithm) => {
+    const algorithmToCidMap = {
+      'yolo_v5': 'yolo',
+      'yolo_v8': 'yolo', 
+      'yolo_v11': 'yolo'
+    };
+    
+    return algorithmToCidMap[algorithm] || 'yolo';
+  };
 
   /**
    * 변경사항 폐기
@@ -236,6 +303,7 @@ print("Hello from ${fileName}")
     updateFileLanguage,
     changeActiveFile,
     saveChanges,
+    saveSnapshotData,
     discardChanges,
     createNewFile,
     loadCodeTemplate,

@@ -25,6 +25,7 @@
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.3",
+    "react-window": "^1.8.11",
     "recharts": "^3.1.0"
   },
   "devDependencies": {

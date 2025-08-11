@@ -61,6 +61,41 @@ export const saveCodeTemplate = async (algorithm, projectId, files) => {
 };
 
 /**
+ * 스냅샷 저장 API
+ * @param {string} uid - 사용자 ID
+ * @param {Object} snapshotData - 스냅샷 데이터
+ * @returns {Promise<Object>}
+ */
+export const saveSnapshot = async (uid, snapshotData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/IDE/snapshot?uid=${encodeURIComponent(uid)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(snapshotData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      data: result,
+      message: 'Snapshot saved successfully'
+    };
+  } catch (error) {
+    console.error('Error saving snapshot:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to save snapshot'
+    };
+  }
+};
+
+/**
  * 알고리즘 이름을 cid로 매핑
  * @param {string} algorithm - 프론트엔드 알고리즘 이름
  * @returns {string} 백엔드 cid

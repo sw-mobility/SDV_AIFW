@@ -58,15 +58,7 @@
   flex-wrap: wrap;
 }
 
-.successMessage {
-  color: #059669;
-  font-weight: 500;
-  padding: 8px 12px;
-  background: #d1fae5;
-  border: 1px solid #a7f3d0;
-  border-radius: 6px;
-  font-size: 14px;
-}
+
 
 .lastSaved {
   color: #64748b;

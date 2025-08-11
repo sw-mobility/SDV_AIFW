@@ -1,73 +1,121 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Editor from '@monaco-editor/react';
-import { ChevronRight, ChevronDown, PlusCircle, Save, X } from 'lucide-react';
+import { FixedSizeList as List } from 'react-window';
+import { ChevronRight, ChevronDown, Save, X } from 'lucide-react';
 import styles from './CodeEditor.module.css';
 import Button from '../atoms/Button.jsx';
 import IconifyIcon from '../atoms/IconifyIcon.jsx';
 import { getFileIcon, getFolderIcon, getOpenFolderIcon } from '../../../utils/fileIcons.js';
 
 /**
- FileTree component
- @param {Object} item - file or folder (name, type, children)
- @param {number} level - 현재 depth level (들여쓰기 계산용)
- @param {function} onFileClick - 파일 클릭 핸들러
- @param {string} activeFile - 현재 열려 있는 파일명
- @param {boolean} defaultOpen - 기본적으로 열려있을지 여부
+ * 가상화된 파일 트리 컴포넌트
+ * 대용량 파일 구조도 부드럽게 렌더링
  */
-const FileTree = ({ item, level = 0, onFileClick, activeFile, defaultOpen = false, parentPath = '' }) => {
-    const [isOpened, setIsOpened] = useState(defaultOpen);
-    const isFolder = item.type === 'folder' || item.type === 'directory';
-    
-    // 현재 아이템의 전체 경로 계산
-    const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
-    const isActive = !isFolder && activeFile === currentPath;
-    
-    return (
-        <div>
-            <div
-                className={
-                  styles['file-item'] +
-                  (isFolder ? ' ' + styles.folder : ' ' + styles.file) +
-                  (isActive ? ' ' + styles.activeFile : '')
-                }
-                style={{ paddingLeft: `${level * 16 + 8}px`, cursor: 'pointer' }}
-                onClick={() => {
-                    if (isFolder) setIsOpened(!isOpened);
-                    else onFileClick(currentPath);
-                }}
-                title={currentPath}
-            >
-                {isFolder ? (
-                    <>
-                        {isOpened ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+const VirtualizedFileTree = ({ fileStructure, onFileClick, activeFile, height = 400 }) => {
+    const [expandedFolders, setExpandedFolders] = useState(new Set(['src']));
+
+    // 파일 트리를 평면 목록으로 변환
+    const flattenedItems = useMemo(() => {
+        const items = [];
+        
+        const traverse = (item, level = 0, parentPath = '') => {
+            const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
+            const isFolder = item.type === 'folder' || item.type === 'directory';
+            const isExpanded = expandedFolders.has(currentPath);
+            
+            items.push({
+                ...item,
+                level,
+                path: currentPath,
+                isFolder,
+                isExpanded
+            });
+            
+            // 폴더가 열려있고 자식이 있으면 재귀적으로 추가
+            if (isFolder && isExpanded && item.children) {
+                item.children.forEach(child => {
+                    traverse(child, level + 1, currentPath);
+                });
+            }
+        };
+        
+        fileStructure.forEach(item => traverse(item));
+        return items;
+    }, [fileStructure, expandedFolders]);
+
+    const toggleFolder = (path) => {
+        setExpandedFolders(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(path)) {
+                newSet.delete(path);
+            } else {
+                newSet.add(path);
+            }
+            return newSet;
+        });
+    };
+
+    const FileTreeItem = ({ index, style }) => {
+        const item = flattenedItems[index];
+        if (!item) return null;
+
+        const { name, level, path, isFolder, isExpanded } = item;
+        const isActive = !isFolder && activeFile === path;
+
+        return (
+            <div style={style}>
+                <div
+                    className={
+                        styles['file-item'] +
+                        (isFolder ? ' ' + styles.folder : ' ' + styles.file) +
+                        (isActive ? ' ' + styles.activeFile : '')
+                    }
+                    style={{ 
+                        paddingLeft: `${level * 16 + 8}px`, 
+                        cursor: 'pointer',
+                        height: '24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                    }}
+                    onClick={() => {
+                        if (isFolder) {
+                            toggleFolder(path);
+                        } else {
+                            onFileClick(path);
+                        }
+                    }}
+                    title={path}
+                >
+                    {isFolder ? (
+                        <>
+                            {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                            <IconifyIcon 
+                                icon={isExpanded ? getOpenFolderIcon(name) : getFolderIcon(name)} 
+                                size={16} 
+                            />
+                        </>
+                    ) : (
                         <IconifyIcon 
-                            icon={isOpened ? getOpenFolderIcon(item.name) : getFolderIcon(item.name)} 
-                            size={16} 
+                            icon={getFileIcon(name)} 
+                            size={16}
                         />
-                    </>
-                ) : (
-                    <IconifyIcon 
-                        icon={getFileIcon(item.name)} 
-                        size={16}
-                    />
-                )}
-                <span className={styles['file-name']}>{item.name}</span>
-            </div>
-            {isFolder && isOpened && item.children && (
-                <div className={styles['file-children']}>
-                    {item.children.map((child, index) => (
-                        <FileTree 
-                            key={index} 
-                            item={child} 
-                            level={level + 1} 
-                            onFileClick={onFileClick} 
-                            activeFile={activeFile}
-                            parentPath={currentPath}
-                        />
-                    ))}
+                    )}
+                    <span className={styles['file-name']}>{name}</span>
                 </div>
-            )}
-        </div>
+            </div>
+        );
+    };
+
+    return (
+        <List
+            height={height}
+            itemCount={flattenedItems.length}
+            itemSize={24}
+            className={styles['virtualized-file-tree']}
+        >
+            {FileTreeItem}
+        </List>
     );
 };
 
@@ -96,6 +144,7 @@ function CodeEditor({
     currentFile,
     onEditorChange,
     onLanguageChange,
+    onSnapshotSave,
 }) {
     // Use props directly instead of internal state for fileStructure and files
     const fileStructure = propFileStructure || [
@@ -114,8 +163,6 @@ function CodeEditor({
         'train.py': { code: `# Training script\nimport torch\nimport torch.nn as nn\n\nclass Model(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.linear = nn.Linear(10, 1)\n    \n    def forward(self, x):\n        return self.linear(x)\n\nmodel = Model()\nprint("Model initialized successfully!")`, language: 'python' }
     };
     const activeFile = propActiveFile || (fileStructure[0]?.children?.[0]?.name || '');
-    const [snapshotNameInput, setSnapshotNameInput] = useState('');
-    const [showNameInput, setShowNameInput] = useState(false);
 
     // 파일 클릭 핸들러
     const handleFileClick = (filename) => {
@@ -171,71 +218,26 @@ function CodeEditor({
                         {snapshotName === 'Default Snapshot' && <span className={styles.snapshotDefault}>(default)</span>}
                     </div>
                     <div className={styles['file-tree']}>
-                        {fileStructure.map((item, index) => (
-                            <FileTree 
-                                key={index} 
-                                item={item} 
-                                onFileClick={handleFileClick} 
-                                activeFile={activeFile} 
-                                defaultOpen={item.name === 'src'} 
-                            />
-                        ))}
+                        <VirtualizedFileTree
+                            fileStructure={fileStructure}
+                            onFileClick={handleFileClick}
+                            activeFile={activeFile}
+                            height={Math.max(300, window.innerHeight - 400)}
+                        />
                     </div>
                 </div>
-                {/* Snapshot Save Buttons */}
+                {/* Snapshot Save Button */}
                 {!hideSaveButtons && (
                 <div className={styles.snapshotSidebarBtnsWrap}>
-                    {showNameInput && (
-                        <div className={styles.snapshotInputWrapper}>
-                            <input
-                                type="text"
-                                className={styles.snapshotInput}
-                                value={snapshotNameInput}
-                                onChange={e => setSnapshotNameInput(e.target.value)}
-                                placeholder="Enter new snapshot name"
-                                autoFocus
-                            />
-                            <button
-                                className={styles.snapshotBtn + ' ' + styles.cancel}
-                                onClick={() => { setShowNameInput(false); setSnapshotNameInput(''); }}
-                                title="Cancel"
-                            >
-                                <X size={16} />
-                            </button>
-                        </div>
-                    )}
-                    <div className={styles.snapshotModalBtns}>
-                        <button
-                            className={styles.snapshotBtn}
-                            onClick={() => {
-                                if (!showNameInput) {
-                                    setShowNameInput(true);
-                                } else if (snapshotNameInput.trim()) {
-                                    onSaveSnapshot(snapshotNameInput.trim());
-                                    if (onCloseDrawer) onCloseDrawer();
-                                    setShowNameInput(false);
-                                    setSnapshotNameInput('');
-                                }
-                            }}
-                            disabled={showNameInput && !snapshotNameInput.trim()}
-                        >
-                            <PlusCircle size={16} /> Save as New Snapshot
-                        </button>
-                        <button
-                            className={styles.snapshotBtn + ' ' + styles.overwrite}
-                            onClick={() => {
-                                if (snapshotName !== 'Default Snapshot') {
-                                    onSaveSnapshot(snapshotName);
-                                    if (onCloseDrawer) onCloseDrawer();
-                                    setShowNameInput(false);
-                                    setSnapshotNameInput('');
-                                }
-                            }}
-                            disabled={snapshotName === 'Default Snapshot'}
-                        >
-                            <Save size={16} /> Overwrite Current Snapshot
-                        </button>
-                    </div>
+                    <Button
+                        onClick={onSnapshotSave}
+                        variant="primary"
+                        className={styles.snapshotSaveBtn}
+                        disabled={!activeFile}
+                        icon={<Save size={16} />}
+                    >
+                        Save Snapshot
+                    </Button>
                 </div>
                 )}
             </div>

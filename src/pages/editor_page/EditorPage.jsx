@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import AlgorithmSelector from '../../components/features/training/AlgorithmSelector.jsx';
 import CodeEditor from '../../components/ui/editor/CodeEditor.jsx';
 import CodeEditorSkeleton from '../../components/ui/editor/CodeEditorSkeleton.jsx';
+import SnapshotModal from '../../components/ui/modals/SnapshotModal.jsx';
+import Toast from '../../components/ui/atoms/Toast.jsx';
 import { useTrainingCore } from '../../hooks/training/useTrainingCore.js';
 import { useCodeEditor } from '../../hooks/editor/useCodeEditor.js';
 import Button from '../../components/ui/atoms/Button.jsx';
@@ -9,7 +11,10 @@ import ErrorMessage from '../../components/ui/atoms/ErrorMessage.jsx';
 import styles from './EditorPage.module.css';
 
 const EditorPage = () => {
-  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
+  const [showSnapshotModal, setShowSnapshotModal] = useState(false);
   
   // Core training state (algorithm selection)
   const { algorithm, setAlgorithm } = useTrainingCore();
@@ -29,6 +34,7 @@ const EditorPage = () => {
     updateFileLanguage,
     changeActiveFile,
     saveChanges,
+    saveSnapshotData,
     discardChanges,
     createNewFile
   } = useCodeEditor(algorithm);
@@ -62,9 +68,34 @@ const EditorPage = () => {
   const handleSave = async () => {
     const result = await saveChanges();
     if (result.success) {
-      setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 3000);
+      setToastMessage('Changes saved successfully!');
+      setToastType('success');
+      setShowToast(true);
+    } else {
+      setToastMessage(result.message || 'Failed to save changes');
+      setToastType('error');
+      setShowToast(true);
     }
+  };
+
+  // Handle snapshot save action
+  const handleSnapshotSave = async (snapshotMetadata) => {
+    const result = await saveSnapshotData(snapshotMetadata);
+    if (result.success) {
+      setToastMessage(`Snapshot "${snapshotMetadata.name}" saved successfully!`);
+      setToastType('success');
+      setShowToast(true);
+      setShowSnapshotModal(false);
+    } else {
+      setToastMessage(result.message || 'Failed to save snapshot');
+      setToastType('error');
+      setShowToast(true);
+    }
+  };
+
+  // Handle snapshot button click
+  const handleSnapshotClick = () => {
+    setShowSnapshotModal(true);
   };
 
   // Handle file changes from CodeEditor
@@ -79,7 +110,7 @@ const EditorPage = () => {
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>Code Editor</h1>
           <p className={styles.pageDescription}>
-            Configure algorithm parameters and edit training code with our integrated development environment.
+            A flexible code editor that lets you freely modify and run optimization, validation, and training workflows
           </p>
         </div>
 
@@ -92,11 +123,6 @@ const EditorPage = () => {
           {/* Status and Action Buttons */}
           <div className={styles.statusSection}>
             {error && <ErrorMessage message={error} />}
-            {showSaveSuccess && (
-              <div className={styles.successMessage}>
-                ✅ Changes saved successfully!
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -126,10 +152,29 @@ const EditorPage = () => {
               currentFile={currentFile}
               onEditorChange={handleEditorChange}
               onLanguageChange={handleLanguageChange}
+              onSnapshotSave={handleSnapshotClick}
             />
           )}
         </div>
       </div>
+      
+      {/* Snapshot Modal */}
+      <SnapshotModal
+        isOpen={showSnapshotModal}
+        onClose={() => setShowSnapshotModal(false)}
+        onSave={handleSnapshotSave}
+        algorithm={algorithm}
+        defaultName={`${algorithm} Snapshot`}
+      />
+
+      {/* Toast Notification */}
+      <Toast
+        message={toastMessage}
+        type={toastType}
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
+        duration={4000}
+      />
     </div>
   );
 };
