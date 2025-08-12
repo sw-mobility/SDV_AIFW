@@ -3,7 +3,8 @@
     height: 100%;
     background-color: #ffffff;
     overflow: hidden;
-    transition: all 0.3s ease;
+    /* Avoid animating layout sizing to prevent jitter */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -13,10 +14,11 @@
     min-width: 240px;
     background-color: #f8f9fa;
     border-right: 1px solid #e9ecef;
-    overflow-y: auto;
+    /* Prevent nested scroll; the virtualized list handles its own scroll */
+    overflow-y: hidden;
     overflow-x: hidden; /* 가로 스크롤 방지 */
     flex-shrink: 0;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -30,7 +32,8 @@
 
 .file-explorer {
     flex: 1 1 auto;
-    overflow-y: auto;
+    /* The inner virtualized list provides scrolling */
+    overflow-y: hidden;
     overflow-x: hidden; /* 가로 스크롤 방지 */
     padding: 16px 12px;
     width: 100%;
@@ -73,6 +76,8 @@
 .virtualized-file-tree {
     width: 100% !important;
     outline: none;
+    /* Keep scrollbar space reserved to avoid width shifts */
+    scrollbar-gutter: stable both-edges;
 }
 
 .virtualized-file-tree:focus {
@@ -116,12 +121,10 @@
 .file-item:hover {
     background: #e3f2fd;
     color: #1976d2;
-    transform: translateX(2px);
 }
 
 .file-item:active {
     background-color: #bbdefb;
-    transform: translateX(1px);
 }
 
 .file-item.folder {
@@ -173,7 +176,7 @@
     min-width: 0;
     height: 100%;
     min-height: 0;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
 .editor-toolbar {
@@ -250,11 +253,10 @@
 }
 
 .file-item.activeFile {
-    border-left: 3px solid #4f8cff;
+    /* Remove left blue line to prevent layout shift */
     background: #e3f2fd;
     color: #1976d2;
     font-weight: 700;
-    padding-left: 12px;
 }
 
 
