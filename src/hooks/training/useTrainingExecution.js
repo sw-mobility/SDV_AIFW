@@ -157,7 +157,6 @@ export const useTrainingExecution = (trainingConfig) => {
         progress.addLog(`Using task type: ${taskType}`);
         
         const requestBody = {
-          uid: uid,
           pid: projectId,
           task_type: taskType,
           parameters: yoloParameters,
@@ -177,7 +176,6 @@ export const useTrainingExecution = (trainingConfig) => {
           progress.addLog('Training completed! Submitting result...');
           try {
             const resultBody = {
-              uid: uid,
               pid: projectId,
               status: 'success',
               task_type: taskType,

@@ -129,13 +129,17 @@ export async function createYoloSnapshot({ uid, pid, name, algorithm, task_type,
 export async function postYoloTraining(trainingData) {
     const url = `${BASE_URL}/training/yolo/train`;
     
+    // uid를 body에서 제거하고 header로 이동
+    const { uid, ...bodyData } = trainingData;
+    
     const response = await fetch(url, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
-            'accept': 'application/json'
+            'accept': 'application/json',
+            'uid': uid
         },
-        body: JSON.stringify(trainingData)
+        body: JSON.stringify(bodyData)
     });
     
     if (!response.ok) {
@@ -167,13 +171,17 @@ export async function postYoloTraining(trainingData) {
 export async function postYoloTrainingResult(resultData) {
     const url = `${BASE_URL}/training/yolo/result`;
     
+    // uid를 body에서 제거하고 header로 이동
+    const { uid, ...bodyData } = resultData;
+    
     const response = await fetch(url, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
-            'accept': 'application/json'
+            'accept': 'application/json',
+            'uid': uid
         },
-        body: JSON.stringify(resultData)
+        body: JSON.stringify(bodyData)
     });
     
     if (!response.ok) {

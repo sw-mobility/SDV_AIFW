@@ -68,10 +68,11 @@ export const saveCodeTemplate = async (algorithm, projectId, files) => {
  */
 export const saveSnapshot = async (uid, snapshotData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/IDE/snapshot?uid=${encodeURIComponent(uid)}`, {
+    const response = await fetch(`${API_BASE_URL}/IDE/snapshot`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'uid': uid
       },
       body: JSON.stringify(snapshotData)
     });

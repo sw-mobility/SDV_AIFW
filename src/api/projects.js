@@ -12,13 +12,16 @@ export async function fetchProjects({ uid }) {
 }
 
 export async function createProject({ uid, name, description = '' }) {
-    const requestBody = { uid, name, description };
+    const requestBody = { name, description };
     console.log('Sending request to:', `${BASE_URL}/projects/projects/create`);
     console.log('Request body:', requestBody);
     
     const response = await fetch(`${BASE_URL}/projects/projects/create`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
         body: JSON.stringify(requestBody),
     });
 
@@ -40,8 +43,11 @@ export async function updateProject({ id, uid, name, description }) {
     const url = `${BASE_URL}/projects/projects/update?id=${encodeURIComponent(id)}`;
     const response = await fetch(url, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, name, description }),
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
+        body: JSON.stringify({ name, description }),
     });
 
     if (!response.ok) {

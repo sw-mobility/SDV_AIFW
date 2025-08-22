@@ -41,13 +41,16 @@ export async function deleteDatasets({ uid, target_id_list = [], target_path_lis
     const url = `${BASE_URL}/datasets/`;
     console.log('Delete URL:', url);
     
-    const requestBody = { uid, target_id_list, target_path_list };
+    const requestBody = { target_id_list, target_path_list };
     console.log('Request body:', requestBody);
     console.log('Request body JSON:', JSON.stringify(requestBody));
     
     const response = await fetch(url, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
         body: JSON.stringify(requestBody),
     });
 
@@ -81,8 +84,11 @@ export async function deleteDatasets({ uid, target_id_list = [], target_path_lis
 export async function deleteData({ uid, target_id_list = [], target_path_list = [] }) {
     const response = await fetch(`${BASE_URL}/datasets/data`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, target_id_list, target_path_list }),
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
+        body: JSON.stringify({ target_id_list, target_path_list }),
     });
 
     if (!response.ok) {
@@ -164,8 +170,11 @@ export async function getDatasetById(datasetId, type = 'raw') {
 export async function createRawDataset({ uid, name, description, type }) {
     const response = await fetch(`${BASE_URL}/datasets/raw/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, name, description, type }),
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
+        body: JSON.stringify({ name, description, type }),
     });
     if (!response.ok) {
         const error = await response.text();
@@ -177,8 +186,11 @@ export async function createRawDataset({ uid, name, description, type }) {
 export async function updateRawDataset({ uid, id, name, description, type }) {
     const response = await fetch(`${BASE_URL}/datasets/raw/?id=${encodeURIComponent(id)}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, name, description, type}),
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
+        body: JSON.stringify({ name, description, type}),
     });
     if (!response.ok) {
         const error = await response.text();
@@ -218,8 +230,11 @@ export async function getRawDataset({ id, uid }) {
 export async function createLabeledDataset({ uid, name, description, type, task_type, label_format }) {
     const response = await fetch(`${BASE_URL}/datasets/labeled/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, name, description, type, task_type, label_format }),
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
+        body: JSON.stringify({ name, description, type, task_type, label_format }),
     });
     if (!response.ok) {
         const error = await response.text();
@@ -234,8 +249,11 @@ export async function updateLabeledDataset({ id, uid, name, description, type, t
     }
     const response = await fetch(`${BASE_URL}/datasets/labeled/?id=${encodeURIComponent(id)}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, name, description, type, task_type, label_format }),
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
+        body: JSON.stringify({ name, description, type, task_type, label_format }),
     });
     if (!response.ok) {
         const error = await response.text();
@@ -247,8 +265,11 @@ export async function updateLabeledDataset({ id, uid, name, description, type, t
 export async function downloadDatasetById({ uid, target_id, dataset_name }) {
     const response = await fetch(`${BASE_URL}/datasets/download-dataset`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, target_id })
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
+        body: JSON.stringify({ target_id })
     });
     if (!response.ok) {
         const error = await response.text();
@@ -271,8 +292,11 @@ export async function downloadDatasetById({ uid, target_id, dataset_name }) {
 export async function downloadDataByPaths({ uid, target_path_list, dataset_name }) {
     const response = await fetch(`${BASE_URL}/datasets/download-data`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, target_path_list })
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
+        body: JSON.stringify({ target_path_list })
     });
     if (!response.ok) {
         const error = await response.text();
