@@ -16,7 +16,11 @@ export const useTrainingExecution = (trainingConfig) => {
       if (projectName) {
         try {
           console.log(`Fetching project data for: ${projectName}`);
-          const response = await fetch(`http://localhost:5002/projects/projects/?uid=${encodeURIComponent(uid)}`);
+          const response = await fetch(`http://localhost:5002/projects/projects/`, {
+            headers: {
+              'uid': uid
+            }
+          });
           if (response.ok) {
             const data = await response.json();
             console.log(`Found ${data.length} projects`);
@@ -166,7 +170,7 @@ export const useTrainingExecution = (trainingConfig) => {
         progress.addLog('Sending training request with parameters:');
         progress.addLog(JSON.stringify(requestBody, null, 2));
         
-        const response = await postYoloTraining(requestBody);
+        const response = await postYoloTraining({ uid, ...requestBody });
         
         progress.addLog('YOLO training started successfully.');
         progress.addLog(`Training ID: ${response.uid || 'N/A'}`);
@@ -192,7 +196,7 @@ export const useTrainingExecution = (trainingConfig) => {
             progress.addLog('Submitting result:');
             progress.addLog(JSON.stringify(resultBody, null, 2));
             
-            await postYoloTrainingResult(resultBody);
+            await postYoloTrainingResult({ uid, ...resultBody });
             progress.addLog('Training result submitted successfully.');
           } catch (err) {
             progress.addLog('Result submission failed: ' + err.message);

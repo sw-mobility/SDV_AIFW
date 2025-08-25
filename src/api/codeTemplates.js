@@ -18,7 +18,12 @@ export const fetchCodeTemplate = async (algorithm) => {
     const cid = mapAlgorithmToCid(algorithm);
     
     const response = await fetch(
-      `${API_BASE_URL}/IDE/codebase?uid=${encodeURIComponent(uid)}&cid=${encodeURIComponent(cid)}`
+      `${API_BASE_URL}/IDE/codebase?cid=${encodeURIComponent(cid)}`,
+      {
+        headers: {
+          'uid': uid
+        }
+      }
     );
     
     if (!response.ok) {

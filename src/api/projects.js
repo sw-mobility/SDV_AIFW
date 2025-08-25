@@ -1,8 +1,11 @@
 const BASE_URL = 'http://localhost:5002';
 
 export async function fetchProjects({ uid }) {
-    const url = `${BASE_URL}/projects/projects/?uid=${encodeURIComponent(uid)}`;
-    const response = await fetch(url);
+    const response = await fetch(`${BASE_URL}/projects/projects/`, {
+        headers: {
+            'uid': uid
+        }
+    });
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to fetch projects');
@@ -60,10 +63,12 @@ export async function updateProject({ id, uid, name, description }) {
 }
 
 export async function deleteProject({uid, id}) {
-    const url = `${BASE_URL}/projects/projects/?uid=${encodeURIComponent(uid)}&project_id=${encodeURIComponent(id)}`;
-    const response = await fetch(url, {
+    const response = await fetch(`${BASE_URL}/projects/projects/?project_id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'uid': uid
+        },
     });
 
     if (!response.ok) {
@@ -75,8 +80,11 @@ export async function deleteProject({uid, id}) {
 }
 
 export async function getProjectById({ id, uid }) {
-    const url = `${BASE_URL}/projects/projects/single/?id=${encodeURIComponent(id)}&uid=${encodeURIComponent(uid)}`;
-    const response = await fetch(url);
+    const response = await fetch(`${BASE_URL}/projects/projects/single/?id=${encodeURIComponent(id)}`, {
+        headers: {
+            'uid': uid
+        }
+    });
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to get project');

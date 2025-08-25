@@ -101,7 +101,7 @@ export default function RawDatasetTable({data, onRowClick, selectedId, searchPla
           selectedId={selectedId}
           rowKey="id"
           selectedRowClassName={tableStyles.selectedRow}
-          virtualized={false} // 가상화 비활성화
+          virtualized={true} // 가상화 활성화
         />
       </div>
 

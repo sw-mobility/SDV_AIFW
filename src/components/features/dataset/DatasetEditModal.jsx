@@ -47,7 +47,7 @@ const DatasetEditModal = ({open, onClose, dataset, datasetType = 'raw', onUpdate
         try {
             if (datasetType === 'labeled') {
                 await updateLabeledDataset({
-                    id: dataset._id,
+                    did: dataset._id,
                     uid: dataset.uid,
                     name,
                     description,
@@ -57,7 +57,7 @@ const DatasetEditModal = ({open, onClose, dataset, datasetType = 'raw', onUpdate
                 });
             } else {
                 await updateRawDataset({
-                    id: dataset._id,
+                    did: dataset._id,
                     uid: dataset.uid,
                     name,
                     description,

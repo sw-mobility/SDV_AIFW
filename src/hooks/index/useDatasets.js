@@ -100,7 +100,7 @@ export const useDatasets = () => {
         try {
             await downloadDatasetById({ 
                 uid: dataset.uid || uid, 
-                target_id: dataset._id || dataset.id,
+                target_did: dataset._id || dataset.id || dataset.did,
                 dataset_name: dataset.name
             });
         } catch (err) {
@@ -116,24 +116,32 @@ export const useDatasets = () => {
             setLoading(true);
             setError(null);
             
+            console.log('Edit data:', editData);
+            console.log('Fields:', fields);
+            console.log('Data type:', dataType);
+            
             if (dataType === 'labeled') {
-                await updateLabeledDataset({
-                    id: editData._id,
+                const updateData = {
+                    did: editData._id,
                     uid: editData.uid || uid,
                     name: fields.name,
                     description: fields.description,
                     type: fields.type,
                     task_type: fields.taskType,
                     label_format: fields.labelFormat
-                });
+                };
+                console.log('Update labeled dataset with:', updateData);
+                await updateLabeledDataset(updateData);
             } else {
-                await updateRawDataset({
-                    id: editData._id || editData.id,
+                const updateData = {
+                    did: editData._id || editData.id,
                     uid: editData.uid || uid,
                     name: fields.name,
                     description: fields.description,
                     type: fields.type
-                });
+                };
+                console.log('Update raw dataset with:', updateData);
+                await updateRawDataset(updateData);
             }
             
             await refreshCurrentDatasets();
@@ -188,7 +196,7 @@ export const useDatasets = () => {
             // 삭제 요청 전송
             const deleteRequest = {
                 uid: uid,
-                target_id_list: [datasetId],
+                target_did_list: [datasetId],
                 target_path_list: [targetPath]
             };
             
@@ -237,7 +245,7 @@ export const useDatasets = () => {
                 await uploadLabeledFilesInBatches({ 
                     files, 
                     uid: uid, 
-                    id: uploadTarget._id,
+                    did: uploadTarget._id,
                     batchSize,
                     onProgress: (progress) => {
                         // 진행률 업데이트
@@ -248,7 +256,7 @@ export const useDatasets = () => {
                 await uploadRawFilesInBatches({ 
                     files, 
                     uid: uid, 
-                    id: uploadTarget._id,
+                    did: uploadTarget._id,
                     batchSize,
                     onProgress: (progress) => {
                         // 진행률 업데이트
@@ -295,7 +303,24 @@ export const useDatasets = () => {
     const closeCreateModal = () => setIsCreateModalOpen(false);
     
     const openEditModal = (dataset) => {
-        setEditData({ ...dataset, datasetType: dataType });
+        console.log('Opening edit modal with dataset:', dataset);
+        console.log('Dataset fields:', Object.keys(dataset));
+        console.log('Dataset _id:', dataset._id);
+        console.log('Dataset id:', dataset.id);
+        console.log('Dataset did:', dataset.did);
+        console.log('Dataset uid:', dataset.uid);
+        console.log('Current uid:', uid);
+        
+        const editDataObj = { 
+            ...dataset, 
+            _id: dataset._id || dataset.id || dataset.did,
+            uid: dataset.uid || uid,
+            datasetType: dataType 
+        };
+        
+        console.log('Final editData object:', editDataObj);
+        
+        setEditData(editDataObj);
         setIsEditModalOpen(true);
     };
     
@@ -305,7 +330,20 @@ export const useDatasets = () => {
     };
     
     const openUploadModal = (dataset) => {
-        setUploadTarget(dataset);
+        console.log('Opening upload modal with dataset:', dataset);
+        console.log('Dataset fields:', Object.keys(dataset));
+        console.log('Dataset _id:', dataset._id);
+        console.log('Dataset id:', dataset.id);
+        console.log('Dataset did:', dataset.did);
+        
+        const uploadTargetObj = { 
+            ...dataset, 
+            _id: dataset._id || dataset.id || dataset.did
+        };
+        
+        console.log('Final uploadTarget object:', uploadTargetObj);
+        
+        setUploadTarget(uploadTargetObj);
         setIsUploadModalOpen(true);
     };
     
@@ -394,6 +432,7 @@ export const useDatasets = () => {
         closeUploadModal,
         openDataPanel,
         closeDataPanel,
+        setIsDeleteConfirmOpen,
         
         // 유틸리티
         fetchDatasetsList,

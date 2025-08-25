@@ -34,7 +34,11 @@ export default function Sidebar() {
             try {
                 setLoading(true);
                 // projectName으로 project를 찾기 위해 모든 project를 가져와서 필터링
-                const response = await fetch(`http://localhost:5002/projects/projects/?uid=${encodeURIComponent(uid)}`);
+                const response = await fetch(`http://localhost:5002/projects/projects/`, {
+                    headers: {
+                        'uid': uid
+                    }
+                });
                 if (response.ok) {
                     const data = await response.json();
                     const project = data.find(p => p.name === projectName);

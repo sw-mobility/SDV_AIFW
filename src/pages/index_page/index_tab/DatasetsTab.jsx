@@ -60,6 +60,7 @@ const DatasetsTab = () => {
         openUploadModal,
         closeUploadModal,
         closeDataPanel,
+        setIsDeleteConfirmOpen,
         getCurrentDatasets,
         handleCreated,
         uploadProgress
@@ -118,20 +119,34 @@ const DatasetsTab = () => {
     );
 
     const currentDatasets = getCurrentDatasets();
+    console.log('Current datasets:', currentDatasets);
+    console.log('Dataset details:', currentDatasets.map(d => ({ 
+        name: d.name, 
+        _id: d._id, 
+        id: d.id, 
+        did: d.did,
+        type: d.type,
+        created_at: d.created_at,
+        key: d._id || d.id || d.did || `dataset-${d.name}-${d.created_at}`,
+        fullObject: d
+    })));
+    
     // 최신 데이터셋만 추출
     const latestDataset = currentDatasets[0];
     // 최신 데이터셋 카드
     const LatestDatasetCard = latestDataset ? (
-        <DatasetCard key={latestDataset._id || latestDataset.id} dataset={latestDataset} isLabeled={dataType === 'labeled'} />
+        <DatasetCard key={latestDataset._id || latestDataset.id || latestDataset.did || `dataset-${latestDataset.name}-${latestDataset.created_at}`} dataset={latestDataset} isLabeled={dataType === 'labeled'} />
     ) : null;
     // 최신 데이터셋을 제외한 나머지 카드
     const restDatasetCards = latestDataset ? currentDatasets.slice(1).map(dataset => (
-        <DatasetCard key={dataset._id || dataset.id} dataset={dataset} isLabeled={dataType === 'labeled'} />
-    )) : [];
+        <DatasetCard key={dataset._id || dataset.id || dataset.did || `dataset-${dataset.name}-${dataset.created_at}`} dataset={dataset} isLabeled={dataType === 'labeled'} />
+    )) : currentDatasets.map(dataset => (
+        <DatasetCard key={dataset._id || dataset.id || dataset.did || `dataset-${dataset.name}-${dataset.created_at}`} dataset={dataset} isLabeled={dataType === 'labeled'} />
+    ));
     // CreateDatasetCard 바로 오른쪽에 최신 데이터셋이 오도록
     const allDatasetCards = [
         <CreateDatasetCard key="create-dataset" />,
-        ...(LatestDatasetCard ? [LatestDatasetCard] : []),
+        ...(latestDataset ? [LatestDatasetCard] : []),
         ...restDatasetCards
     ];
     if (initialLoading) return <Loading fullHeight={true} />;
@@ -169,6 +184,7 @@ const DatasetsTab = () => {
             />
             <DeleteConfirmModal
                 isOpen={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
                 onConfirm={confirmDelete}
                 title="Delete Dataset"
                 message="Are you sure you want to delete this dataset?"

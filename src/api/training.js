@@ -8,14 +8,12 @@ const BASE_URL = 'http://localhost:5002';
  * @returns {Promise<string>} Default YAML configuration
  */
 export async function getYoloDefaultYaml({ uid, pid, dataset_id }) {
-    const url = new URL(`${BASE_URL}/training/yolo/default-yaml`);
-    url.searchParams.set('uid', uid);
-    url.searchParams.set('pid', pid);
-    url.searchParams.set('dataset_id', dataset_id);
-    
-    const response = await fetch(url, {
+    const response = await fetch(`${BASE_URL}/training/yolo/default-yaml?pid=${encodeURIComponent(pid)}&dataset_id=${encodeURIComponent(dataset_id)}`, {
         method: 'GET',
-        headers: { 'accept': 'application/json' }
+        headers: { 
+            'accept': 'application/json',
+            'uid': uid
+        }
     });
     
     if (!response.ok) {
@@ -34,14 +32,12 @@ export async function getYoloDefaultYaml({ uid, pid, dataset_id }) {
  * @returns {Promise<string>} Custom YOLO model
  */
 export async function getYoloCustomModel({ uid, pid, tid }) {
-    const url = new URL(`${BASE_URL}/training/yolo/custom-model`);
-    url.searchParams.set('uid', uid);
-    url.searchParams.set('pid', pid);
-    url.searchParams.set('tid', tid);
-    
-    const response = await fetch(url, {
+    const response = await fetch(`${BASE_URL}/training/yolo/custom-model?pid=${encodeURIComponent(pid)}&tid=${encodeURIComponent(tid)}`, {
         method: 'GET',
-        headers: { 'accept': 'application/json' }
+        headers: { 
+            'accept': 'application/json',
+            'uid': uid
+        }
     });
     
     if (!response.ok) {
@@ -60,14 +56,12 @@ export async function getYoloCustomModel({ uid, pid, tid }) {
  * @returns {Promise<string>} Custom codebase
  */
 export async function getYoloCustomCodebase({ uid, pid, codebase_id }) {
-    const url = new URL(`${BASE_URL}/training/yolo/custom-codebase`);
-    url.searchParams.set('uid', uid);
-    url.searchParams.set('pid', pid);
-    url.searchParams.set('codebase_id', codebase_id);
-    
-    const response = await fetch(url, {
+    const response = await fetch(`${BASE_URL}/training/yolo/custom-codebase?pid=${encodeURIComponent(pid)}&codebase_id=${encodeURIComponent(codebase_id)}`, {
         method: 'GET',
-        headers: { 'accept': 'application/json' }
+        headers: { 
+            'accept': 'application/json',
+            'uid': uid
+        }
     });
     
     if (!response.ok) {
@@ -89,19 +83,12 @@ export async function getYoloCustomCodebase({ uid, pid, codebase_id }) {
  * @returns {Promise<string>} Snapshot creation result
  */
 export async function createYoloSnapshot({ uid, pid, name, algorithm, task_type, description = null }) {
-    const url = new URL(`${BASE_URL}/training/yolo/snapshot`);
-    url.searchParams.set('uid', uid);
-    url.searchParams.set('pid', pid);
-    url.searchParams.set('name', name);
-    url.searchParams.set('algorithm', algorithm);
-    url.searchParams.set('task_type', task_type);
-    if (description) {
-        url.searchParams.set('description', description);
-    }
-    
-    const response = await fetch(url, {
+    const response = await fetch(`${BASE_URL}/training/yolo/snapshot?pid=${encodeURIComponent(pid)}&name=${encodeURIComponent(name)}&algorithm=${encodeURIComponent(algorithm)}&task_type=${encodeURIComponent(task_type)}${description ? `&description=${encodeURIComponent(description)}` : ''}`, {
         method: 'POST',
-        headers: { 'accept': 'application/json' }
+        headers: { 
+            'accept': 'application/json',
+            'uid': uid
+        }
     });
     
     if (!response.ok) {

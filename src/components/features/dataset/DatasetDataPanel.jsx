@@ -66,9 +66,16 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
     }, [search]);
 
     const filteredData = useMemo(() => {
+        console.log('DatasetDataPanel - data:', data);
+        console.log('DatasetDataPanel - data.data_list:', data?.data_list);
+        
         if (!data?.data_list || !Array.isArray(data.data_list)) {
+            console.log('DatasetDataPanel - No data_list or not array, returning empty array');
             return [];
         }
+        
+        console.log('DatasetDataPanel - data_list length:', data.data_list.length);
+        console.log('DatasetDataPanel - data_list sample:', data.data_list.slice(0, 2));
         
         if (!debouncedSearch) return data.data_list;
         
@@ -83,7 +90,13 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
     const handleSelectAll = React.useCallback(() => {
         if (!filteredData || !Array.isArray(filteredData)) return;
         
-        const filteredIds = filteredData.map(d => d._id).filter(Boolean);
+        // 고유한 ID 생성
+        const filteredIds = filteredData.map((d, index) => {
+            const baseId = d._id || d.id || d.did;
+            const fileName = getFileNameOnly(d.name);
+            return baseId && baseId !== 'L0003' ? baseId : `${fileName}-${index}`;
+        }).filter(Boolean);
+        
         const allFilteredSelected = filteredIds.every(id => selected.includes(id));
         
         if (allFilteredSelected) {
@@ -94,11 +107,32 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
             setSelected(prev => [...new Set([...prev, ...filteredIds])]);
         }
     }, [filteredData, selected]);
-    const handleCheckboxSelect = React.useCallback((row) => {
+    
+    const handleCheckboxSelect = React.useCallback((rowId) => {
+        if (!rowId) return;
+        
+        console.log('=== CHECKBOX CLICK DEBUG ===');
+        console.log('handleCheckboxSelect called with rowId:', rowId);
+        
         setSelected(prev => {
-            const newSelected = prev.includes(row._id) 
-                ? prev.filter(id => id !== row._id)
-                : [...prev, row._id];
+            console.log('Current selected array:', prev);
+            console.log('Current selected array length:', prev.length);
+            console.log('Current selected array contents:', JSON.stringify(prev));
+            
+            const isCurrentlySelected = prev.includes(rowId);
+            const newSelected = isCurrentlySelected 
+                ? prev.filter(id => id !== rowId)
+                : [...prev, rowId];
+            
+            console.log('Selection change:', { 
+                rowId, 
+                isCurrentlySelected, 
+                prevLength: prev.length,
+                prevContents: JSON.stringify(prev),
+                newSelectedLength: newSelected.length,
+                newSelectedContents: JSON.stringify(newSelected)
+            });
+            console.log('=== END DEBUG ===');
             return newSelected;
         });
     }, []);
@@ -106,59 +140,81 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
     // 체크박스 상태를 Set으로 관리 성능 최적화
     const selectedSet = React.useMemo(() => new Set(selected), [selected]);
 
-    // 체크박스 컴포넌트를 별도로 생성 성능 최적화
-    const CheckboxCell = React.memo(({ rowId, isSelected, onSelect }) => (
-        <input 
-            type="checkbox" 
-            checked={isSelected} 
-            onChange={e => { 
-                e.stopPropagation(); 
-                e.preventDefault();
-                onSelect(); 
-            }} 
-            onClick={e => e.stopPropagation()} 
-            style={{ cursor: 'pointer' }}
-        />
-    ));
+
 
     const tableData = React.useMemo(() => {
-        return filteredData
-            .filter(row => row && typeof row === 'object' && row._id)
-            .map(row => {
-                const fileName = getFileNameOnly(row.name);
-                
-                return {
-                    _id: row._id || '',
-                    cells: [
-                        <CheckboxCell 
-                            key={row._id}
-                            rowId={row._id}
-                            isSelected={selectedSet.has(row._id)}
-                            onSelect={() => handleCheckboxSelect(row)}
-                        />,
-                        <span 
-                            key="filename" 
-                            title={row.name || 'N/A'}
-                            style={{ cursor: 'default' }}
-                        >
-                            {fileName || 'N/A'}
-                        </span>,
-                        row.type || 'N/A',
-                        row.file_format || 'N/A',
-                        row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'
-                    ]
-                };
-            });
-    }, [filteredData, selectedSet, handleCheckboxSelect, data?.data_list?.length]); // data_list 길이도 의존성에 추가
+        const validRows = filteredData.filter(row => {
+            const isValid = row && typeof row === 'object' && (row._id || row.id || row.did);
+            return isValid;
+        });
+        
+        return validRows.map((row, index) => {
+            // 고유한 ID 생성: rowId가 없거나 중복되는 경우 파일명과 인덱스를 조합
+            const baseRowId = row._id || row.id || row.did;
+            const fileName = getFileNameOnly(row.name);
+            const uniqueRowId = baseRowId && baseRowId !== 'L0003' ? baseRowId : `${fileName}-${index}`;
+            const isSelected = selected.includes(uniqueRowId);
+            
+            return {
+                _id: uniqueRowId || '',
+                cells: [
+                    <input 
+                        key={`checkbox-${uniqueRowId}`}
+                        type="checkbox" 
+                        checked={isSelected} 
+                        onChange={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            console.log('Checkbox onChange for uniqueRowId:', uniqueRowId);
+                            handleCheckboxSelect(uniqueRowId);
+                        }} 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                        }} 
+                        style={{ cursor: 'pointer' }}
+                    />,
+                    <span 
+                        key={`filename-${uniqueRowId}`}
+                        title={row.name || 'N/A'}
+                        style={{ cursor: 'default' }}
+                    >
+                        {fileName || 'N/A'}
+                    </span>,
+                    row.type || 'N/A',
+                    row.file_format || 'N/A',
+                    row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'
+                ]
+            };
+        });
+    }, [filteredData, selected, handleCheckboxSelect]);
 
-    const selectAllChecked = filteredData.length > 0 && filteredData.every(row => selected.includes(row._id));
-    const selectAllIndeterminate = filteredData.length > 0 && filteredData.some(row => selected.includes(row._id)) && !selectAllChecked;
+    const selectAllChecked = React.useMemo(() => {
+        if (!filteredData || filteredData.length === 0) return false;
+        const validIds = filteredData.map((row, index) => {
+            const baseId = row._id || row.id || row.did;
+            const fileName = getFileNameOnly(row.name);
+            return baseId && baseId !== 'L0003' ? baseId : `${fileName}-${index}`;
+        }).filter(Boolean);
+        return validIds.length > 0 && validIds.every(id => selected.includes(id));
+    }, [filteredData, selected]);
+
+    const selectAllIndeterminate = React.useMemo(() => {
+        if (!filteredData || filteredData.length === 0) return false;
+        const validIds = filteredData.map((row, index) => {
+            const baseId = row._id || row.id || row.did;
+            const fileName = getFileNameOnly(row.name);
+            return baseId && baseId !== 'L0003' ? baseId : `${fileName}-${index}`;
+        }).filter(Boolean);
+        const hasSelected = validIds.some(id => selected.includes(id));
+        return hasSelected && !selectAllChecked;
+    }, [filteredData, selected, selectAllChecked]);
 
     return (
         <Modal isOpen={open} onClose={onClose} title="Dataset Details" titleIcon={titleIcon} className={styles.wideModal}>
             {loading && <Loading />}
             {error && <ErrorMessage message={error} />}
-            {data && typeof data === 'object' && data.name && data.data_list && Array.isArray(data.data_list) && (
+            {data && typeof data === 'object' && data.name && (
                 <div style={{ 
                     display: 'flex', 
                     flexDirection: 'column', 
@@ -170,7 +226,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                         <div style={{ color: '#888', marginBottom: 4 }}>{data.description || <span style={{ color: '#bbb' }}>No description</span>}</div>
                         <div style={{ display: 'flex', gap: 16, fontSize: 14, alignItems: 'center' }}>
                             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><b>Type:</b> {data.type || 'N/A'}</span>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><b>Total:</b> {data.total || 0}</span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><b>Total:</b> {(data.data_list && Array.isArray(data.data_list) ? data.data_list.length : 0) || data.total || 0}</span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><b>Created:</b> {(() => {
                                 if (data && data.created_at) {
                                     return new Date(data.created_at).toLocaleString();
@@ -258,7 +314,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
 
                         {/* 검색 결과 정보 */}
                         <div style={{ fontSize: '14px', color: '#6b7280', fontWeight: '500' }}>
-                            {filteredData.length} of {data.data_list.length} files
+                            {filteredData.length} of {(data.data_list && Array.isArray(data.data_list) ? data.data_list.length : 0)} files
                         </div>
 
                         {/* 액션 버튼들 */}
@@ -283,64 +339,79 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                         </div>
                     </div>
 
-                    {/* Select All 체크박스 */}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '8px', flexShrink: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <input 
-                                type="checkbox" 
-                                checked={selectAllChecked}
-                                indeterminate={selectAllIndeterminate || undefined}
-                                onChange={handleSelectAll}
-                                style={{ margin: 0, cursor: 'pointer' }}
-                            />
-                            <span style={{ fontSize: '12px', color: '#6b7280', cursor: 'pointer' }} onClick={handleSelectAll}>
-                                Select All
-                            </span>
-                            {selected.length > 0 && (
-                                <span style={{ fontSize: '12px', color: '#3b82f6' }}>
-                                    ({selected.length} selected)
-                                </span>
+                    {/* 데이터가 있을 때만 테이블 관련 UI 표시 */}
+                    {data.data_list && Array.isArray(data.data_list) && data.data_list.length > 0 ? (
+                        <>
+                            {/* Select All 체크박스 */}
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '8px', flexShrink: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={selectAllChecked}
+                                        indeterminate={selectAllIndeterminate || undefined}
+                                        onChange={handleSelectAll}
+                                        style={{ margin: 0, cursor: 'pointer' }}
+                                    />
+                                    <span style={{ fontSize: '12px', color: '#6b7280', cursor: 'pointer' }} onClick={handleSelectAll}>
+                                        Select All
+                                    </span>
+                                    {selected.length > 0 && (
+                                        <span style={{ fontSize: '12px', color: '#3b82f6' }}>
+                                            ({selected.length} selected)
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* 테이블 영역 - 남은 공간을 모두 차지하고 스크롤 가능 */}
+                            <div style={{ 
+                                width: '100%', 
+                                flex: 1, 
+                                minHeight: 0,
+                                display: 'flex',
+                                flexDirection: 'column'
+                            }}>
+                                <Table
+                                    key={`table-${data?.data_list?.length || 0}-${refreshKey || 0}-${filteredData.length}`} // 필터링된 데이터 변경 시에도 리렌더링
+                                    columns={[
+                                        // 체크박스 컬럼 헤더 (빈 문자열로 표시)
+                                        '',
+                                        'Name', 'Type', 'Format', 'Created'
+                                    ]}
+                                    data={tableData.map(row => row.cells)}
+                                    rowKey="_id"
+                                    onRowClick={(row, idx) => {
+                                        if (!filteredData || !Array.isArray(filteredData) || !filteredData[idx]) return;
+                                        const baseRowId = filteredData[idx]._id || filteredData[idx].id || filteredData[idx].did;
+                                        const fileName = getFileNameOnly(filteredData[idx].name);
+                                        const uniqueRowId = baseRowId && baseRowId !== 'L0003' ? baseRowId : `${fileName}-${idx}`;
+                                        if (uniqueRowId) {
+                                            handleCheckboxSelect(uniqueRowId);
+                                        }
+                                    }}
+                                    selectedId={selected.length === 1 ? selected[0] : null}
+                                    selectedRowClassName={styles.selectedRow}
+                                    maxHeight="100%"
+                                    virtualized={true} // 가상화 활성화
+                                    columnWidths={['50px', '45%', '20%', '10%', '25%']}
+                                    tableLayout="fixed"
+                                />
+                            </div>
+
+                            {/* 빈 검색 결과 상태 */}
+                            {filteredData.length === 0 && data.data_list.length > 0 && (
+                                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6b7280', flexShrink: 0 }}>
+                                    <p style={{ margin: 0, fontSize: '14px', fontWeight: '500' }}>
+                                        {search ? 'No files found matching your search.' : 'No files available.'}
+                                    </p>
+                                </div>
                             )}
-                        </div>
-                    </div>
-
-                    {/* 테이블 영역 - 남은 공간을 모두 차지하고 스크롤 가능 */}
-                    <div style={{ 
-                        width: '100%', 
-                        flex: 1, 
-                        minHeight: 0,
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}>
-                        <Table
-                            key={`table-${data?.data_list?.length || 0}-${refreshKey || 0}`} // 데이터 변경 시 테이블 리렌더링
-                            columns={[
-                                // 체크박스 컬럼 헤더 (빈 문자열로 표시)
-                                '',
-                                'Name', 'Type', 'Format', 'Created'
-                            ]}
-                            data={tableData.map(row => row.cells)}
-                            rowKey="_id"
-                            onRowClick={(_, idx) => {
-                                if (!filteredData || !Array.isArray(filteredData) || !filteredData[idx]) return;
-                                handleSelect(filteredData[idx]);
-                            }}
-                            selectedId={null}
-                            selectedRowClassName={styles.selectedRow}
-                            maxHeight="100%"
-                            virtualized={true}
-                            columnWidths={['50px', '45%', '20%', '10%', '25%']}
-                            tableLayout="fixed"
-                        />
-
-
-                    </div>
-
-                    {/* 빈 검색 결과 상태 */}
-                    {filteredData.length === 0 && data.data_list.length > 0 && (
+                        </>
+                    ) : (
+                        /* 데이터가 없을 때 표시할 메시지 */
                         <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6b7280', flexShrink: 0 }}>
                             <p style={{ margin: 0, fontSize: '14px', fontWeight: '500' }}>
-                                {search ? 'No files found matching your search.' : 'No files available.'}
+                                No data files uploaded yet. Use the upload button above to add files to this dataset.
                             </p>
                         </div>
                     )}

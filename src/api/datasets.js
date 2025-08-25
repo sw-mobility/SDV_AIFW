@@ -14,8 +14,11 @@ function sanitizeFileName(file) {
 }
 
 export async function fetchRawDatasets({ uid }) {
-    const url = `${BASE_URL}/datasets/raw/?uid=${encodeURIComponent(uid)}`;
-    const response = await fetch(url);
+    const response = await fetch(`${BASE_URL}/datasets/raw/`, {
+        headers: {
+            'uid': uid
+        }
+    });
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to fetch raw datasets');
@@ -25,8 +28,11 @@ export async function fetchRawDatasets({ uid }) {
 }
 
 export async function fetchLabeledDatasets({ uid }) {
-    const url = `${BASE_URL}/datasets/labeled/?uid=${encodeURIComponent(uid)}`;
-    const response = await fetch(url);
+    const response = await fetch(`${BASE_URL}/datasets/labeled/`, {
+        headers: {
+            'uid': uid
+        }
+    });
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to fetch labeled datasets');
@@ -35,13 +41,13 @@ export async function fetchLabeledDatasets({ uid }) {
     return { success: true, data, message: 'Labeled datasets fetched successfully' };
 }
 
-export async function deleteDatasets({ uid, target_id_list = [], target_path_list = [] }) {
-    console.log('Delete datasets request:', { uid, target_id_list, target_path_list });
+export async function deleteDatasets({ uid, target_did_list = [], target_path_list = [] }) {
+    console.log('Delete datasets request:', { uid, target_did_list, target_path_list });
     
     const url = `${BASE_URL}/datasets/`;
     console.log('Delete URL:', url);
     
-    const requestBody = { target_id_list, target_path_list };
+    const requestBody = { target_did_list, target_path_list };
     console.log('Request body:', requestBody);
     console.log('Request body JSON:', JSON.stringify(requestBody));
     
@@ -81,14 +87,14 @@ export async function deleteDatasets({ uid, target_id_list = [], target_path_lis
     return { success: true, message: 'Datasets deleted successfully' };
 }
 
-export async function deleteData({ uid, target_id_list = [], target_path_list = [] }) {
+export async function deleteData({ uid, target_did, target_name_list = [], target_path_list = [] }) {
     const response = await fetch(`${BASE_URL}/datasets/data`, {
         method: 'DELETE',
         headers: { 
             'Content-Type': 'application/json',
             'uid': uid
         },
-        body: JSON.stringify({ target_id_list, target_path_list }),
+        body: JSON.stringify({ target_did, target_name_list, target_path_list }),
     });
 
     if (!response.ok) {
@@ -99,16 +105,21 @@ export async function deleteData({ uid, target_id_list = [], target_path_list = 
     return { success: true, message: 'Data deleted successfully' };
 }
 
-export async function uploadLabeledFiles({ files, uid, id }) {
+export async function uploadLabeledFiles({ files, uid, did }) {
+    if (!did || !uid) {
+        throw new Error('uploadLabeledFiles: did와 uid는 필수입니다. (did: ' + did + ', uid: ' + uid + ')');
+    }
     const formData = new FormData();
     for (const file of files) {
         const sanitizedFile = sanitizeFileName(file);
         formData.append('files', sanitizedFile);
     }
-    formData.append('uid', uid);
-    formData.append('id', id);
+    formData.append('did', did);
     const response = await fetch(`${BASE_URL}/datasets/labeled/upload`, {
         method: 'POST',
+        headers: {
+            'uid': uid
+        },
         body: formData,
     });
     if (!response.ok) {
@@ -119,7 +130,11 @@ export async function uploadLabeledFiles({ files, uid, id }) {
 }
 
 export async function getLabeledDataset({ id, uid }) {
-    const response = await fetch(`${BASE_URL}/datasets/labeled/single/?id=${encodeURIComponent(id)}&uid=${encodeURIComponent(uid)}`);
+    const response = await fetch(`${BASE_URL}/datasets/labeled/single?did=${encodeURIComponent(id)}`, {
+        headers: {
+            'uid': uid
+        }
+    });
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to get labeled dataset');
@@ -183,14 +198,17 @@ export async function createRawDataset({ uid, name, description, type }) {
     return await response.json();
 }
 
-export async function updateRawDataset({ uid, id, name, description, type }) {
-    const response = await fetch(`${BASE_URL}/datasets/raw/?id=${encodeURIComponent(id)}`, {
+export async function updateRawDataset({ uid, did, name, description, type }) {
+    if (!did || !uid) {
+        throw new Error('updateRawDataset: did와 uid는 필수입니다. (did: ' + did + ', uid: ' + uid + ')');
+    }
+    const response = await fetch(`${BASE_URL}/datasets/raw/`, {
         method: 'PUT',
         headers: { 
             'Content-Type': 'application/json',
             'uid': uid
         },
-        body: JSON.stringify({ name, description, type}),
+        body: JSON.stringify({ did, name, description, type}),
     });
     if (!response.ok) {
         const error = await response.text();
@@ -199,16 +217,21 @@ export async function updateRawDataset({ uid, id, name, description, type }) {
     return await response.json();
 }
 
-export async function uploadRawFiles({ files, uid, id }) {
+export async function uploadRawFiles({ files, uid, did }) {
+    if (!did || !uid) {
+        throw new Error('uploadRawFiles: did와 uid는 필수입니다. (did: ' + did + ', uid: ' + uid + ')');
+    }
     const formData = new FormData();
     for (const file of files) {
         const sanitizedFile = sanitizeFileName(file);
         formData.append('files', sanitizedFile);
     }
-    formData.append('uid', uid);
-    formData.append('id', id);
+    formData.append('did', did);
     const response = await fetch(`${BASE_URL}/datasets/raw/upload`, {
         method: 'POST',
+        headers: {
+            'uid': uid
+        },
         body: formData,
     });
     if (!response.ok) {
@@ -219,7 +242,11 @@ export async function uploadRawFiles({ files, uid, id }) {
 }
 
 export async function getRawDataset({ id, uid }) {
-    const response = await fetch(`${BASE_URL}/datasets/raw/single/?id=${encodeURIComponent(id)}&uid=${encodeURIComponent(uid)}`);
+    const response = await fetch(`${BASE_URL}/datasets/raw/single?did=${encodeURIComponent(id)}`, {
+        headers: {
+            'uid': uid
+        }
+    });
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Failed to get raw dataset');
@@ -243,17 +270,17 @@ export async function createLabeledDataset({ uid, name, description, type, task_
     return await response.json();
 }
 
-export async function updateLabeledDataset({ id, uid, name, description, type, task_type, label_format }) {
-    if (!id || !uid) {
-        throw new Error('updateLabeledDataset: id와 uid는 필수입니다. (id: ' + id + ', uid: ' + uid + ')');
+export async function updateLabeledDataset({ did, uid, name, description, type, task_type, label_format }) {
+    if (!did || !uid) {
+        throw new Error('updateLabeledDataset: did와 uid는 필수입니다. (did: ' + did + ', uid: ' + uid + ')');
     }
-    const response = await fetch(`${BASE_URL}/datasets/labeled/?id=${encodeURIComponent(id)}`, {
+    const response = await fetch(`${BASE_URL}/datasets/labeled/`, {
         method: 'PUT',
         headers: { 
             'Content-Type': 'application/json',
             'uid': uid
         },
-        body: JSON.stringify({ name, description, type, task_type, label_format }),
+        body: JSON.stringify({ did, name, description, type, task_type, label_format }),
     });
     if (!response.ok) {
         const error = await response.text();
@@ -262,14 +289,17 @@ export async function updateLabeledDataset({ id, uid, name, description, type, t
     return await response.json();
 }
 
-export async function downloadDatasetById({ uid, target_id, dataset_name }) {
+export async function downloadDatasetById({ uid, target_did, dataset_name }) {
+    if (!target_did || !uid) {
+        throw new Error('downloadDatasetById: target_did와 uid는 필수입니다. (target_did: ' + target_did + ', uid: ' + uid + ')');
+    }
     const response = await fetch(`${BASE_URL}/datasets/download-dataset`, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
             'uid': uid
         },
-        body: JSON.stringify({ target_id })
+        body: JSON.stringify({ target_did })
     });
     if (!response.ok) {
         const error = await response.text();
@@ -279,8 +309,8 @@ export async function downloadDatasetById({ uid, target_id, dataset_name }) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    // dataset_name이 있으면 사용하고, 없으면 target_id 사용
-    const fileName = dataset_name ? `${dataset_name}.zip` : `${target_id}.zip`;
+    // dataset 이름을 파일명으로 사용, 없으면 target_did 사용
+    const fileName = dataset_name ? `${dataset_name}.zip` : `${target_did}.zip`;
     a.download = fileName;
     document.body.appendChild(a);
     a.click();
@@ -290,6 +320,9 @@ export async function downloadDatasetById({ uid, target_id, dataset_name }) {
 }
 
 export async function downloadDataByPaths({ uid, target_path_list, dataset_name }) {
+    if (!target_path_list || !uid) {
+        throw new Error('downloadDataByPaths: target_path_list와 uid는 필수입니다. (target_path_list: ' + target_path_list + ', uid: ' + uid + ')');
+    }
     const response = await fetch(`${BASE_URL}/datasets/download-data`, {
         method: 'POST',
         headers: { 
@@ -306,8 +339,8 @@ export async function downloadDataByPaths({ uid, target_path_list, dataset_name 
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    // dataset_name이 있으면 사용하고, 없으면 기본 이름 사용
-    const fileName = dataset_name ? `${dataset_name}_selected_data.zip` : `data.zip`;
+    // dataset 이름을 파일명으로 사용, 없으면 기본값 사용
+    const fileName = dataset_name ? `${dataset_name}_selected.zip` : `selected_data.zip`;
     a.download = fileName;
     document.body.appendChild(a);
     a.click();
@@ -326,7 +359,7 @@ const chunkArray = (array, chunkSize) => {
 };
 
 // 배치 업로드 함수 (raw files)
-export async function uploadRawFilesInBatches({ files, uid, id, batchSize = 1000, onProgress }) {
+export async function uploadRawFilesInBatches({ files, uid, did, batchSize = 1000, onProgress }) {
     const batches = chunkArray(files, batchSize);
     const results = [];
     
@@ -347,7 +380,7 @@ export async function uploadRawFilesInBatches({ files, uid, id, batchSize = 1000
         }
         
         try {
-            const result = await uploadRawFiles({ files: batch, uid, id });
+            const result = await uploadRawFiles({ files: batch, uid, did });
             results.push(result);
         } catch (error) {
             // 배치 업로드 실패 시 에러 정보와 함께 실패
@@ -359,7 +392,7 @@ export async function uploadRawFilesInBatches({ files, uid, id, batchSize = 1000
 }
 
 // 배치 업로드 함수 (labeled files)
-export async function uploadLabeledFilesInBatches({ files, uid, id, task_type, label_format, batchSize = 1000, onProgress }) {
+export async function uploadLabeledFilesInBatches({ files, uid, did, task_type, label_format, batchSize = 1000, onProgress }) {
     const batches = chunkArray(files, batchSize);
     const results = [];
     
@@ -380,7 +413,7 @@ export async function uploadLabeledFilesInBatches({ files, uid, id, task_type, l
         }
         
         try {
-            const result = await uploadLabeledFiles({ files: batch, uid, id, task_type, label_format });
+            const result = await uploadLabeledFiles({ files: batch, uid, did, task_type, label_format });
             results.push(result);
         } catch (error) {
             // 배치 업로드 실패 시 에러 정보와 함께 실패

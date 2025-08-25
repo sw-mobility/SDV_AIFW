@@ -2,7 +2,7 @@ import { uid } from './uid.js';
 
 export const initializeApp = async () => {
   try {
-    const response = await fetch('/', {
+    const response = await fetch('http://localhost:5002/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

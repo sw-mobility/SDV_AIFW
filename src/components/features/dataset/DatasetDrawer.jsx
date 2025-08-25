@@ -181,7 +181,7 @@ const DatasetDrawer = ({open, onClose}) => {
                 <div className={styles['dataset-list']}>
                     {getCurrentDatasets().map(dataset => (
                         <DatasetCard
-                            key={dataset._id || dataset.id}
+                            key={dataset._id || dataset.id || dataset.did || `dataset-${dataset.name}-${dataset.created_at}`}
                             dataset={{...dataset, datasetType: dataType}}
                             onDownload={handleDownload}
                             onDelete={openDeleteConfirm}

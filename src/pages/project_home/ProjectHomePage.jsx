@@ -99,7 +99,11 @@ const ProjectHomePage = () => {
     const fetchProjectData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5002/projects/projects/?uid=${encodeURIComponent(uid)}`);
+        const response = await fetch(`http://localhost:5002/projects/projects/`, {
+          headers: {
+            'uid': uid
+          }
+        });
         if (response.ok) {
           const data = await response.json();
           const project = data.find(p => p.name === projectName);

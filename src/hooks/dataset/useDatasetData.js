@@ -36,13 +36,29 @@ export const useDatasetData = (dataset, isOpen = false) => {
       const fetchFunction = isLabeled ? getLabeledDataset : getRawDataset;
       
       const res = await fetchFunction({ 
-        did: dataset.did ,
-        id: dataset._id ,
+        id: dataset._id || dataset.id || dataset.did,
         uid: dataset.uid || '' 
       });
       
-      setData(res);
+      // API 응답 구조에 따라 데이터 변환
+      let processedData;
+      if (res.dataset && res.data) {
+        // 응답이 {dataset: {...}, data: Array} 구조인 경우
+        processedData = {
+          ...res.dataset,
+          data_list: res.data || []
+        };
+      } else if (res.data_list) {
+        // 응답이 직접 {name, description, data_list, ...} 구조인 경우
+        processedData = res;
+      } else {
+        // 기타 경우
+        processedData = res;
+      }
+      
+      setData(processedData);
     } catch (err) {
+      console.error('Error fetching dataset data:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -68,17 +84,29 @@ export const useDatasetData = (dataset, isOpen = false) => {
 
   // 선택 관리
   const handleSelect = useCallback((row) => {
-    setSelected(prev => prev.includes(row._id) ? prev.filter(x => x !== row._id) : [...prev, row._id]);
+    if (!row || !row._id) return;
+    setSelected(prev => {
+      const isSelected = prev.includes(row._id);
+      if (isSelected) {
+        return prev.filter(x => x !== row._id);
+      } else {
+        return [...prev, row._id];
+      }
+    });
   }, []);
 
   const handleSelectAll = useCallback(() => {
     if (!data?.data_list || !Array.isArray(data.data_list)) return;
-    if (selected.length === data.data_list.length) {
+    
+    const validIds = data.data_list.map(d => d._id).filter(Boolean);
+    const allSelected = validIds.every(id => selected.includes(id));
+    
+    if (allSelected) {
       setSelected([]);
     } else {
-      setSelected(data.data_list.map(d => d._id).filter(Boolean));
+      setSelected(validIds);
     }
-  }, [data?.data_list, selected.length]);
+  }, [data?.data_list, selected]);
 
   // 삭제 처리
   const handleDelete = useCallback(async () => {
@@ -86,10 +114,24 @@ export const useDatasetData = (dataset, isOpen = false) => {
     
     setShowDeleteConfirm(false);
     try {
+      // selected 배열에서 파일명만 추출 (uniqueRowId에서 fileName-index 형태에서 fileName만 추출)
+      const target_name_list = selected.map(id => {
+        // uniqueRowId가 fileName-index 형태인 경우 fileName만 추출
+        if (id.includes('-')) {
+          const parts = id.split('-');
+          const lastPart = parts[parts.length - 1];
+          // 마지막 부분이 숫자인지 확인
+          if (!isNaN(lastPart)) {
+            return parts.slice(0, -1).join('-');
+          }
+        }
+        return id;
+      });
+
       await deleteData({ 
         uid: dataset.uid || '', 
-        id: dataset._id, 
-        target_id_list: selected 
+        target_did: dataset._id,
+        target_name_list: target_name_list
       });
       setSelected([]);
       setRefreshKey(k => k + 1);
@@ -118,7 +160,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
           await uploadLabeledFilesInBatches({ 
             files: uploadFiles, 
             uid: dataset.uid || '', 
-            id: dataset._id,
+            did: dataset._id,
             onProgress: (progress) => {
               // 진행률 업데이트
               setUploadProgress(progress);
@@ -128,7 +170,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
           await uploadLabeledFiles({ 
             files: uploadFiles, 
             uid: dataset.uid || '', 
-            id: dataset._id
+            did: dataset._id
           });
         }
       } else {
@@ -136,7 +178,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
           await uploadRawFilesInBatches({ 
             files: uploadFiles, 
             uid: dataset.uid || '', 
-            id: dataset._id,
+            did: dataset._id,
             onProgress: (progress) => {
               // 진행률 업데이트
               setUploadProgress(progress);
@@ -146,7 +188,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
           await uploadRawFiles({ 
             files: uploadFiles, 
             uid: dataset.uid || '', 
-            id: dataset._id
+            did: dataset._id
           });
         }
       }
@@ -169,29 +211,46 @@ export const useDatasetData = (dataset, isOpen = false) => {
 
   // 다운로드 처리
   const handleDownloadDataset = useCallback(async () => {
-    if (!dataset?._id || !dataset?.uid) return;
+    // dataset 객체에서 did 필드를 사용
+    const datasetId = dataset?.did;
+    if (!datasetId || !dataset?.uid) {
+      setError('Download failed: Missing dataset ID or UID');
+      return;
+    }
     
     setDownloading(true);
     try {
       await downloadDatasetById({ 
         uid: dataset.uid, 
-        target_id: dataset._id,
-        dataset_name: dataset.name || data?.name
+        target_did: datasetId,
+        dataset_name: dataset.name
       });
     } catch (err) {
       setError('Download failed: ' + err.message);
     } finally {
       setDownloading(false);
     }
-  }, [dataset, data?.name]);
+  }, [dataset]);
 
   const handleDownloadSelected = useCallback(async () => {
-    if (!selected.length || !data?.data_list || !Array.isArray(data.data_list) || !dataset) return;
+    if (!selected.length || !data?.data_list || !Array.isArray(data.data_list) || !dataset) {
+      return;
+    }
     
     setDownloading(true);
     try {
+      // selected 배열에는 uniqueRowId가 들어있으므로, 이를 기반으로 path를 찾아야 함
       const selectedPaths = data.data_list
-        .filter(d => d && selected.includes(d._id) && d.path)
+        .filter(d => {
+          // uniqueRowId는 fileName-index 형태이므로, fileName으로 매칭
+          const fileName = d.fileName || d.name;
+          const isSelected = selected.some(selectedId => {
+            // selectedId가 fileName으로 시작하는지 확인
+            return selectedId.startsWith(fileName);
+          });
+          const hasPath = d.path;
+          return isSelected && hasPath;
+        })
         .map(d => d.path);
       
       if (selectedPaths.length === 0) {
@@ -201,14 +260,14 @@ export const useDatasetData = (dataset, isOpen = false) => {
       await downloadDataByPaths({ 
         uid: dataset.uid, 
         target_path_list: selectedPaths,
-        dataset_name: dataset.name || data?.name
+        dataset_name: dataset.name
       });
     } catch (err) {
       setError('Download failed: ' + err.message);
     } finally {
       setDownloading(false);
     }
-  }, [selected, data?.data_list, dataset, data?.name]);
+  }, [selected, data?.data_list, dataset]);
   // 파일 업데이트
   const updateUploadFiles = useCallback((newFiles) => {
     setUploadFiles(newFiles);

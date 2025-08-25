@@ -229,6 +229,18 @@
   border-left: 3px solid #3b82f6;
   box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
   transition: all 0.15s ease;
+  position: relative;
+}
+
+.selectedRow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(59, 130, 246, 0.05);
+  pointer-events: none;
 }
 
 .emptyCell {
