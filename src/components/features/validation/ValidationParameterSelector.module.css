@@ -1,0 +1,199 @@
+.parameterSelector {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.paramGroupTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+}
+
+.selectedParamChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  min-height: 32px;
+}
+
+.paramChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #dbeafe;
+  transition: all 0.2s ease;
+}
+
+.paramChip:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.removeIcon {
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.removeIcon:hover {
+  opacity: 1;
+}
+
+.accordionGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.accordionCard {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.accordionCard:hover {
+  transform: translateY(-1px);
+}
+
+.accordionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1.5px solid #d1d5db;
+  margin-bottom: 0;
+  transform: translateZ(0);
+}
+
+.accordionHeader:hover {
+  background: #f1f5f9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.accordionHeader.accordionOpen {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.accordionArrow {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  color: #3b82f6;
+  margin-left: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.accordionHeader:hover .accordionArrow {
+  transform: scale(1.1);
+}
+
+.accordionContent {
+  background: #f8fafc;
+  border-radius: 0 0 12px 12px;
+  padding: 20px 24px 16px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  border: 1.5px solid #d1d5db;
+  border-top: none;
+  animation: accordionSlideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+}
+
+@keyframes accordionSlideDown {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.paramButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.paramButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.paramButton:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.paramButton.selected {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.paramButton.selected:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.paramButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.infoIcon {
+  flex-shrink: 0;
+  margin-left: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.paramButton:hover .infoIcon {
+  opacity: 1;
+}
+

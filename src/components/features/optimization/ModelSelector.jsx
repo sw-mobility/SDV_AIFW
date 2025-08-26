@@ -1,13 +1,19 @@
 import React from 'react';
 import dsStyles from '../training/DatasetSelector.module.css';
 
-const models = [
+const defaultModels = [
   { value: 'modelA', label: 'Model A' },
   { value: 'modelB', label: 'Model B' },
   { value: 'modelC', label: 'Model C' },
 ];
 
-export default function ModelSelector({ value, onChange, disabled }) {
+export default function ModelSelector({ 
+  value, 
+  onChange, 
+  disabled, 
+  models = defaultModels,
+  showInfo = true 
+}) {
   return (
     <div className={dsStyles.selectorBox}>
       <label className={dsStyles.paramLabel} style={{marginBottom: 4}}>Model</label>
@@ -22,6 +28,11 @@ export default function ModelSelector({ value, onChange, disabled }) {
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
       </select>
+      {showInfo && (
+        <div className={dsStyles.infoText}>
+          Select a trained model for validation
+        </div>
+      )}
     </div>
   );
 } 

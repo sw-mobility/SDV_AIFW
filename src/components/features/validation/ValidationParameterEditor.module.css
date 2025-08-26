@@ -1,0 +1,126 @@
+.paramCard {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1.5px solid #d1d5db;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.paramCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.paramCardActive {
+  border: 2px solid #3b82f6;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.08);
+  background: #fafdff;
+  animation: simpleFadeIn 0.3s ease-out;
+}
+
+@keyframes simpleFadeIn {
+  0% { 
+    opacity: 0; 
+  }
+  100% { 
+    opacity: 1; 
+  }
+}
+
+.paramRowHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+.paramLabel {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+  line-height: 1.4;
+  transition: color 0.2s ease;
+}
+
+.paramCard:hover .paramLabel {
+  color: #1f2937;
+}
+
+.paramInput {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  font-weight: 500;
+  transform: translateZ(0);
+}
+
+.paramInput:hover {
+  border-color: #94a3b8;
+  background: #fafafa;
+}
+
+.paramInput:focus {
+  border-color: #4f8cff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+  transform: translateY(-1px);
+  background: #ffffff;
+}
+
+.paramInput:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+  transform: none;
+}
+
+.paramDesc {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: 8px;
+  transition: color 0.2s ease;
+}
+
+.paramCard:hover .paramDesc {
+  color: #4b5563;
+}
+
+.switchContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+  transition: all 0.2s ease;
+}
+
+.switchContainer:hover {
+  transform: translateX(2px);
+}
+
+/* Switch 스타일 개선 */
+.switchContainer :global(.MuiSwitch-root) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switchContainer :global(.MuiSwitch-root:hover) {
+  transform: scale(1.05);
+}
+
+.switchContainer :global(.MuiSwitch-track) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switchContainer :global(.MuiSwitch-thumb) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

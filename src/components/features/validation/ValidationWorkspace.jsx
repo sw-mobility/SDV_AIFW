@@ -3,6 +3,7 @@ import Button from '../../ui/atoms/Button.jsx';
 import ProgressBar from '../../ui/atoms/ProgressBar.jsx';
 import StatusBadge from './StatusBadge.jsx';
 import ResultsTable from './ResultsTable.jsx';
+import ValidationParameterSection from './ValidationParameterSection.jsx';
 import styles from './Validation.module.css';
 
 /**
@@ -15,6 +16,8 @@ import styles from './Validation.module.css';
  * @param isDisabled
  * @param isRunning
  * @param results
+ * @param validationParams
+ * @param onParametersChange
  * @returns {Element}
  * @constructor
  */
@@ -24,7 +27,9 @@ const ValidationWorkspace = ({
   onRunValidation, 
   isDisabled, 
   isRunning,
-  results
+  results,
+  validationParams,
+  onParametersChange
 }) => {
   return (
     <div className={styles.workspace}>
@@ -34,6 +39,15 @@ const ValidationWorkspace = ({
           <h2 className={styles.pageTitle} style={{ fontSize: 22, marginBottom: 0 }}>Validation Execution</h2>
         </div>
         <StatusBadge status={status} />
+      </div>
+      
+      {/* 파라미터 설정 섹션 */}
+      <div className={styles.parametersSection}>
+        <ValidationParameterSection
+          validationParams={validationParams}
+          onParamChange={onParametersChange}
+          disabled={isRunning}
+        />
       </div>
       
       <div style={{ margin: '32px 0 24px 0', display: 'flex', justifyContent: 'flex-end' }}>

@@ -37,33 +37,31 @@
   font-weight: 500;
 }
 
-.sectionWrap {
+/* 상단 선택기 섹션 */
+.selectorSection {
+  margin-bottom: 32px;
+}
+
+.selectorRow {
   display: flex;
-  gap: 28px;
+  gap: 24px;
   align-items: flex-start;
-  min-height: 600px;
 }
 
-.leftPanel {
-  width: 340px;
-  min-width: 300px;
-  max-width: 380px;
-  flex-shrink: 0;
-}
-
-.rightPanel {
+.selectorItem {
   flex: 1;
   min-width: 0;
+}
+
+/* 하단 워크스페이스 섹션 */
+.workspaceSection {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-  box-sizing: border-box;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
 }
 
+/* 기존 스타일들 (필요한 경우 유지) */
 .selectorBlock {
   margin-bottom: 24px;
   border-radius: 16px;
@@ -71,23 +69,24 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
   transition: box-shadow 0.2s;
 }
+
 .selectorBlock:hover {
   box-shadow: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.10);
 }
 
-/* border 제거를 위한 클래스 */
 .selectorBlock.noBorder {
   box-shadow: none;
   padding: 0;
   margin-bottom: 24px;
 }
+
 .selectorBlock.noBorder:hover {
   box-shadow: none;
 }
 
 .workspace {
   height: 100%;
-  min-height: 600px;
+  min-height: 800px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -187,12 +186,8 @@ table th, table td {
   .container {
     padding: 0 20px;
   }
-  .leftPanel {
-    width: 300px;
-    min-width: 280px;
-  }
-  .sectionWrap {
-    gap: 20px;
+  .selectorRow {
+    gap: 16px;
   }
 }
 
@@ -209,19 +204,17 @@ table th, table td {
   .pageDescription {
     font-size: 14px;
   }
-  .sectionWrap {
+  .selectorRow {
     flex-direction: column;
-    gap: 20px;
-    min-height: auto;
+    gap: 16px;
   }
-  .leftPanel, .rightPanel {
+  .selectorItem {
     width: 100%;
-    min-width: 0;
-    max-width: 100%;
   }
   .workspace {
     padding: 16px;
     gap: 20px;
+    min-height: auto;
   }
   .header {
     flex-direction: column;

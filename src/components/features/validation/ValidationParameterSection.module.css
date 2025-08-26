@@ -1,0 +1,65 @@
+.paramSectionWrap {
+  display: flex;
+  gap: 24px;
+  margin: 24px 0;
+}
+
+.paramSummaryBox {
+  width: 320px;
+  flex-shrink: 0;
+}
+
+.paramCardWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.paramCard {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1.5px solid #d1d5db;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.paramCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.paramCardEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  transition: none;
+}
+
+.paramCardEmpty:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: none;
+}
+
+.emptyMessage {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .paramSectionWrap {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .paramSummaryBox {
+    width: 100%;
+  }
+}

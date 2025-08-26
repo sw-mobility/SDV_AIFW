@@ -61,6 +61,15 @@
   font-weight: 500;
 }
 
+/* Parameters Section */
+.parametersSection {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
 .progressSection {
   margin-top: 24px;
 }

@@ -2,7 +2,6 @@ import React from 'react';
 import styles from './ValidationPage.module.css';
 import ModelSelector from '../../components/features/optimization/ModelSelector.jsx';
 import DatasetSelector from '../../components/features/training/DatasetSelector.jsx';
-import MetricSelector from '../../components/features/validation/MetricSelector.jsx';
 import ValidationWorkspace from '../../components/features/validation/ValidationWorkspace.jsx';
 import { useValidation } from '../../hooks';
 
@@ -10,8 +9,6 @@ const ValidationPage = () => {
   const {
     selectedModel,
     setSelectedModel,
-    selectedMetric,
-    setSelectedMetric,
     selectedDataset,
     setSelectedDataset,
     status,
@@ -23,7 +20,9 @@ const ValidationPage = () => {
     datasetLoading,
     datasetError,
     handleRunValidation,
-    metricOptions
+    validationParams,
+    updateValidationParams,
+    mockModels
   } = useValidation();
 
   return (
@@ -31,7 +30,7 @@ const ValidationPage = () => {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Validation</h1>
         <p className={styles.pageDescription}>
-          Select a model, metric, and dataset to run validation. Results will be saved and displayed below.
+          Select a model and dataset to run validation. Results will be saved and displayed below.
         </p>
       </div>
       {error && (
@@ -39,26 +38,20 @@ const ValidationPage = () => {
           <span>Error: {error}</span>
         </div>
       )}
-      <div className={styles.sectionWrap}>
-        {/* 좌측: model dataset metric 선택 필드 */}
-        <div className={styles.leftPanel}>
-          <div className={`${styles.selectorBlock} ${styles.noBorder}`}>
+      
+      {/* 상단: Model과 Dataset 선택기 */}
+      <div className={styles.selectorSection}>
+        <div className={styles.selectorRow}>
+          <div className={styles.selectorItem}>
             <ModelSelector 
               value={selectedModel} 
               onChange={setSelectedModel} 
               disabled={status === 'running'} 
-              showInfo={false} 
+              showInfo={false}
+              models={mockModels}
             />
           </div>
-          <div className={`${styles.selectorBlock} ${styles.noBorder}`}>
-            <MetricSelector 
-              value={selectedMetric}
-              onChange={setSelectedMetric}
-              disabled={status === 'running'}
-              options={metricOptions}
-            />
-          </div>
-          <div className={`${styles.selectorBlock} ${styles.noBorder}`}>
+          <div className={styles.selectorItem}>
             <DatasetSelector
               datasets={datasets}
               selectedDataset={selectedDataset}
@@ -68,18 +61,20 @@ const ValidationPage = () => {
             />
           </div>
         </div>
-        
-        {/* 우측: 실행, 결과 컴포넌트 */}
-        <div className={styles.rightPanel}>
-          <ValidationWorkspace
-            status={status}
-            progress={progress}
-            onRunValidation={handleRunValidation}
-            isDisabled={!selectedModel || !selectedMetric || !selectedDataset || status === 'running'}
-            isRunning={status === 'running'}
-            results={results}
-          />
-        </div>
+      </div>
+      
+      {/* 하단: Validation Workspace */}
+      <div className={styles.workspaceSection}>
+        <ValidationWorkspace
+          status={status}
+          progress={progress}
+          onRunValidation={handleRunValidation}
+          isDisabled={!selectedModel || !selectedDataset || status === 'running'}
+          isRunning={status === 'running'}
+          results={results}
+          validationParams={validationParams}
+          onParametersChange={updateValidationParams}
+        />
       </div>
     </div>
   );
