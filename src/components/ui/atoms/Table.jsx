@@ -91,7 +91,7 @@ export default function Table({
 
 
     // 안전한 데이터 렌더링 함수
-    const renderCells = (row) => {
+    const renderCells = (row, rowId = null) => {
         if (!row) return null;
         
         if (row.cells && Array.isArray(row.cells)) {
@@ -113,10 +113,11 @@ export default function Table({
             // 단일 cell이 있는 경우
             return <td key="single-cell" className={styles.td} style={columnWidths && columnWidths[0] ? { width: columnWidths[0] } : {}}>{row.cell}</td>;
         } else if (Array.isArray(row)) {
-            // 일반 배열인 경우
+            // 일반 배열인 경우 - 행 id를 포함한 key 사용
+            const rid = rowId || 'noid';
             return row.map((cell, i) => (
                 <td
-                    key={`array-cell-${i}`}
+                    key={`array-cell-${rid}-${i}`}
                     className={i === createdAtIdx ? styles.tdCreatedAt : styles.td}
                     style={columnWidths && columnWidths[i] ? { width: columnWidths[i] } : {}}
                 >
@@ -164,12 +165,13 @@ export default function Table({
                             {virtualizedRows.map((virtualRow, index) => {
                                 const row = virtualRow.data; // 원본 데이터 사용
                                 const safeVirtualIndex = virtualRow.virtualIndex !== undefined ? virtualRow.virtualIndex : index;
+                                const rowKeyValue = row && row[rowKey] ? row[rowKey] : `row-${safeVirtualIndex}`;
                                 return (
-                                    <div key={`virtual-row-${safeVirtualIndex}`} style={virtualRow.style}>
+                                    <div key={`virtual-row-${rowKeyValue}`} style={virtualRow.style}>
                                         <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: tableLayout }}>
                                             <tbody>
                                                 <tr
-                                                    key={`tr-${safeVirtualIndex}-${rowKey && row && row[rowKey] ? row[rowKey] : `row-${safeVirtualIndex}`}`}
+                                                    key={rowKeyValue}
                                                     className={
                                                         styles.tr +
                                                         (selectedId && rowKey && row && row[rowKey] === selectedId
@@ -182,7 +184,7 @@ export default function Table({
                                                     }}
                                                     style={{ cursor: onRowClick ? 'pointer' : 'default' }}
                                                 >
-                                                    {renderCells(row)}
+                                                    {renderCells(row, rowKeyValue)}
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -200,24 +202,27 @@ export default function Table({
                                     </td>
                                 </tr>
                             ) : (
-                                memoizedData.map((row, idx) => (
-                                                                    <tr
-                                    key={rowKey && row && row[rowKey] ? row[rowKey] : `row-${idx}`}
-                                    className={
-                                        styles.tr +
-                                        (selectedId && rowKey && row && row[rowKey] === selectedId
-                                            ? ' ' + (selectedRowClassName || styles.selectedRow)
-                                            : '')
-                                    }
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onRowClick && onRowClick(row, idx);
-                                    }}
-                                    style={{ cursor: onRowClick ? 'pointer' : 'default' }}
-                                >
-                                        {renderCells(row)}
-                                    </tr>
-                                ))
+                                memoizedData.map((row, idx) => {
+                                    const rowKeyValue = rowKey && row && row[rowKey] ? row[rowKey] : `row-${idx}`;
+                                    return (
+                                        <tr
+                                            key={rowKeyValue}
+                                            className={
+                                                styles.tr +
+                                                (selectedId && rowKey && row && row[rowKey] === selectedId
+                                                    ? ' ' + (selectedRowClassName || styles.selectedRow)
+                                                    : '')
+                                            }
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onRowClick && onRowClick(row, idx);
+                                            }}
+                                            style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                                        >
+                                            {renderCells(row, rowKeyValue)}
+                                        </tr>
+                                    );
+                                })
                             )}
                             </tbody>
                         </table>

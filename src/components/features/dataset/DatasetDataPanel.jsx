@@ -30,6 +30,7 @@ const Table = TableModule.default;
 
 const DatasetDataPanel = ({ open, onClose, dataset }) => {
     const [search, setSearch] = useState('');
+    const selectAllRef = React.useRef(null);
     
     const {
         data,
@@ -87,6 +88,9 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         );
     }, [data?.data_list, debouncedSearch]);
 
+    // 체크박스 상태를 Set으로 관리 성능 최적화
+    const selectedSet = React.useMemo(() => new Set(selected), [selected]);
+
     const handleSelectAll = React.useCallback(() => {
         if (!filteredData || !Array.isArray(filteredData)) return;
         
@@ -94,10 +98,10 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         const filteredIds = filteredData.map((d, index) => {
             const baseId = d._id || d.id || d.did;
             const fileName = getFileNameOnly(d.name);
-            return baseId && baseId !== 'L0003' ? baseId : `${fileName}-${index}`;
+            return `${fileName}-${index}-${baseId || 'no-id'}`;
         }).filter(Boolean);
         
-        const allFilteredSelected = filteredIds.every(id => selected.includes(id));
+        const allFilteredSelected = filteredIds.every(id => selectedSet.has(id));
         
         if (allFilteredSelected) {
             // 모든 검색된 항목이 선택되어 있으면 선택 해제
@@ -106,7 +110,7 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
             // 검색된 항목 중 선택되지 않은 것들을 선택
             setSelected(prev => [...new Set([...prev, ...filteredIds])]);
         }
-    }, [filteredData, selected]);
+    }, [filteredData, selectedSet]);
     
     const handleCheckboxSelect = React.useCallback((rowId) => {
         if (!rowId) return;
@@ -137,9 +141,6 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         });
     }, []);
 
-    // 체크박스 상태를 Set으로 관리 성능 최적화
-    const selectedSet = React.useMemo(() => new Set(selected), [selected]);
-
 
 
     const tableData = React.useMemo(() => {
@@ -149,11 +150,11 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         });
         
         return validRows.map((row, index) => {
-            // 고유한 ID 생성: rowId가 없거나 중복되는 경우 파일명과 인덱스를 조합
+            // 고유한 ID 생성: 항상 파일명과 인덱스를 조합해서 중복 방지
             const baseRowId = row._id || row.id || row.did;
             const fileName = getFileNameOnly(row.name);
-            const uniqueRowId = baseRowId && baseRowId !== 'L0003' ? baseRowId : `${fileName}-${index}`;
-            const isSelected = selected.includes(uniqueRowId);
+            const uniqueRowId = `${fileName}-${index}-${baseRowId || 'no-id'}`;
+            const isSelected = selectedSet.has(uniqueRowId);
             
             return {
                 _id: uniqueRowId || '',
@@ -164,14 +165,10 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                         checked={isSelected} 
                         onChange={(e) => {
                             e.stopPropagation();
-                            e.preventDefault();
                             console.log('Checkbox onChange for uniqueRowId:', uniqueRowId);
                             handleCheckboxSelect(uniqueRowId);
                         }} 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                        }} 
+                        onClick={(e) => e.stopPropagation()} 
                         style={{ cursor: 'pointer' }}
                     />,
                     <span 
@@ -194,21 +191,28 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
         const validIds = filteredData.map((row, index) => {
             const baseId = row._id || row.id || row.did;
             const fileName = getFileNameOnly(row.name);
-            return baseId && baseId !== 'L0003' ? baseId : `${fileName}-${index}`;
+            return `${fileName}-${index}-${baseId || 'no-id'}`;
         }).filter(Boolean);
-        return validIds.length > 0 && validIds.every(id => selected.includes(id));
-    }, [filteredData, selected]);
+        return validIds.length > 0 && validIds.every(id => selectedSet.has(id));
+    }, [filteredData, selectedSet]);
 
     const selectAllIndeterminate = React.useMemo(() => {
         if (!filteredData || filteredData.length === 0) return false;
         const validIds = filteredData.map((row, index) => {
             const baseId = row._id || row.id || row.did;
             const fileName = getFileNameOnly(row.name);
-            return baseId && baseId !== 'L0003' ? baseId : `${fileName}-${index}`;
+            return `${fileName}-${index}-${baseId || 'no-id'}`;
         }).filter(Boolean);
-        const hasSelected = validIds.some(id => selected.includes(id));
+        const hasSelected = validIds.some(id => selectedSet.has(id));
         return hasSelected && !selectAllChecked;
-    }, [filteredData, selected, selectAllChecked]);
+    }, [filteredData, selectedSet, selectAllChecked]);
+
+    // indeterminate 속성을 ref로 설정
+    React.useEffect(() => {
+        if (selectAllRef.current) {
+            selectAllRef.current.indeterminate = selectAllIndeterminate && !selectAllChecked;
+        }
+    }, [selectAllIndeterminate, selectAllChecked]);
 
     return (
         <Modal isOpen={open} onClose={onClose} title="Dataset Details" titleIcon={titleIcon} className={styles.wideModal}>
@@ -346,9 +350,9 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '8px', flexShrink: 0 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <input 
+                                        ref={selectAllRef}
                                         type="checkbox" 
                                         checked={selectAllChecked}
-                                        indeterminate={selectAllIndeterminate || undefined}
                                         onChange={handleSelectAll}
                                         style={{ margin: 0, cursor: 'pointer' }}
                                     />
@@ -378,19 +382,15 @@ const DatasetDataPanel = ({ open, onClose, dataset }) => {
                                         '',
                                         'Name', 'Type', 'Format', 'Created'
                                     ]}
-                                    data={tableData.map(row => row.cells)}
+                                    data={tableData}
                                     rowKey="_id"
                                     onRowClick={(row, idx) => {
-                                        if (!filteredData || !Array.isArray(filteredData) || !filteredData[idx]) return;
-                                        const baseRowId = filteredData[idx]._id || filteredData[idx].id || filteredData[idx].did;
-                                        const fileName = getFileNameOnly(filteredData[idx].name);
-                                        const uniqueRowId = baseRowId && baseRowId !== 'L0003' ? baseRowId : `${fileName}-${idx}`;
-                                        if (uniqueRowId) {
-                                            handleCheckboxSelect(uniqueRowId);
-                                        }
+                                        // row가 객체로 들어오므로 여기서도 안전하게 row._id 사용
+                                        const uniqueRowId = row?._id;
+                                        if (uniqueRowId) handleCheckboxSelect(uniqueRowId);
                                     }}
-                                    selectedId={selected.length === 1 ? selected[0] : null}
-                                    selectedRowClassName={styles.selectedRow}
+                                    selectedId={null}
+                                    selectedRowClassName={null}
                                     maxHeight="100%"
                                     virtualized={true} // 가상화 활성화
                                     columnWidths={['50px', '45%', '20%', '10%', '25%']}

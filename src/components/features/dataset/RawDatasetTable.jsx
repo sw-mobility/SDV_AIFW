@@ -45,7 +45,7 @@ export default function RawDatasetTable({data, onRowClick, selectedId, searchPla
   }, [search]);
 
   const tableData = paginatedData.map(row => ({
-    id: row.id,
+    id: row._id || row.id,
     cells: [
       <div key="name-cell" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
         <span style={{fontWeight: 600, color: '#1e293b'}}>{row.name}</span>
