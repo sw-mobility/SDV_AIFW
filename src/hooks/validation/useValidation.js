@@ -6,8 +6,6 @@ import { uid } from '../../api/uid.js';
 // 상수들 (domain으로 분리할 필요 없는 단순한 상수들)
 const MOCK_MODELS = [
   { value: 'best.pt', label: 'Best Model (best.pt)' },
-  { value: 'last.pt', label: 'Last Model (last.pt)' },
-  { value: 'custom.pt', label: 'Custom Model' },
 ];
 
 const DEVICE_OPTIONS = [
