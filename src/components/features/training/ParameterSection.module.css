@@ -165,11 +165,15 @@
   min-height: 0;
   flex: 1;
   overflow-y: auto;
+  padding-top: 8px; /* hover 효과로 인한 상단 잘림 방지 */
+  padding-bottom: 8px; /* 하단 여백도 추가 */
 }
 
 .paramSectionWrap.expertMode .paramCardWrap {
   height: 100%; /* Expert Mode에서 높이를 100%로 설정 */
   min-height: 600px; /* 최소 높이 보장 */
+  padding-top: 8px; /* hover 효과로 인한 상단 잘림 방지 */
+  padding-bottom: 8px; /* 하단 여백도 추가 */
 }
 
 .paramCard {

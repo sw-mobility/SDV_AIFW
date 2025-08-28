@@ -5,6 +5,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Switch from '@mui/material/Switch';
 import styles from './ParameterEditor.module.css';
 import { normalizeParamValue} from '../../../domain/training/parameterGroups.js';
+import COCOClassesEditor from './COCOClassesEditor.jsx';
 
 /**
  * 파라미터 입력 및 검증 담당
@@ -118,6 +119,13 @@ const ParameterEditor = ({
           <span style={{ marginLeft: 8, fontSize: '14px', color: '#666' }}>
             {getCurrentValue() ? 'Enabled' : 'Disabled'}
           </span>
+        </div>
+      ) : currentParam.type === 'yaml_editor' ? (
+        <div className={styles.yamlEditorContainer}>
+          <COCOClassesEditor
+            value={getCurrentValue()}
+            onChange={(value) => handleParamChange(currentParam.key, value, currentParam)}
+          />
         </div>
       ) : (
         <input

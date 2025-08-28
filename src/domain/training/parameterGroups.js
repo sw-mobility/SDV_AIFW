@@ -4,6 +4,7 @@ export const PARAMETER_GROUPS = {
   TRAINING: 'Training Parameters',
   MODEL: 'Model Parameters',
   DATA: 'Data Parameters',
+  PREPROCESSING: 'Preprocessing',
   ADVANCED: 'Advanced Parameters'
 };
 
@@ -41,6 +42,10 @@ export const validateParam = (param, value) => {
     }
   } else if (param.type === 'checkbox') {
     // checkbox는 boolean 값이므로 별도 검증 불필요
+  } else if (param.type === 'yaml_editor') {
+    if (param.required && (!value || value === '')) {
+      error = `${param.label}을(를) 입력하세요.`;
+    }
   }
   
   return { isValid: error === '', error };
@@ -63,6 +68,9 @@ export const normalizeParamValue = (value, param) => {
     }
     
     return numValue;
+  } else if (param.type === 'yaml_editor') {
+    // YAML 에디터는 문자열 값 그대로 반환
+    return value || param.default || '';
   }
   
   return value;
@@ -84,6 +92,12 @@ export const getParameterGroupsByAlgorithm = (algorithm) => {
         { key: 'task_type', label: 'Task Type', type: 'text', required: true, default: 'training' },
         { key: 'project_name', label: 'Project Name', type: 'text', required: true },
         { key: 'description', label: 'Description', type: 'text' }
+      ]
+    },
+    {
+      group: PARAMETER_GROUPS.PREPROCESSING,
+      params: [
+        { key: 'coco_classes', label: 'COCO Classes', type: 'yaml_editor', default: '', desc: 'Customize COCO dataset classes' }
       ]
     },
     {

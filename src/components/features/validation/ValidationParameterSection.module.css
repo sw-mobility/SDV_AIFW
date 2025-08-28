@@ -41,6 +41,8 @@
   min-height: 0;
   flex: 1;
   overflow-y: auto;
+  padding-top: 8px; /* hover 효과로 인한 상단 잘림 방지 */
+  padding-bottom: 8px; /* 하단 여백도 추가 */
 }
 
 .paramCard {

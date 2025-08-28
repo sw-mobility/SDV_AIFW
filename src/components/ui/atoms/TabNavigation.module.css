@@ -29,6 +29,19 @@
     color: var(--color-blue);
 }
 
+.disabledTab {
+    opacity: 0.5;
+    filter: blur(0.5px);
+    cursor: not-allowed;
+    color: var(--color-text-tertiary);
+    pointer-events: none;
+}
+
+.disabledTab:hover {
+    color: var(--color-text-tertiary);
+    background: transparent;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .tabNavigation {

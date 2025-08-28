@@ -48,6 +48,10 @@ export const validateParameter = (param, value) => {
     if (param.required && (!value || value === '')) {
       error = `${param.label}을(를) 입력하세요.`;
     }
+  } else if (param.type === 'yaml_editor') {
+    if (param.required && (!value || value === '')) {
+      error = `${param.label}을(를) 입력하세요.`;
+    }
   }
   
   return { isValid: error === '', error };

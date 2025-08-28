@@ -17,7 +17,7 @@ const AlgorithmSelector = ({
 }) => {
   return (
         <div className={styles.selectorBox}>
-          <label className={styles.paramLabel} style={{marginBottom: 4}}>Algorithm</label>
+          <label className={styles.paramLabel} style={{marginBottom: 4}}>Model</label>
           <select
             className={styles.select}
             value={algorithm}
