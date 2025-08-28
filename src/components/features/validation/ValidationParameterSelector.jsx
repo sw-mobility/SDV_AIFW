@@ -4,7 +4,7 @@ import styles from './ValidationParameterSelector.module.css';
 
 /**
  * Validation 파라미터 그룹 선택 컴포넌트
- * Training 페이지의 ParameterSelector 스타일을 참고하여 칩 형태로 파라미터를 표시
+ * Training 페이지의 ParameterSelector와 정확히 동일한 구조
  */
 const ValidationParameterSelector = ({
   paramGroups,

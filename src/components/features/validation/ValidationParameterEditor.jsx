@@ -8,7 +8,7 @@ import { normalizeValidationParamValue } from '../../../domain/validation/valida
 
 /**
  * Validation 파라미터 입력 및 검증 담당
- * Training 페이지의 ParameterEditor 스타일을 참고하여 제작
+ * Training 페이지의 ParameterEditor와 정확히 동일한 구조
  *
  * @param currentParam
  * @param validationParams
@@ -24,10 +24,13 @@ const ValidationParameterEditor = ({
   disabled = false
 }) => {
   if (!currentParam) {
-    return null;
+    return null; // 빈 상태는 ValidationParameterSection에서 처리
   }
 
   const handleParamChange = (key, value, param) => {
+    // disabled된 파라미터는 변경 불가
+    if (param.disabled) return;
+    
     const newValue = normalizeValidationParamValue(value, param);
     onParamChange({ [key]: newValue });
   };
@@ -53,7 +56,7 @@ const ValidationParameterEditor = ({
   };
 
   return (
-    <div className={styles.paramCard + ' ' + styles.paramCardActive}>
+    <div className={`${styles.paramCard} ${styles.paramCardActive} ${currentParam.disabled ? styles.paramCardDisabled : ''}`}>
       <div className={styles.paramRowHeader}>
         <span className={styles.paramLabel}>{currentParam.label}</span>
         <Tooltip 
@@ -73,7 +76,7 @@ const ValidationParameterEditor = ({
             step={getSliderStep(currentParam)}
             value={getCurrentValue()}
             onChange={(_, v) => handleParamChange(currentParam.key, v, currentParam)}
-            disabled={disabled}
+            disabled={disabled || currentParam.disabled}
             sx={{ 
               width: 180, 
               color: '#4f8cff',
@@ -97,7 +100,7 @@ const ValidationParameterEditor = ({
             step={currentParam.step || getSliderStep(currentParam)}
             onChange={e => handleParamChange(currentParam.key, Number(e.target.value), currentParam)}
             className={styles.paramInput}
-            disabled={disabled}
+            disabled={disabled || currentParam.disabled}
             style={{ width: 80, marginLeft: 8 }}
           />
         </div>
@@ -106,7 +109,7 @@ const ValidationParameterEditor = ({
           className={styles.paramInput}
           value={getCurrentValue()}
           onChange={e => handleParamChange(currentParam.key, e.target.value, currentParam)}
-          disabled={disabled}
+          disabled={disabled || currentParam.disabled}
           style={{ width: 180 }}
         >
           {currentParam.options.map(opt => (
@@ -118,7 +121,7 @@ const ValidationParameterEditor = ({
           <Switch
             checked={getCurrentValue()}
             onChange={e => handleParamChange(currentParam.key, e.target.checked, currentParam)}
-            disabled={disabled}
+            disabled={disabled || currentParam.disabled}
             color="primary"
             size="medium"
           />
@@ -132,7 +135,7 @@ const ValidationParameterEditor = ({
           className={styles.paramInput}
           value={getCurrentValue()}
           onChange={e => handleParamChange(currentParam.key, e.target.value, currentParam)}
-          disabled={disabled}
+          disabled={disabled || currentParam.disabled}
           style={{ width: 180 }}
           placeholder={currentParam.placeholder || ''}
         />

@@ -14,7 +14,17 @@ export const VALIDATION_PARAM_GROUPS = [
         type: 'text',
         default: 'best.pt',
         desc: 'Path to the model file to use for validation',
-        placeholder: 'best.pt'
+        placeholder: 'best.pt',
+        disabled: true
+      },
+      {
+        key: 'task_type',
+        label: 'Task Type',
+        type: 'select',
+        default: 'detection',
+        options: ['detection', 'classification', 'segmentation'],
+        desc: 'Type of task for validation',
+        disabled: true
       },
       {
         key: 'device',
@@ -99,16 +109,50 @@ export const VALIDATION_PARAM_GROUPS = [
     ]
   },
   {
-    name: 'Advanced Settings',
-    key: 'advanced',
+    name: 'Output Settings',
+    key: 'output',
     params: [
+      {
+        key: 'save_json',
+        label: 'Save JSON',
+        type: 'checkbox',
+        default: true,
+        desc: 'Save results to JSON file'
+      },
+      {
+        key: 'save_txt',
+        label: 'Save TXT',
+        type: 'checkbox',
+        default: true,
+        desc: 'Save results to TXT file'
+      },
+      {
+        key: 'save_conf',
+        label: 'Save Confidence',
+        type: 'checkbox',
+        default: true,
+        desc: 'Save confidence scores'
+      },
+      {
+        key: 'plots',
+        label: 'Generate Plots',
+        type: 'checkbox',
+        default: true,
+        desc: 'Generate validation plots'
+      },
       {
         key: 'verbose',
         label: 'Verbose Output',
         type: 'checkbox',
         default: true,
         desc: 'Verbose output during validation'
-      },
+      }
+    ]
+  },
+  {
+    name: 'Advanced Settings',
+    key: 'advanced',
+    params: [
       {
         key: 'half',
         label: 'Half Precision',

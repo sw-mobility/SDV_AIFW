@@ -28,16 +28,16 @@ const DatasetSelector = ({
       {!datasetLoading && !datasetError && (
         <select
           className={styles.select}
-          value={selectedDataset ? String(selectedDataset.id) : ''}
+          value={selectedDataset ? String(selectedDataset.did) : ''}
           onChange={e => {
-            const ds = datasets.find(d => String(d.id) === e.target.value);
+            const ds = datasets.find(d => String(d.did) === e.target.value);
             onDatasetChange(ds);
           }}
         >
           <option value="">Select dataset</option>
           {datasets.map(ds => (
-            <option key={ds.id} value={String(ds.id)}>
-              {ds.name} ({ds.type}, {ds.size})
+            <option key={ds.did} value={String(ds.did)}>
+              {ds.name}
             </option>
           ))}
         </select>
@@ -46,7 +46,6 @@ const DatasetSelector = ({
         <div className={styles.datasetInfo}>
           <div><b>Name:</b> {selectedDataset.name}</div>
           <div><b>Type:</b> {selectedDataset.type}</div>
-          <div><b>Label Count:</b> {selectedDataset.labelCount}</div>
         </div>
       )}
     </div>

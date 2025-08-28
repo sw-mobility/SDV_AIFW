@@ -1,53 +1,58 @@
 .parameterSelector {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  width: 100%;
 }
 
 .paramGroupTitle {
-  font-size: 16px;
+  font-size: 17px;
+  margin-bottom: 12px;
   font-weight: 600;
   color: #1e293b;
-  margin: 0 0 16px 0;
+  transition: color 0.2s ease;
 }
 
 .selectedParamChips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 20px;
-  min-height: 32px;
+  margin-bottom: 16px;
 }
 
 .paramChip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   background: #eff6ff;
-  color: #1d4ed8;
-  padding: 6px 12px;
+  color: #2563eb;
   border-radius: 16px;
-  font-size: 13px;
+  padding: 4px 12px;
   font-weight: 500;
-  border: 1px solid #dbeafe;
-  transition: all 0.2s ease;
+  font-size: 13px;
+  box-shadow: 0 1px 4px rgba(59,130,246,0.08);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
 }
 
 .paramChip:hover {
-  background: #dbeafe;
-  border-color: #93c5fd;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(59,130,246,0.15);
+}
+
+.paramChip:active {
+  transform: translateY(0) scale(1);
+  transition: transform 0.1s ease;
 }
 
 .removeIcon {
+  margin-left: 4px;
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
 }
 
 .removeIcon:hover {
   opacity: 1;
+  transform: scale(1.2);
 }
 
 .accordionGroups {
@@ -57,11 +62,11 @@
 }
 
 .accordionCard {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  overflow: hidden;
+  background: none;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateZ(0);
 }
 
 .accordionCard:hover {
@@ -173,13 +178,6 @@
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 }
 
-.paramButton.selected:hover {
-  background: #2563eb;
-  border-color: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
 .paramButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -187,9 +185,7 @@
 }
 
 .infoIcon {
-  flex-shrink: 0;
-  margin-left: 4px;
-  opacity: 0.7;
+  opacity: 0.6;
   transition: opacity 0.2s ease;
 }
 

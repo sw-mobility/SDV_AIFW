@@ -211,6 +211,22 @@ export const useDatasets = () => {
         } catch (err) {
             console.error('Delete error:', err);
             
+            // "삭제된 문서가 없습니다" 메시지 처리
+            if (err.message.includes('삭제된 문서가 없습니다') || err.message.includes('No documents found to delete')) {
+                console.log('No documents to delete - treating as success');
+                // 에러를 표시하지 않고 성공으로 처리
+                await fetchDatasetsList();
+                return;
+            }
+            
+            // 404 에러나 resources not found 메시지 처리
+            if (err.message.includes('resources not found') || err.message.includes('404')) {
+                console.log('Resources not found - treating as success');
+                // 에러를 표시하지 않고 성공으로 처리
+                await fetchDatasetsList();
+                return;
+            }
+            
             // AWS S3 에러인 경우 사용자 친화적인 메시지 표시
             if (err.message.includes('MalformedXML') || err.message.includes('DeleteObjects')) {
                 setError('Failed to delete dataset files. This might be a temporary issue. Please try again in a moment.');

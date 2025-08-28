@@ -2,31 +2,19 @@ const BASE_URL = 'http://localhost:5002';
 
 /**
  * Start YOLO validation for detection task
- * @param {string} uid - User ID (header)
+ * POST /validation/yolo/validate/detection
+ * 
  * @param {Object} params - Validation parameters
+ * @param {string} params.uid - User ID (header)
  * @param {string} params.pid - Project ID
- * @param {string} params.tid - Training ID
+ * @param {string} params.tid - Training ID  
  * @param {string} params.cid - Codebase ID
  * @param {string} params.did - Dataset ID
  * @param {string} params.task_type - Task type (e.g., 'detection')
  * @param {Object} params.parameters - Model parameters
- * @param {string} params.parameters.model - Model file name
- * @param {number} params.parameters.imgsz - Image size
- * @param {number} params.parameters.batch - Batch size
- * @param {string} params.parameters.device - Device (cpu/gpu)
- * @param {number} params.parameters.workers - Number of workers
- * @param {number} params.parameters.conf - Confidence threshold
- * @param {number} params.parameters.iou - IoU threshold
- * @param {number} params.parameters.max_det - Maximum detections
- * @param {boolean} params.parameters.verbose - Verbose output
- * @param {boolean} params.parameters.half - Use half precision
- * @param {boolean} params.parameters.dnn - Use DNN
- * @param {boolean} params.parameters.agnostic_nms - Agnostic NMS
- * @param {boolean} params.parameters.augment - Test time augmentation
- * @param {boolean} params.parameters.rect - Rectangular inference
- * @returns {Promise<Object>} Validation start result
+ * @returns {Promise<Object>} Validation start result with vid
  */
-export async function startYoloValidation({ uid, ...params }) {
+export async function startYoloValidation({ uid, pid, tid, cid, did, task_type, parameters }) {
     const response = await fetch(`${BASE_URL}/validation/yolo/validate/detection`, {
         method: 'POST',
         headers: { 
@@ -34,19 +22,47 @@ export async function startYoloValidation({ uid, ...params }) {
             'Content-Type': 'application/json',
             'uid': uid
         },
-        body: JSON.stringify(params)
+        body: JSON.stringify({
+            pid,
+            tid,
+            cid,
+            did,
+            task_type,
+            parameters
+        })
     });
     
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to start validation');
+        let errorMessage = 'Failed to start validation';
+        try {
+            const errorData = await response.json();
+            if (errorData.detail) {
+                errorMessage = Array.isArray(errorData.detail) 
+                    ? errorData.detail.map(d => d.msg).join(', ')
+                    : errorData.detail;
+            }
+        } catch (e) {
+            // If error response is not JSON, try to get text
+            try {
+                const errorText = await response.text();
+                if (errorText) {
+                    errorMessage = errorText;
+                }
+            } catch (textError) {
+                // Use default error message
+            }
+        }
+        throw new Error(errorMessage);
     }
     
-    return await response.json();
+    const result = await response.json();
+    return result;
 }
 
 /**
  * Get validation status and results
+ * GET /validation/yolo/{vid}
+ * 
  * @param {string} vid - Validation ID
  * @returns {Promise<Object>} Validation status and results
  */
@@ -59,9 +75,28 @@ export async function getValidationStatus({ vid }) {
     });
     
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to get validation status');
+        let errorMessage = 'Failed to get validation status';
+        try {
+            const errorData = await response.json();
+            if (errorData.detail) {
+                errorMessage = Array.isArray(errorData.detail) 
+                    ? errorData.detail.map(d => d.msg).join(', ')
+                    : errorData.detail;
+            }
+        } catch (e) {
+            // If error response is not JSON, try to get text
+            try {
+                const errorText = await response.text();
+                if (errorText) {
+                    errorMessage = errorText;
+                }
+            } catch (textError) {
+                // Use default error message
+            }
+        }
+        throw new Error(errorMessage);
     }
     
-    return await response.json();
+    const result = await response.json();
+    return result;
 }

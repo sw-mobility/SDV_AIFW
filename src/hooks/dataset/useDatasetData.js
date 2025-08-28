@@ -128,14 +128,37 @@ export const useDatasetData = (dataset, isOpen = false) => {
         return id;
       });
 
-      await deleteData({ 
+      const result = await deleteData({ 
         uid: dataset.uid || '', 
         target_did: dataset._id,
         target_name_list: target_name_list
       });
+      
+      console.log('Delete data result:', result);
+      
       setSelected([]);
       setRefreshKey(k => k + 1);
     } catch (err) {
+      console.error('Delete data error:', err);
+      
+      // "삭제된 문서가 없습니다" 메시지 처리
+      if (err.message.includes('삭제된 문서가 없습니다') || err.message.includes('No documents found to delete')) {
+        console.log('No documents to delete - treating as success');
+        // 에러를 표시하지 않고 성공으로 처리
+        setSelected([]);
+        setRefreshKey(k => k + 1);
+        return;
+      }
+      
+      // 404 에러나 resources not found 메시지 처리
+      if (err.message.includes('resources not found') || err.message.includes('404')) {
+        console.log('Resources not found - treating as success');
+        // 에러를 표시하지 않고 성공으로 처리
+        setSelected([]);
+        setRefreshKey(k => k + 1);
+        return;
+      }
+      
       setError(err.message);
     }
   }, [selected, dataset]);

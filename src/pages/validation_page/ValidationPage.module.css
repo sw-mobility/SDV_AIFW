@@ -1,10 +1,26 @@
+/* 전체 페이지 컨테이너 - training 페이지와 동일 */
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
 .container {
-  max-width: 1200px;
   width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 40px;
   background: var(--color-bg-primary);
   box-sizing: border-box;
+}
+
+/* 파라미터 섹션 래퍼 - training 페이지와 동일 */
+.parameterSectionWrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .pageHeader {
@@ -22,7 +38,7 @@
 .pageDescription {
   color: #64748b;
   font-size: 16px;
-  margin: 0;
+  margin: 0 0 24px 0;
   line-height: 1.4;
 }
 
@@ -37,121 +53,31 @@
   font-weight: 500;
 }
 
-/* 상단 선택기 섹션 */
-.selectorSection {
+.selectorGroup {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
   margin-bottom: 32px;
 }
 
-.selectorRow {
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-}
-
-.selectorItem {
-  flex: 1;
-  min-width: 0;
-}
-
-/* 하단 워크스페이스 섹션 */
-.workspaceSection {
+/* Execution Section */
+.executionSection {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-  overflow: hidden;
-}
-
-/* 기존 스타일들 (필요한 경우 유지) */
-.selectorBlock {
-  margin-bottom: 24px;
-  border-radius: 16px;
-  padding: 18px 18px 12px 18px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-  transition: box-shadow 0.2s;
-}
-
-.selectorBlock:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.10);
-}
-
-.selectorBlock.noBorder {
-  box-shadow: none;
-  padding: 0;
-  margin-bottom: 24px;
-}
-
-.selectorBlock.noBorder:hover {
-  box-shadow: none;
-}
-
-.workspace {
-  height: 100%;
-  min-height: 800px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
   padding: 24px;
-  box-sizing: border-box;
+  margin-top: 24px;
 }
 
-.header {
+.executionHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.statusBadge {
-  flex-shrink: 0;
-}
-
-.statusIdle {
-  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: #f1f5f9;
-  color: #64748b;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  margin-bottom: 24px;
 }
 
-.statusRunning {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #fef3c7;
-  color: #d97706;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.statusSuccess {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #dcfce7;
-  color: #16a34a;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.statusError {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #fef2f2;
-  color: #dc2626;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+.executionTitle {
+  flex: 1;
 }
 
 .progressSection {
@@ -159,69 +85,36 @@
   border-radius: 12px;
   padding: 20px;
   border: 1px solid #e2e8f0;
+  margin-top: 24px;
 }
 
-.runButton,
-.button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 140px;
-  justify-content: center;
-  white-space: nowrap;
+.resultsSection {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
 }
 
-.runButton:disabled, .runButtonDisabled, .button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
+.runButton {
+  min-width: 120px;
 }
 
-/* 결과 표 스타일 */
-table th, table td {
-  font-weight: 400;
-}
-
+/* Responsive Design */
 @media (max-width: 1024px) {
   .container {
     padding: 0 20px;
   }
-  .selectorRow {
-    gap: 16px;
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 0 16px;
-  }
-  .pageHeader {
-    margin-bottom: 24px;
-  }
+  
   .pageTitle {
     font-size: 24px;
   }
+  
   .pageDescription {
     font-size: 14px;
   }
-  .selectorRow {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .selectorItem {
-    width: 100%;
-  }
-  .workspace {
-    padding: 16px;
-    gap: 20px;
-    min-height: auto;
-  }
-  .header {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
-  }
-  .runButton, .button {
-    width: 100%;
+}
+
+@media (max-width: 900px) {
+  .container {
+    padding: 0 20px;
   }
 } 

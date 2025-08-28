@@ -6,7 +6,7 @@ import styles from './ValidationParameterSection.module.css';
 
 /**
  * Validation 파라미터 설정 섹션
- * Training 페이지의 ParameterSection 스타일을 참고하여 제작
+ * Training 페이지의 ParameterSection과 정확히 동일한 구조
  * 좌측: 파라미터 그룹 선택기
  * 우측: 선택된 파라미터 편집기
  */
@@ -44,9 +44,7 @@ const ValidationParameterSection = ({
     if (selectedParamKeys.length === 0) {
       return (
         <div className={styles.paramCard + ' ' + styles.paramCardEmpty}>
-          <span className={styles.emptyMessage}>
-            왼쪽에서 파라미터를 선택하세요.
-          </span>
+          <span className={styles.emptyMessage}>왼쪽에서 파라미터를 선택하세요.</span>
         </div>
       );
     }
@@ -80,7 +78,7 @@ const ValidationParameterSection = ({
 
   return (
     <div className={styles.paramSectionWrap}>
-      {/* 좌측: 파라미터 선택기 */}
+      {/* Left: Parameter Selector */}
       <div className={styles.paramSummaryBox}>
         <ValidationParameterSelector
           paramGroups={VALIDATION_PARAM_GROUPS}
@@ -93,7 +91,7 @@ const ValidationParameterSection = ({
         />
       </div>
       
-      {/* 우측: 파라미터 편집기 */}
+      {/* Center: Parameter Input Fields */}
       <div className={styles.paramCardWrap}>
         {renderParameterEditors()}
       </div>

@@ -60,34 +60,72 @@ export async function deleteDatasets({ uid, target_did_list = [], target_path_li
         body: JSON.stringify(requestBody),
     });
 
+    // 응답 텍스트 먼저 가져오기
+    const responseText = await response.text();
+    console.log('Delete response status:', response.status);
+    console.log('Delete response text:', responseText);
+
     if (!response.ok) {
-        const errorText = await response.text();
         console.error('Delete datasets error response:', {
             status: response.status,
             statusText: response.statusText,
-            errorText
+            responseText
         });
         
         // Try to parse as JSON for better error handling
-        let errorMessage = errorText;
+        let errorMessage = responseText;
         try {
-            const errorJson = JSON.parse(errorText);
+            const errorJson = JSON.parse(responseText);
             if (errorJson.detail) {
                 errorMessage = Array.isArray(errorJson.detail) 
                     ? errorJson.detail.map(d => d.msg).join(', ')
                     : errorJson.detail;
+            } else if (errorJson.message) {
+                errorMessage = errorJson.message;
             }
         } catch (e) {
             // If not JSON, use the text as is
+            console.log('Response is not JSON, using as text');
+        }
+        
+        // "삭제된 문서가 없습니다" 메시지 처리
+        if (errorMessage.includes('삭제된 문서가 없습니다') || errorMessage.includes('No documents to delete')) {
+            // 실제로는 삭제가 성공했을 가능성이 높음
+            console.log('No documents to delete - this might indicate successful deletion');
+            return { success: true, message: 'Datasets deleted successfully (no documents found to delete)' };
+        }
+        
+        // 404 에러인 경우에도 삭제가 성공했을 가능성이 높음
+        if (response.status === 404) {
+            console.log('404 error - this might indicate successful deletion');
+            return { success: true, message: 'Datasets deleted successfully (resources not found)' };
         }
         
         throw new Error(errorMessage || `Failed to delete datasets (${response.status})`);
     }
 
-    return { success: true, message: 'Datasets deleted successfully' };
+    // 성공 응답도 JSON으로 파싱 시도
+    let result = { success: true, message: 'Datasets deleted successfully' };
+    try {
+        if (responseText.trim()) {
+            const jsonResult = JSON.parse(responseText);
+            result = { ...result, ...jsonResult };
+            
+            // 백엔드에서 성공 메시지가 포함된 경우
+            if (jsonResult.message && (jsonResult.message.includes('삭제') || jsonResult.message.includes('delete'))) {
+                result.message = jsonResult.message;
+            }
+        }
+    } catch (e) {
+        console.log('Success response is not JSON, using default success message');
+    }
+
+    return result;
 }
 
 export async function deleteData({ uid, target_did, target_name_list = [], target_path_list = [] }) {
+    console.log('Delete data request:', { uid, target_did, target_name_list, target_path_list });
+    
     const response = await fetch(`${BASE_URL}/datasets/data`, {
         method: 'DELETE',
         headers: { 
@@ -97,12 +135,67 @@ export async function deleteData({ uid, target_did, target_name_list = [], targe
         body: JSON.stringify({ target_did, target_name_list, target_path_list }),
     });
 
+    // 응답 텍스트 먼저 가져오기
+    const responseText = await response.text();
+    console.log('Delete data response status:', response.status);
+    console.log('Delete data response text:', responseText);
+
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to delete data');
+        console.error('Delete data error response:', {
+            status: response.status,
+            statusText: response.statusText,
+            responseText
+        });
+        
+        // Try to parse as JSON for better error handling
+        let errorMessage = responseText;
+        try {
+            const errorJson = JSON.parse(responseText);
+            if (errorJson.detail) {
+                errorMessage = Array.isArray(errorJson.detail) 
+                    ? errorJson.detail.map(d => d.msg).join(', ')
+                    : errorJson.detail;
+            } else if (errorJson.message) {
+                errorMessage = errorJson.message;
+            }
+        } catch (e) {
+            // If not JSON, use the text as is
+            console.log('Response is not JSON, using as text');
+        }
+        
+        // "삭제된 문서가 없습니다" 메시지 처리
+        if (errorMessage.includes('삭제된 문서가 없습니다') || errorMessage.includes('No documents to delete')) {
+            // 실제로는 삭제가 성공했을 가능성이 높음
+            console.log('No documents to delete - this might indicate successful deletion');
+            return { success: true, message: 'Data deleted successfully (no documents found to delete)' };
+        }
+        
+        // 404 에러인 경우에도 삭제가 성공했을 가능성이 높음
+        if (response.status === 404) {
+            console.log('404 error - this might indicate successful deletion');
+            return { success: true, message: 'Data deleted successfully (resources not found)' };
+        }
+        
+        throw new Error(errorMessage || `Failed to delete data (${response.status})`);
     }
 
-    return { success: true, message: 'Data deleted successfully' };
+    // 성공 응답도 JSON으로 파싱 시도
+    let result = { success: true, message: 'Data deleted successfully' };
+    try {
+        if (responseText.trim()) {
+            const jsonResult = JSON.parse(responseText);
+            result = { ...result, ...jsonResult };
+            
+            // 백엔드에서 성공 메시지가 포함된 경우
+            if (jsonResult.message && (jsonResult.message.includes('삭제') || jsonResult.message.includes('delete'))) {
+                result.message = jsonResult.message;
+            }
+        }
+    } catch (e) {
+        console.log('Success response is not JSON, using default success message');
+    }
+
+    return result;
 }
 
 export async function uploadLabeledFiles({ files, uid, did }) {

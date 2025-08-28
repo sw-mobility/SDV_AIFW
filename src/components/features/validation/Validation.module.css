@@ -1,25 +1,4 @@
-/* Validation Execution Styles */
-.workspace {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.pageTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-text-main);
-  margin: 0;
-}
-
+/* Status Badge Styles */
 .statusBadge {
   display: flex;
   align-items: center;
@@ -59,29 +38,6 @@
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
-}
-
-/* Parameters Section */
-.parametersSection {
-  margin-bottom: 24px;
-  padding: 20px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.progressSection {
-  margin-top: 24px;
-}
-
-.resultsSection {
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #e2e8f0;
-}
-
-.runButton {
-  min-width: 120px;
 }
 
 /* Card Styles */
