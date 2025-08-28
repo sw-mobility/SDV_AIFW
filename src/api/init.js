@@ -1,8 +1,11 @@
 import { uid } from './uid.js';
 
+// API 기본 URL 설정
+export const API_BASE_URL = 'http://localhost:5002';
+
 export const initializeApp = async () => {
   try {
-    const response = await fetch('http://localhost:5002/', {
+    const response = await fetch(`${API_BASE_URL}/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

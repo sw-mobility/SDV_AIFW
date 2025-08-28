@@ -1,6 +1,14 @@
+/* 전체 페이지 컨테이너 - training/validation 페이지와 동일 */
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
 .container {
-  max-width: 1200px;
   width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 40px;
   background: var(--color-bg-primary);
@@ -22,228 +30,34 @@
 .pageDescription {
   color: #64748b;
   font-size: 16px;
-  margin: 0;
+  margin: 0 0 24px 0;
   line-height: 1.4;
 }
 
-.sectionWrap {
+.selectorGroup {
   display: flex;
-  gap: 28px;
-  align-items: flex-start;
-  min-height: 600px;
-  height: 100%;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
 }
 
-.leftPanel {
-  width: 340px;
-  min-width: 300px;
-  max-width: 380px;
-  flex-shrink: 0;
-}
-
-.rightPanel {
-  flex: 1;
-  min-width: 0;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-  box-sizing: border-box;
-  overflow: auto;
-  min-height: 600px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-.selectorBlock {
-  margin-bottom: 24px;
-  border-radius: 16px;
-  padding: 18px 18px 12px 18px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* border 제거를 위한 클래스 */
-.selectorBlock.noBorder {
-  box-shadow: none;
-  padding: 0;
-  margin-bottom: 24px;
-}
-.selectorLabel {
-  display: block;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: #334155;
-  font-size: 16px;
-}
-.selectorBox {
-  margin-bottom: 0;
-}
-.select {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1.5px solid #d1d5db;
-  font-size: 15px;
-  font-weight: 500;
-  background: #fff;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-}
-.select:focus {
-  outline: none;
-  border-color: #4f8cff;
-  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
-}
-.select:disabled {
-  background: #f9fafb;
-  color: #9ca3af;
-  cursor: not-allowed;
-}
-.executionCard {
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 32px 24px 24px 24px;
-  box-shadow: 0 2px 8px #0001;
-  margin-bottom: 0;
-}
-.progressBarFixed {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #fff;
-  padding: 12px 0 8px 0;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 16px;
-}
-.statusText {
-  font-size: 15px;
-  color: #2563eb;
-  font-weight: 600;
-}
-
-.logSection {
-  margin-top: 18px;
-  background: #f8fafc;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 14px;
-  color: #334155;
-  max-height: 180px;
-  overflow-y: auto;
-  border: 1px solid #e2e8f0;
-  min-height: 40px;
-}
-.logTitle {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #64748b;
-}
-.logArea {
-  font-family: 'Fira Mono', 'Consolas', monospace;
-  font-size: 13px;
-  color: #475569;
-  min-height: 24px;
-}
-.logLine {
-  margin-bottom: 2px;
-  white-space: pre-wrap;
-}
-
-.optionCardContainer {
-  background: var(--color-background-blue);
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  padding: 28px 32px 24px 32px;
-  margin-bottom: 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 340px;
-  gap: 0;
-}
-.progressSection {
-  background: transparent;
-  border-radius: 12px;
-  padding: 0;
-  border: none;
-  margin-top: 18px;
-  min-height: 80px;
-}
-.statusBadge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.statusIdle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #f1f5f9;
-  color: #64748b;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-}
-.statusRunning {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #fef3c7;
-  color: #d97706;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-}
-.statusSuccess {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #dcfce7;
-  color: #16a34a;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-}
-.statusError {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #fef2f2;
-  color: #dc2626;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-  padding: 24px;
-  box-sizing: border-box;
-  transition: box-shadow 0.2s ease;
-  margin-bottom: 24px;
-}
-
+/* Responsive Design */
 @media (max-width: 1024px) {
-  .container { padding: 0 20px; }
-  .leftPanel { width: 300px; min-width: 280px; }
-  .sectionWrap { gap: 20px; }
+  .container {
+    padding: 0 20px;
+  }
+  
+  .pageTitle {
+    font-size: 24px;
+  }
+  
+  .pageDescription {
+    font-size: 14px;
+  }
 }
-@media (max-width: 768px) {
-  .container { padding: 0 16px; }
-  .pageHeader { margin-bottom: 24px; }
-  .pageTitle { font-size: 24px; }
-  .pageDescription { font-size: 14px; }
-  .sectionWrap { flex-direction: column; gap: 20px; min-height: auto; }
-  .leftPanel, .rightPanel { width: 100%; min-width: 0; max-width: 100%; }
+
+@media (max-width: 900px) {
+  .container {
+    padding: 0 20px;
+  }
 } 
