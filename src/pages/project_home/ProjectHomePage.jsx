@@ -147,7 +147,7 @@ const ProjectHomePage = () => {
       </div>
       <Grid container spacing={3} justifyContent="center">
         {/* Resource Utilization */}
-        <Grid item xs={12} md={10}>
+        <Grid columns={{ xs: 12, md: 10 }}>
           <div className={styles.card}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
               <div>
@@ -175,7 +175,7 @@ const ProjectHomePage = () => {
           </div>
         </Grid>
         {/* Pod Status & Alerts */}
-        <Grid item xs={12} md={5}>
+        <Grid columns={{ xs: 12, md: 5 }}>
           <div className={styles.card}>
             <div className={styles.cardTitle}>Pod Status Distribution</div>
             <Box sx={{ width: 180, mx: 'auto' }}>
@@ -198,7 +198,7 @@ const ProjectHomePage = () => {
           </div>
         </Grid>
         {/* Dataset & Code Tables */}
-        <Grid item xs={12} md={5}>
+        <Grid columns={{ xs: 12, md: 5 }}>
           <div className={styles.card}>
             <div className={styles.cardTitle}>Recent Dataset List</div>
             <Table
