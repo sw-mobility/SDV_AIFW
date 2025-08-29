@@ -27,7 +27,8 @@ const OptimizationPage = () => {
     handleRunOptimization,
     handleModelChange,
     handleOptimizationTypeChange,
-    handleParamChange
+    handleParamChange,
+    handleReset
   } = useOptimizationState();
 
   return (
@@ -59,6 +60,7 @@ const OptimizationPage = () => {
           optimizationType={optimizationType}
           optimizationParams={optimizationParams}
           onParamChange={handleParamChange}
+          onReset={handleReset}
           isRunning={isRunning}
         />
         

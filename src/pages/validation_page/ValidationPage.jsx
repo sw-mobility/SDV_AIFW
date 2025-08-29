@@ -22,7 +22,8 @@ const ValidationPage = () => {
     datasetError,
     handleRunValidation,
     validationParams,
-    updateValidationParams
+    updateValidationParams,
+    resetValidationParams
   } = useValidation();
 
   const renderDatasetSection = () => (
@@ -41,6 +42,7 @@ const ValidationPage = () => {
     <ValidationParameterSection
       validationParams={validationParams}
       onParamChange={updateValidationParams}
+      onReset={resetValidationParams}
       disabled={status === 'running'}
     />
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, ChevronUp, Info, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info, X, RotateCcw } from 'lucide-react';
 import { PARAMETER_GROUPS, PROJECT_INFO_PARAMS } from '../../../domain/training/parameterGroups.js';
 import styles from './ParameterSelector.module.css';
 
@@ -9,7 +9,8 @@ const ParameterSelector = ({
   openParamGroup,
   onToggleParamKey,
   onRemoveParamKey,
-  onToggleGroup
+  onToggleGroup,
+  onReset
 }) => {
   const renderParameterChips = () => {
     if (selectedParamKeys.length === 0) return null;
@@ -112,7 +113,21 @@ const ParameterSelector = ({
 
   return (
     <div className={styles.parameterSelector}>
-      <div className={styles.paramGroupTitle}>Parameters</div>
+      <div className={styles.header}>
+        <div className={styles.titleSection}>
+          <div className={styles.paramGroupTitle}>Parameters</div>
+        </div>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            onClick={onReset}
+            className={styles.resetButton}
+            title="Reset to default"
+          >
+            <RotateCcw size={16} />
+          </button>
+        </div>
+      </div>
       
       {renderParameterChips()}
       

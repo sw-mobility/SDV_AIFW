@@ -53,6 +53,7 @@ const TrainingPage = () => {
     handleAlgoParamChange,
     handleToggleParamKey,
     handleRemoveParamKey,
+    handleReset,
     handleRunTraining,
   } = useTrainingState();
 
@@ -78,6 +79,7 @@ const TrainingPage = () => {
           onToggleParamKey={handleToggleParamKey}
           onRemoveParamKey={handleRemoveParamKey}
           onToggleGroup={setOpenParamGroup}
+          onReset={handleReset}
           snapshots={snapshots}
           selectedSnapshot={selectedSnapshot}
           setSelectedSnapshot={setSelectedSnapshot}

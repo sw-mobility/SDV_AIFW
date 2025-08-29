@@ -1,12 +1,12 @@
 import React from 'react';
 import { ChevronDown, ChevronUp, Info, X, RotateCcw } from 'lucide-react';
-import styles from './OptimizationParameterSelector.module.css';
+import styles from './LabelingParameterSelector.module.css';
 
 /**
- * Optimization 파라미터 그룹 선택 컴포넌트
- * Training/Validation 페이지의 ParameterSelector와 정확히 동일한 구조
+ * Labeling 파라미터 그룹 선택 컴포넌트
+ * Validation 페이지의 ValidationParameterSelector와 정확히 동일한 구조
  */
-const OptimizationParameterSelector = ({
+const LabelingParameterSelector = ({
   paramGroups,
   selectedParamKeys,
   openParamGroup,
@@ -14,8 +14,7 @@ const OptimizationParameterSelector = ({
   onRemoveParamKey,
   onToggleGroup,
   onReset,
-  disabled = false,
-  optimizationType
+  disabled = false
 }) => {
   const renderParameterChips = () => {
     if (selectedParamKeys.length === 0) return null;
@@ -64,7 +63,7 @@ const OptimizationParameterSelector = ({
     const isOpen = openParamGroup === groupIndex;
 
     return (
-      <div key={group.group} className={styles.accordionCard}>
+      <div key={groupIndex} className={styles.accordionCard}>
         <div
           className={`${styles.accordionHeader} ${isOpen ? styles.accordionOpen : ''}`}
           onClick={() => !disabled && onToggleGroup(isOpen ? -1 : groupIndex)}
@@ -72,7 +71,7 @@ const OptimizationParameterSelector = ({
           role="button"
           aria-expanded={isOpen}
         >
-          <span>{group.group}</span>
+          <span>{group.title}</span>
           <span className={styles.accordionArrow}>
             {isOpen ? <ChevronUp size={18} color="#4f8cff" /> : <ChevronDown size={18} color="#4f8cff" />}
           </span>
@@ -93,12 +92,12 @@ const OptimizationParameterSelector = ({
                     disabled={disabled}
                   >
                     {param.label}
-                    {param.desc && (
+                    {param.description && (
                       <Info 
                         size={15} 
                         color={isSelected ? '#fff' : '#888'} 
                         className={styles.infoIcon} 
-                        title={param.desc} 
+                        title={param.description} 
                       />
                     )}
                   </button>
@@ -115,7 +114,7 @@ const OptimizationParameterSelector = ({
     <div className={styles.parameterSelector}>
       <div className={styles.header}>
         <div className={styles.titleSection}>
-          <div className={styles.paramGroupTitle}>Parameters</div>
+          <h3 className={styles.title}>Parameters</h3>
         </div>
         <div className={styles.actions}>
           <button
@@ -132,12 +131,11 @@ const OptimizationParameterSelector = ({
       
       {renderParameterChips()}
       
-      <div className={styles.accordionGroups}>
+      <div className={styles.accordionContainer}>
         {paramGroups.map((group, index) => renderParameterGroup(group, index))}
       </div>
     </div>
   );
 };
 
-export default OptimizationParameterSelector;
-
+export default LabelingParameterSelector;

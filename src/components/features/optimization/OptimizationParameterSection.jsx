@@ -12,6 +12,7 @@ const OptimizationParameterSection = ({
   optimizationType,
   optimizationParams,
   onParamChange,
+  onReset,
   isRunning = false
 }) => {
   const [selectedParamKeys, setSelectedParamKeys] = React.useState([]);
@@ -98,6 +99,7 @@ const OptimizationParameterSection = ({
           onToggleParamKey={handleToggleParamKey}
           onRemoveParamKey={handleRemoveParamKey}
           onToggleGroup={handleToggleGroup}
+          onReset={onReset}
           disabled={isRunning}
           optimizationType={optimizationType}
         />

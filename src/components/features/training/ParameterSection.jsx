@@ -47,6 +47,7 @@ const ParameterSection = ({
   onToggleParamKey,
   onRemoveParamKey,
   onToggleGroup,
+  onReset,
   
   // Snapshot state
   snapshots,
@@ -176,6 +177,7 @@ const ParameterSection = ({
           onToggleParamKey={onToggleParamKey}
           onRemoveParamKey={onRemoveParamKey}
           onToggleGroup={onToggleGroup}
+          onReset={onReset}
           trainingType={trainingType}
         />
         

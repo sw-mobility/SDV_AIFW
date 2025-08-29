@@ -1,23 +1,23 @@
-import React from 'react';
-import ValidationParameterSelector from './ValidationParameterSelector.jsx';
-import ValidationParameterEditor from './ValidationParameterEditor.jsx';
-import { VALIDATION_PARAM_GROUPS } from '../../../domain/validation/validationParameters.js';
-import styles from './ValidationParameterSection.module.css';
+import React, { useState } from 'react';
+import LabelingParameterSelector from './LabelingParameterSelector';
+import LabelingParameterEditor from './LabelingParameterEditor';
+import { LABELING_PARAM_GROUPS } from '../../../domain/labeling/labelingParameters.js';
+import styles from './LabelingParameterSection.module.css';
 
 /**
- * Validation 파라미터 설정 섹션
- * Training 페이지의 ParameterSection과 정확히 동일한 구조
+ * Labeling 파라미터 설정 섹션
+ * Validation 페이지의 ValidationParameterSection과 정확히 동일한 구조
  * 좌측: 파라미터 그룹 선택기
  * 우측: 선택된 파라미터 편집기
  */
-const ValidationParameterSection = ({
-  validationParams,
+const LabelingParameterSection = ({
+  labelingParams,
   onParamChange,
   onReset,
   disabled = false
 }) => {
-  const [selectedParamKeys, setSelectedParamKeys] = React.useState([]);
-  const [openParamGroup, setOpenParamGroup] = React.useState(null);
+  const [selectedParamKeys, setSelectedParamKeys] = useState([]);
+  const [openParamGroup, setOpenParamGroup] = useState(null);
 
   // 파라미터 키 토글
   const handleToggleParamKey = (paramKey) => {
@@ -53,7 +53,7 @@ const ValidationParameterSection = ({
     return selectedParamKeys.map((key) => {
       // 파라미터 정의 찾기
       let foundParam = null;
-      for (const group of VALIDATION_PARAM_GROUPS) {
+      for (const group of LABELING_PARAM_GROUPS) {
         for (const param of group.params) {
           if (param.key === key) {
             foundParam = param;
@@ -66,10 +66,10 @@ const ValidationParameterSection = ({
       if (!foundParam) return null;
       
       return (
-        <ValidationParameterEditor
+        <LabelingParameterEditor
           key={key}
           currentParam={foundParam}
-          validationParams={validationParams}
+          labelingParams={labelingParams}
           onParamChange={onParamChange}
           disabled={disabled}
         />
@@ -81,8 +81,8 @@ const ValidationParameterSection = ({
     <div className={styles.paramSectionWrap}>
       {/* Left: Parameter Selector */}
       <div className={styles.paramSummaryBox}>
-        <ValidationParameterSelector
-          paramGroups={VALIDATION_PARAM_GROUPS}
+        <LabelingParameterSelector
+          paramGroups={LABELING_PARAM_GROUPS}
           selectedParamKeys={selectedParamKeys}
           openParamGroup={openParamGroup}
           onToggleParamKey={handleToggleParamKey}
@@ -101,4 +101,4 @@ const ValidationParameterSection = ({
   );
 };
 
-export default ValidationParameterSection;
+export default LabelingParameterSection;

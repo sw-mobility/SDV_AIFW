@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, ChevronUp, Info, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info, X, RotateCcw } from 'lucide-react';
 import styles from './ValidationParameterSelector.module.css';
 
 /**
@@ -13,6 +13,7 @@ const ValidationParameterSelector = ({
   onToggleParamKey,
   onRemoveParamKey,
   onToggleGroup,
+  onReset,
   disabled = false
 }) => {
   const renderParameterChips = () => {
@@ -111,7 +112,22 @@ const ValidationParameterSelector = ({
 
   return (
     <div className={styles.parameterSelector}>
-      <div className={styles.paramGroupTitle}>Parameters</div>
+      <div className={styles.header}>
+        <div className={styles.titleSection}>
+          <div className={styles.paramGroupTitle}>Parameters</div>
+        </div>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            onClick={onReset}
+            className={styles.resetButton}
+            disabled={disabled}
+            title="Reset to default"
+          >
+            <RotateCcw size={16} />
+          </button>
+        </div>
+      </div>
       
       {renderParameterChips()}
       

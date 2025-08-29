@@ -48,6 +48,11 @@ export const useTrainingState = () => {
     ui.removeParamKey(key);
   }, [ui]);
 
+  const handleReset = useCallback(() => {
+    ui.resetUI();
+    core.resetParams();
+  }, [ui, core]);
+
   const handleRunTraining = useCallback(() => {
     execution.runTraining();
   }, [execution]);
@@ -104,6 +109,7 @@ export const useTrainingState = () => {
     handleAlgoParamChange,
     handleToggleParamKey,
     handleRemoveParamKey,
+    handleReset,
     handleRunTraining,
   };
 }; 

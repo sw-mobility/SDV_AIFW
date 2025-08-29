@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchRawDatasets } from '../../api/datasets.js';
-import { uid } from '../../api/uid.js';
+import { fetchRawDatasets, uid } from '../../api';
 
 export const useLabeling = () => {
   const [datasets, setDatasets] = useState([]);
@@ -37,6 +36,8 @@ export const useLabeling = () => {
     loading,
     error,
     selectedDataset,
+    datasetLoading: loading,
+    datasetError: error,
 
     setSelectedDataset,
     fetchDatasets

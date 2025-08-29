@@ -90,6 +90,11 @@ const useOptimizationState = () => {
     }));
   }, []);
 
+  const handleReset = useCallback(() => {
+    // 현재 최적화 타입에 맞는 기본 파라미터로 리셋
+    handleOptimizationTypeChange(optimizationType);
+  }, [optimizationType, handleOptimizationTypeChange]);
+
   const handleRunOptimization = useCallback(async () => {
     if (!selectedModel || !optimizationType) {
       console.error('Model and optimization type are required');
@@ -184,7 +189,8 @@ const useOptimizationState = () => {
     handleRunOptimization,
     handleModelChange,
     handleOptimizationTypeChange,
-    handleParamChange
+    handleParamChange,
+    handleReset
   };
 };
 

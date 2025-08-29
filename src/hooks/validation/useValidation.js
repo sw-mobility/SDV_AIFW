@@ -205,6 +205,31 @@ export const useValidation = () => {
     setValidationParams(prev => ({ ...prev, ...newParams }));
   }, []);
 
+  // Validation 파라미터 리셋
+  const resetValidationParams = useCallback(() => {
+    setValidationParams({
+      model: 'best.pt',
+      task_type: 'detection',
+      imgsz: 640,
+      batch: 32,
+      device: 'cpu',
+      workers: 8,
+      conf: 0.001,
+      iou: 0.6,
+      max_det: 300,
+      save_json: true,
+      save_txt: true,
+      save_conf: true,
+      plots: true,
+      verbose: true,
+      half: false,
+      dnn: false,
+      agnostic_nms: false,
+      augment: false,
+      rect: false
+    });
+  }, []);
+
   // 컴포넌트 언마운트 시 폴링 정리
   useEffect(() => {
     return () => {
@@ -230,6 +255,7 @@ export const useValidation = () => {
     
     // 핸들러
     handleRunValidation,
-    updateValidationParams
+    updateValidationParams,
+    resetValidationParams
   };
 }; 
