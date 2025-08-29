@@ -37,6 +37,7 @@ const TrainingPage = () => {
     progress,
     status,
     logs,
+    trainingResponse,
 
     // UI state
     openParamGroup,
@@ -135,10 +136,10 @@ const TrainingPage = () => {
           <TrainingExecution
               isTraining={isTraining}
               progress={progress}
-              logs={logs}
               onRunTraining={handleRunTraining}
               status={status}
               completeText="Training completed!"
+              trainingResponse={trainingResponse}
           />
         </div>
       </div>

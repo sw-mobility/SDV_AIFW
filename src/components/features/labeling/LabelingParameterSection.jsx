@@ -14,9 +14,10 @@ const LabelingParameterSection = ({
   labelingParams,
   onParamChange,
   onReset,
+  selectedParamKeys,
+  setSelectedParamKeys,
   disabled = false
 }) => {
-  const [selectedParamKeys, setSelectedParamKeys] = useState([]);
   const [openParamGroup, setOpenParamGroup] = useState(null);
 
   // 파라미터 키 토글

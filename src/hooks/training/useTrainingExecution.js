@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { validateTrainingExecution } from '../../domain/training/trainingValidation.js';
 import { useProgress } from '../common/useProgress.js';
-import { postYoloTraining, postYoloTrainingResult } from '../../api/training.js';
+import { postYoloTraining } from '../../api/training.js';
 import { uid } from '../../api/uid.js';
 
 export const useTrainingExecution = (trainingConfig) => {
   const progress = useProgress();
   const { projectName } = useParams();
   const [projectData, setProjectData] = useState(null);
+  const [trainingResponse, setTrainingResponse] = useState(null);
 
   // Get project data for pid
   useEffect(() => {
@@ -52,23 +53,34 @@ export const useTrainingExecution = (trainingConfig) => {
   }, [projectName]); // Remove progress from dependencies
 
   const runTraining = useCallback(async () => {
+    console.log('=== Training Execution Started ===');
+    console.log('Training config:', trainingConfig);
+    
     const validation = validateTrainingExecution(trainingConfig);
+    console.log('Validation result:', validation);
+    
     if (!validation.isValid) {
       const errorMessages = validation.errors.map(error => error.message);
+      console.log('Validation errors:', errorMessages);
       alert(errorMessages.join('\n'));
       return;
     }
 
     // Check if we have required data
+    console.log('Project data:', projectData);
+    console.log('Selected dataset:', trainingConfig.selectedDataset);
+    
     if (!projectData) {
       progress.addLog('Error: Project data not available');
       progress.addLog(`Current projectName: ${projectName}`);
       progress.addLog(`Current uid: ${uid}`);
+      console.log('Training stopped: No project data');
       return;
     }
 
     if (!trainingConfig.selectedDataset) {
       progress.addLog('Error: No dataset selected');
+      console.log('Training stopped: No dataset selected');
       return;
     }
 
@@ -76,8 +88,10 @@ export const useTrainingExecution = (trainingConfig) => {
     progress.addLog('Training started...');
 
     try {
-      if (trainingConfig.algorithm === 'YOLO') {
+      console.log('Algorithm:', trainingConfig.algorithm);
+      if (trainingConfig.algorithm === 'YOLO' || trainingConfig.algorithm === 'yolo_v8') {
         progress.addLog('Calling YOLO training API...');
+        console.log('Starting YOLO training...');
         
         // Parse split_ratio from string to array if needed
         let splitRatio = [0.8, 0.2];
@@ -91,6 +105,36 @@ export const useTrainingExecution = (trainingConfig) => {
           }
         }
 
+        // Parse COCO classes from YAML to string list for API
+        let userClasses = [];
+        if (trainingConfig.algoParams.coco_classes) {
+          try {
+            const lines = trainingConfig.algoParams.coco_classes.split('\n');
+            let inNamesSection = false;
+            
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed === 'names:') {
+                inNamesSection = true;
+                continue;
+              }
+              
+              if (inNamesSection && trimmed.includes(':')) {
+                const [key, value] = trimmed.split(':').map(s => s.trim());
+                if (/^\d+$/.test(key) && value) {
+                  userClasses.push(value);  // String list 형태로 저장: ["class1", "class2"]
+                }
+              }
+            }
+            
+            progress.addLog(`Parsed ${userClasses.length} classes from COCO configuration`);
+            progress.addLog(`Classes: ${JSON.stringify(userClasses)}`);
+          } catch (error) {
+            progress.addLog(`Warning: Failed to parse COCO classes: ${error.message}`);
+            progress.addLog('Using default classes configuration');
+          }
+        }
+
         // Prepare YOLO parameters based on API schema
         const yoloParameters = {
           model: trainingConfig.algoParams.model || 'yolov8n',
@@ -98,7 +142,7 @@ export const useTrainingExecution = (trainingConfig) => {
           epochs: trainingConfig.algoParams.epochs || 50,
           batch: trainingConfig.algoParams.batch_size || 16,
           imgsz: trainingConfig.algoParams.input_size || 640,
-          device: trainingConfig.algoParams.device || 'cuda:0',
+          device: trainingConfig.algoParams.device || 'cpu',
           save_period: trainingConfig.algoParams.save_period || 5,
           workers: trainingConfig.algoParams.workers || 4,
           pretrained: trainingConfig.algoParams.pretrained !== false,
@@ -114,16 +158,15 @@ export const useTrainingExecution = (trainingConfig) => {
           warmup_bias_lr: trainingConfig.algoParams.warmup_bias_lr || 0.1,
           seed: trainingConfig.algoParams.seed || 42,
           cache: trainingConfig.algoParams.cache !== false,
-          dropout: trainingConfig.algoParams.dropout || 0.0,
-          label_smoothing: trainingConfig.algoParams.label_smoothing || 0.0,
+          dropout: trainingConfig.algoParams.dropout || 0,
+          label_smoothing: trainingConfig.algoParams.label_smoothing || 0,
           rect: trainingConfig.algoParams.rect !== false,
           resume: trainingConfig.algoParams.resume || '',
           amp: trainingConfig.algoParams.amp !== false,
           single_cls: trainingConfig.algoParams.single_cls !== false,
           cos_lr: trainingConfig.algoParams.cos_lr !== false,
           close_mosaic: trainingConfig.algoParams.close_mosaic || 0,
-          overlap_mask: trainingConfig.algoParams.overlap_mask !== false,
-          mask_ratio: trainingConfig.algoParams.mask_ratio || 0.0
+          overlap_mask: trainingConfig.algoParams.overlap_mask !== false
         };
 
         // Try different ways to get project ID - prioritize pid over _id
@@ -136,14 +179,19 @@ export const useTrainingExecution = (trainingConfig) => {
         progress.addLog(`Dataset keys: ${Object.keys(trainingConfig.selectedDataset).join(', ')}`);
         progress.addLog(`Dataset did: ${trainingConfig.selectedDataset.did}, _id: ${trainingConfig.selectedDataset._id}, id: ${trainingConfig.selectedDataset.id}`);
 
-        // Use the dataset _id as dataset_id for the API
-        const datasetId = trainingConfig.selectedDataset._id;
+        // Use the dataset did as dataset_id for the API
+        const datasetId = trainingConfig.selectedDataset.did;
         progress.addLog(`Selected dataset ID: ${datasetId}`);
         progress.addLog(`Selected model: ${trainingConfig.algoParams.model || 'yolov8n'}`);
         
+        // Check if dataset has classes
+        const datasetClasses = trainingConfig.selectedDataset.classes || [];
+        progress.addLog(`Dataset classes: ${JSON.stringify(datasetClasses)}`);
+        progress.addLog(`Dataset classes length: ${datasetClasses.length}`);
+        
         // Determine task type based on algorithm and model
         let taskType = 'detection'; // default for YOLO
-        if (trainingConfig.algorithm === 'YOLO') {
+        if (trainingConfig.algorithm === 'YOLO' || trainingConfig.algorithm === 'yolo_v8') {
           const model = trainingConfig.algoParams.model || 'yolov8n';
           if (model.includes('seg')) {
             taskType = 'segmentation';
@@ -160,49 +208,35 @@ export const useTrainingExecution = (trainingConfig) => {
         
         progress.addLog(`Using task type: ${taskType}`);
         
+        // Use dataset classes if no custom classes are provided
+        const finalUserClasses = userClasses.length > 0 ? userClasses : 
+          (datasetClasses.length > 0 ? datasetClasses : undefined);
+        
         const requestBody = {
           pid: projectId,
-          task_type: taskType,
-          parameters: yoloParameters,
-          dataset_id: datasetId
+          did: datasetId,
+          user_classes: finalUserClasses,
+          parameters: yoloParameters
         };
 
+        console.log('Final request body:', requestBody);
+        console.log('Dataset ID:', datasetId);
+        console.log('User classes:', userClasses);
+        console.log('User classes length:', userClasses.length);
+        
         progress.addLog('Sending training request with parameters:');
         progress.addLog(JSON.stringify(requestBody, null, 2));
         
+        console.log('About to call postYoloTraining API...');
         const response = await postYoloTraining({ uid, ...requestBody });
+        console.log('API response:', response);
+        
+        // Save training response
+        setTrainingResponse(response);
         
         progress.addLog('YOLO training started successfully.');
-        progress.addLog(`Training ID: ${response.uid || 'N/A'}`);
-        
-        // Simulate training completion and result submission
-        setTimeout(async () => {
-          progress.addLog('Training completed! Submitting result...');
-          try {
-            const resultBody = {
-              pid: projectId,
-              status: 'success',
-              task_type: taskType,
-              parameters: {
-                epochs: yoloParameters.epochs,
-                model: yoloParameters.model,
-                'mAP@0.5': 0.823 // Simulated result
-              },
-              dataset_id: datasetId,
-              artifact_path: `/mnt/output/${yoloParameters.model}_results/`,
-              error_details: ''
-            };
-
-            progress.addLog('Submitting result:');
-            progress.addLog(JSON.stringify(resultBody, null, 2));
-            
-            await postYoloTrainingResult({ uid, ...resultBody });
-            progress.addLog('Training result submitted successfully.');
-          } catch (err) {
-            progress.addLog('Result submission failed: ' + err.message);
-          }
-          progress.complete();
-        }, 3000);
+        progress.addLog(`Training ID: ${response.data?.tid || response.tid || 'N/A'}`);
+        progress.complete();
       } else {
         // fallback: mock progress for other algorithms
         let pct = 0;
@@ -225,6 +259,7 @@ export const useTrainingExecution = (trainingConfig) => {
 
   return {
     ...progress,
-    runTraining
+    runTraining,
+    trainingResponse
   };
 }; 

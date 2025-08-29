@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FileText, RotateCcw } from 'lucide-react';
 import styles from './COCOClassesEditor.module.css';
 
-const DEFAULT_COCO_CLASSES = `# Classes
-names:
-  0: person
+const DEFAULT_COCO_CLASSES = `  0: person
   1: bicycle
   2: car
   3: motorcycle
@@ -87,59 +85,19 @@ names:
 
 const COCOClassesEditor = ({ value, onChange }) => {
   const [yamlContent, setYamlContent] = useState(value || DEFAULT_COCO_CLASSES);
-  const [isValid, setIsValid] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     setYamlContent(value || DEFAULT_COCO_CLASSES);
   }, [value]);
 
-  const validateYAML = (content) => {
-    try {
-      // 간단한 YAML 구조 검증
-      const lines = content.split('\n');
-      let hasNames = false;
-      let hasValidFormat = true;
-      
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed === 'names:') {
-          hasNames = true;
-        } else if (hasNames && trimmed.includes(':')) {
-          const [key, value] = trimmed.split(':').map(s => s.trim());
-          if (!/^\d+$/.test(key) || !value) {
-            hasValidFormat = false;
-            break;
-          }
-        }
-      }
-      
-      return hasNames && hasValidFormat;
-    } catch (error) {
-      return false;
-    }
-  };
-
   const handleContentChange = (e) => {
     const newContent = e.target.value;
     setYamlContent(newContent);
-    
-    const valid = validateYAML(newContent);
-    setIsValid(valid);
-    
-    if (!valid) {
-      setErrorMessage('올바른 YAML 형식으로 입력해주세요. (예: 0: class_name)');
-    } else {
-      setErrorMessage('');
-    }
-    
     onChange?.(newContent);
   };
 
   const handleReset = () => {
     setYamlContent(DEFAULT_COCO_CLASSES);
-    setIsValid(true);
-    setErrorMessage('');
     onChange?.(DEFAULT_COCO_CLASSES);
   };
 
@@ -164,17 +122,13 @@ const COCOClassesEditor = ({ value, onChange }) => {
          </div>
       </div>
       
-      {errorMessage && (
-        <div className={styles.errorMessage}>
-          {errorMessage}
-        </div>
-      )}
+      {/* 에러 메시지 제거 - 사용자가 자유롭게 편집할 수 있도록 */}
       
       <div className={styles.editorContainer}>
         <textarea
           value={yamlContent}
           onChange={handleContentChange}
-          className={`${styles.yamlEditor} ${!isValid ? styles.invalid : ''}`}
+          className={styles.yamlEditor}
           placeholder="Enter YAML configuration..."
           rows={20}
         />

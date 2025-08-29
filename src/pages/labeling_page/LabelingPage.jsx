@@ -5,7 +5,7 @@ import LabelingParameterSection from '../../components/features/labeling/Labelin
 import Button from '../../components/ui/atoms/Button';
 import ProgressBar from '../../components/ui/atoms/ProgressBar';
 import StatusBadge from '../../components/features/labeling/StatusBadge';
-import ResultsTable from '../../components/features/labeling/ResultsTable';
+import LabeledDatasetsList from '../../components/features/labeling/LabeledDatasetsList';
 import { useLabeling, useLabelingWorkspace } from '../../hooks';
 
 const LabelingPage = () => {
@@ -23,11 +23,16 @@ const LabelingPage = () => {
     status,
     progress,
     labelingParams,
+    selectedParamKeys,
     result,
     error: labelingError,
+    labeledDatasets,
+    isPolling,
     handleRunLabeling,
     handleParamChange,
     resetParams,
+    setSelectedParamKeys,
+    fetchLabeledDatasetsList
   } = useLabelingWorkspace(selectedDataset);
 
   const renderDatasetSection = () => (
@@ -47,6 +52,8 @@ const LabelingPage = () => {
       labelingParams={labelingParams}
       onParamChange={handleParamChange}
       onReset={resetParams}
+      selectedParamKeys={selectedParamKeys}
+      setSelectedParamKeys={setSelectedParamKeys}
       disabled={status === 'running'}
     />
   );
@@ -97,10 +104,10 @@ const LabelingPage = () => {
               variant="primary"
               size="medium"
               onClick={handleRunLabeling}
-              disabled={!selectedDataset || status === 'running'}
+              disabled={!selectedDataset || status === 'running' || isPolling}
               className={styles.runButton}
             >
-              {status === 'running' ? 'Running...' : 'Run YOLO Labeling'}
+              {status === 'running' || isPolling ? 'Processing...' : 'Run YOLO Labeling'}
             </Button>
           </div>
           
@@ -109,20 +116,18 @@ const LabelingPage = () => {
               <ProgressBar
                 percentage={progress}
                 status={status === 'success' ? 'success' : status === 'error' ? 'error' : 'running'}
-                runningText="YOLO labeling in progress..."
-                completeText="Labeling completed!"
+                runningText={isPolling ? "Waiting for labeling completion..." : "YOLO labeling in progress..."}
+                completeText="Labeling completed! New labeled dataset created."
                 errorText="Labeling failed."
               />
             </div>
           )}
           
-          {/* 결과 섹션 */}
-          {result && status === 'success' && (
-            <div className={styles.resultsSection}>
-              <h3 style={{ marginBottom: 16 }}>Results</h3>
-              <ResultsTable result={result} />
-            </div>
-          )}
+          {/* Labeled Datasets 목록 */}
+          <LabeledDatasetsList 
+            labeledDatasets={labeledDatasets} 
+            isPolling={isPolling} 
+          />
         </div>
       </div>
     </div>

@@ -21,10 +21,10 @@ import styles from './TrainingExecution.module.css';
 const TrainingExecution = ({ 
   isTraining, 
   progress, 
-  logs, 
   onRunTraining,
   status,
-  completeText
+  completeText,
+  trainingResponse
 }) => {
   return (
     <div className={styles.sectionCard}>
@@ -52,13 +52,31 @@ const TrainingExecution = ({
             errorText="Training failed."
           />
         </div>
-        <div className={styles.logBox}>
-          {logs.length === 0 ? (
-              <span className={styles.logEmpty}>No logs yet.</span>
-          ) : (
-              logs.map((log, i) => <div key={i}>{log}</div>)
-          )}
-        </div>
+        
+        {/* Training Response Info */}
+        {trainingResponse && (
+          <div className={styles.responseInfo}>
+            <h4>Training Response</h4>
+            <div className={styles.responseDetails}>
+                             <div className={styles.responseItem}>
+                 <span className={styles.label}>Training ID:</span>
+                 <span className={styles.value}>{trainingResponse.data?.tid || trainingResponse.tid || 'N/A'}</span>
+               </div>
+              {trainingResponse.status && (
+                <div className={styles.responseItem}>
+                  <span className={styles.label}>Status:</span>
+                  <span className={styles.value}>{trainingResponse.status}</span>
+                </div>
+              )}
+              {trainingResponse.message && (
+                <div className={styles.responseItem}>
+                  <span className={styles.label}>Message:</span>
+                  <span className={styles.value}>{trainingResponse.message}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

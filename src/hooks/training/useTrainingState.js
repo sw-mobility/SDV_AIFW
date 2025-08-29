@@ -89,8 +89,7 @@ export const useTrainingState = () => {
     setProgress: execution.updateProgress,
     status: execution.status,
     setStatus: execution.start,
-    logs: execution.logs,
-    setLogs: execution.addLog,
+    trainingResponse: execution.trainingResponse,
 
     // UI state
     openParamGroup: ui.openParamGroup,

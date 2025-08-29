@@ -114,11 +114,18 @@ export async function createYoloSnapshot({ uid, pid, name, algorithm, task_type,
  * @returns {Promise<string>} Training result
  */
 export async function postYoloTraining(trainingData) {
-    const url = `${BASE_URL}/training/yolo/train`;
+    const url = `${BASE_URL}/training/yolo/detection`;
+    
+    console.log('=== postYoloTraining API Call ===');
+    console.log('URL:', url);
+    console.log('Training data:', trainingData);
     
     // uid를 body에서 제거하고 header로 이동
     const { uid, ...bodyData } = trainingData;
     
+    console.log('Request body:', bodyData);
+    console.log('UID:', uid);
+    
     const response = await fetch(url, {
         method: 'POST',
         headers: { 
@@ -129,52 +136,17 @@ export async function postYoloTraining(trainingData) {
         body: JSON.stringify(bodyData)
     });
     
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
+    
     if (!response.ok) {
         const error = await response.text();
+        console.log('API Error:', error);
         throw new Error(error || 'YOLO training failed');
     }
     
-    return await response.json();
+    const result = await response.json();
+    console.log('API Success result:', result);
+    return result;
 }
 
-/**
- * Handle the result of YOLO training
- * @param {Object} resultData - Training result data
- * @param {string} resultData.workdir - Working directory
- * @param {Object} resultData.result - Training result details
- * @param {string} resultData.result.uid - User ID
- * @param {string} resultData.result.pid - Project ID
- * @param {string} resultData.result.origin_tid - Original training ID
- * @param {string} resultData.result.status - Training status
- * @param {string} resultData.result.task_type - Task type
- * @param {string} resultData.result.workdir - Working directory
- * @param {Object} resultData.result.parameters - Training parameters
- * @param {string} resultData.result.dataset_id - Dataset ID
- * @param {string} resultData.result.codebase_id - Codebase ID
- * @param {string} resultData.result.artifacts_path - Artifacts path
- * @param {string} resultData.result.error_details - Error details
- * @returns {Promise<string>} Result submission response
- */
-export async function postYoloTrainingResult(resultData) {
-    const url = `${BASE_URL}/training/yolo/result`;
-    
-    // uid를 body에서 제거하고 header로 이동
-    const { uid, ...bodyData } = resultData;
-    
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'accept': 'application/json',
-            'uid': uid
-        },
-        body: JSON.stringify(bodyData)
-    });
-    
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'YOLO training result submission failed');
-    }
-    
-    return await response.json();
-}

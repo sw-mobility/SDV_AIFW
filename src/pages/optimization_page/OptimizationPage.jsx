@@ -10,11 +10,8 @@ const OptimizationPage = () => {
   const {
     // Core state
     selectedModel,
-    setSelectedModel,
     optimizationType,
-    setOptimizationType,
     optimizationParams,
-    setOptimizationParams,
     
     // Execution state
     isRunning,

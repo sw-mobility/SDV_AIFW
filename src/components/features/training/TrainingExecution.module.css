@@ -64,4 +64,50 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Training Response Info Styles */
+.responseInfo {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.responseInfo h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.responseDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.responseItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.label {
+  font-weight: 500;
+  color: #64748b;
+  min-width: 100px;
+  font-size: 14px;
+}
+
+.value {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 14px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  background: #ffffff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
 } 

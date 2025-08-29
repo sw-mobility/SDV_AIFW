@@ -11,17 +11,9 @@ export const LABELING_PARAM_GROUPS = [
         key: 'model',
         label: 'Model',
         type: 'text',
-        defaultValue: 'yolov8n.pt',
+        defaultValue: 'yolo11n',
         description: 'Model file path or name',
-        placeholder: 'yolov8n.pt'
-      },
-      {
-        key: 'source',
-        label: 'Source',
-        type: 'text',
-        defaultValue: '',
-        description: 'Path to source images or video',
-        placeholder: 'Path to source'
+        placeholder: 'yolo11n'
       },
       {
         key: 'device',
@@ -260,6 +252,20 @@ export const LABELING_PARAM_GROUPS = [
         type: 'boolean',
         defaultValue: false,
         description: 'Use retina masks'
+      },
+      {
+        key: 'classes',
+        label: 'Classes',
+        type: 'array',
+        defaultValue: [0],
+        description: 'Filter by class (array of integers)'
+      },
+      {
+        key: 'embed',
+        label: 'Embed',
+        type: 'array',
+        defaultValue: [0],
+        description: 'Embed features (array of integers)'
       }
     ]
   }

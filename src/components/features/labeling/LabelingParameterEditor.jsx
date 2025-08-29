@@ -124,6 +124,25 @@ const LabelingParameterEditor = ({
             {getCurrentValue() ? 'Enabled' : 'Disabled'}
           </span>
         </div>
+      ) : currentParam.type === 'array' ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <input
+            type="text"
+            className={styles.paramInput}
+            value={Array.isArray(getCurrentValue()) ? getCurrentValue().join(', ') : ''}
+            onChange={e => {
+              const value = e.target.value;
+              const arrayValue = value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+              handleParamChange(currentParam.key, arrayValue);
+            }}
+            disabled={disabled}
+            style={{ width: 180 }}
+            placeholder="0, 1, 2 (comma separated)"
+          />
+          <span style={{ fontSize: '12px', color: '#888' }}>
+            Array
+          </span>
+        </div>
       ) : (
         <input
           type="text"

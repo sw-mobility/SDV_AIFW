@@ -84,16 +84,17 @@ export const getDecimalPlaces = (num) => {
 export const getParameterGroupsByAlgorithm = (algorithm) => {
   // 기본 파라미터 그룹 정의
   const baseGroups = [
-    {
-      group: PARAMETER_GROUPS.PROJECT_INFO,
-      params: [
-        { key: 'model_version', label: 'Model Version', type: 'text', required: true, default: 'v1.0' },
-        { key: 'model_size', label: 'Model Size', type: 'text', required: true, default: 'medium' },
-        { key: 'task_type', label: 'Task Type', type: 'text', required: true, default: 'training' },
-        { key: 'project_name', label: 'Project Name', type: 'text', required: true },
-        { key: 'description', label: 'Description', type: 'text' }
-      ]
-    },
+    // Project Information 파라미터들은 실제 API에 필요하지 않으므로 제거
+    // {
+    //   group: PARAMETER_GROUPS.PROJECT_INFO,
+    //   params: [
+    //     { key: 'model_version', label: 'Model Version', type: 'text', required: true, default: 'v1.0' },
+    //     { key: 'model_size', label: 'Model Size', type: 'text', required: true, default: 'medium' },
+    //     { key: 'task_type', label: 'Task Type', type: 'text', required: true, default: 'training' },
+    //     { key: 'project_name', label: 'Project Name', type: 'text', required: true },
+    //     { key: 'description', label: 'Description', type: 'text' }
+    //   ]
+    // },
     {
       group: PARAMETER_GROUPS.PREPROCESSING,
       params: [
@@ -163,7 +164,6 @@ export const getParameterGroupsByAlgorithm = (algorithm) => {
         { key: 'cos_lr', label: 'Cosine LR', type: 'checkbox', default: false, desc: 'Use cosine LR scheduler' },
         { key: 'close_mosaic', label: 'Close Mosaic', type: 'number', min: 0, max: 20, default: 0, step: 1, desc: 'Disable mosaic augmentation' },
         { key: 'overlap_mask', label: 'Overlap Mask', type: 'checkbox', default: false, desc: 'Masks should overlap during training' },
-        { key: 'mask_ratio', label: 'Mask Ratio', type: 'number', min: 0, max: 10, default: 0.0, step: 0.1, desc: 'Mask downsample ratio' }
       ]
     });
   } else if (algorithm === 'ResNet') {
