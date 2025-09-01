@@ -23,15 +23,15 @@ const ResultsTable = ({ results }) => {
     
     const metricItems = [];
     
-         // 주요 metrics 표시
-     if (metrics['mAP_0.5'] !== undefined || metrics.mAP_0_5 !== undefined) {
-       const map05 = metrics['mAP_0.5'] || metrics.mAP_0_5;
-       metricItems.push(`mAP@0.5: ${map05.toFixed(4)}`);
-     }
-     if (metrics['mAP_0.5:0.95'] !== undefined || metrics.mAP_0_5_0_95 !== undefined) {
-       const map0595 = metrics['mAP_0.5:0.95'] || metrics.mAP_0_5_0_95;
-       metricItems.push(`mAP@0.5:0.95: ${map0595.toFixed(4)}`);
-     }
+    // 주요 metrics 표시 - API 응답 키에 맞게 수정
+    if (metrics['mAP_0.5'] !== undefined) {
+      const map05 = metrics['mAP_0.5'];
+      metricItems.push(`mAP@0.5: ${map05.toFixed(4)}`);
+    }
+    if (metrics['mAP_0.5_0.95'] !== undefined) {
+      const map0595 = metrics['mAP_0.5_0.95'];
+      metricItems.push(`mAP@0.5:0.95: ${map0595.toFixed(4)}`);
+    }
     if (metrics.mean_precision !== undefined) {
       metricItems.push(`Precision: ${metrics.mean_precision.toFixed(4)}`);
     }
@@ -53,53 +53,158 @@ const ResultsTable = ({ results }) => {
   };
 
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 16 }}>
+    <div style={{ 
+      overflowX: 'auto', 
+      backgroundColor: '#ffffff',
+      borderRadius: '8px',
+      border: '1px solid #e2e8f0',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+    }}>
+      <table style={{ 
+        width: '100%', 
+        borderCollapse: 'collapse',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
         <thead>
-          <tr style={{ background: '#f8fafc' }}>
-            <th style={{ padding: '10px', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>Validation ID</th>
-            <th style={{ padding: '10px', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>Model</th>
-            <th style={{ padding: '10px', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>Dataset</th>
-            <th style={{ padding: '10px', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>Metrics</th>
-            <th style={{ padding: '10px', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>Status</th>
-            <th style={{ padding: '10px', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>Timestamp</th>
+          <tr style={{ 
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderBottom: '2px solid #e2e8f0'
+          }}>
+            <th style={{ 
+              padding: '16px 12px', 
+              textAlign: 'left',
+              fontWeight: '600',
+              fontSize: '14px',
+              color: '#374151',
+              borderBottom: '2px solid #e2e8f0'
+            }}>
+              Validation ID
+            </th>
+            <th style={{ 
+              padding: '16px 12px', 
+              textAlign: 'left',
+              fontWeight: '600',
+              fontSize: '14px',
+              color: '#374151',
+              borderBottom: '2px solid #e2e8f0'
+            }}>
+              Model
+            </th>
+            <th style={{ 
+              padding: '16px 12px', 
+              textAlign: 'left',
+              fontWeight: '600',
+              fontSize: '14px',
+              color: '#374151',
+              borderBottom: '2px solid #e2e8f0'
+            }}>
+              Dataset
+            </th>
+            <th style={{ 
+              padding: '16px 12px', 
+              textAlign: 'left',
+              fontWeight: '600',
+              fontSize: '14px',
+              color: '#374151',
+              borderBottom: '2px solid #e2e8f0'
+            }}>
+              Metrics
+            </th>
+            <th style={{ 
+              padding: '16px 12px', 
+              textAlign: 'left',
+              fontWeight: '600',
+              fontSize: '14px',
+              color: '#374151',
+              borderBottom: '2px solid #e2e8f0'
+            }}>
+              Status
+            </th>
+            <th style={{ 
+              padding: '16px 12px', 
+              textAlign: 'left',
+              fontWeight: '600',
+              fontSize: '14px',
+              color: '#374151',
+              borderBottom: '2px solid #e2e8f0'
+            }}>
+              Timestamp
+            </th>
           </tr>
         </thead>
         <tbody>
           {results.map((r, i) => (
-            <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '12px' }}>
+                         <tr key={i} style={{ 
+               borderBottom: '1px solid #f1f5f9',
+               transition: 'background-color 0.2s ease'
+             }}
+             onMouseEnter={(e) => {
+               e.currentTarget.style.backgroundColor = '#f8fafc';
+             }}
+             onMouseLeave={(e) => {
+               e.currentTarget.style.backgroundColor = 'transparent';
+             }}
+             >
+              <td style={{ 
+                padding: '16px 12px',
+                fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                fontSize: '13px',
+                fontWeight: '500',
+                color: '#1f2937'
+              }}>
                 {r.vid || 'N/A'}
               </td>
-              <td style={{ padding: '10px' }}>{r.model}</td>
-              <td style={{ padding: '10px' }}>{r.dataset}</td>
-              <td 
-                style={{ 
-                  padding: '10px', 
-                  fontSize: '12px', 
-                  color: '#6b7280',
-                  cursor: r.metrics && Object.keys(r.metrics).length > 0 ? 'pointer' : 'default'
-                }}
-                onClick={() => handleMetricsClick(r.metrics)}
-                title={r.metrics && Object.keys(r.metrics).length > 0 ? "Click to view detailed metrics" : ""}
-              >
+              <td style={{ 
+                padding: '16px 12px',
+                fontSize: '14px',
+                color: '#374151',
+                fontWeight: '500'
+              }}>
+                {r.model}
+              </td>
+              <td style={{ 
+                padding: '16px 12px',
+                fontSize: '14px',
+                color: '#374151',
+                fontWeight: '500'
+              }}>
+                {r.dataset}
+              </td>
+                             <td 
+                 style={{ 
+                   padding: '16px 12px',
+                   fontSize: '13px',
+                   color: '#6b7280',
+                   cursor: r.metrics && Object.keys(r.metrics).length > 0 ? 'pointer' : 'default'
+                 }}
+                 onClick={() => handleMetricsClick(r.metrics)}
+                 title={r.metrics && Object.keys(r.metrics).length > 0 ? "Click to view detailed metrics" : ""}
+               >
                 {renderMetrics(r.metrics)}
               </td>
-              <td style={{ padding: '10px' }}>
+              <td style={{ padding: '16px 12px' }}>
                 <span style={{
-                  padding: '2px 8px',
-                  borderRadius: '4px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
                   fontSize: '12px',
-                  fontWeight: '500',
+                  fontWeight: '600',
+                  textTransform: 'capitalize',
                   background: r.status === 'completed' ? '#dcfce7' : 
                              r.status === 'failed' ? '#fef2f2' : '#dbeafe',
                   color: r.status === 'completed' ? '#16a34a' : 
-                         r.status === 'failed' ? '#dc2626' : '#1d4ed8'
+                         r.status === 'failed' ? '#dc2626' : '#1d4ed8',
+                  border: r.status === 'completed' ? '1px solid #bbf7d0' : 
+                          r.status === 'failed' ? '1px solid #fecaca' : '1px solid #bfdbfe'
                 }}>
                   {r.status || 'N/A'}
                 </span>
               </td>
-              <td style={{ padding: '10px', fontSize: '12px', color: '#6b7280' }}>
+              <td style={{ 
+                padding: '16px 12px',
+                fontSize: '13px',
+                color: '#6b7280',
+                fontWeight: '400'
+              }}>
                 {formatTimestamp(r.timestamp)}
               </td>
             </tr>

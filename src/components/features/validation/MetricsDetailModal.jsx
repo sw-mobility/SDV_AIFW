@@ -54,16 +54,16 @@ const MetricsDetailModal = ({ metrics, isOpen, onClose }) => {
               Performance Metrics
             </h3>
             <div className={styles.metricsGrid}>
-                             <div className={styles.metricCard}>
-                 <div className={styles.metricLabel}>mAP@0.5</div>
-                 <div className={styles.metricValue}>{formatNumber(metrics['mAP_0.5'] || metrics.mAP_0_5)}</div>
-                 <div className={styles.metricDesc}>Mean Average Precision at IoU=0.5</div>
-               </div>
-               <div className={styles.metricCard}>
-                 <div className={styles.metricLabel}>mAP@0.5:0.95</div>
-                 <div className={styles.metricValue}>{formatNumber(metrics['mAP_0.5:0.95'] || metrics.mAP_0_5_0_95)}</div>
-                 <div className={styles.metricDesc}>Mean Average Precision at IoU=0.5:0.95</div>
-               </div>
+              <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>mAP@0.5</div>
+                <div className={styles.metricValue}>{formatNumber(metrics['mAP_0.5'])}</div>
+                <div className={styles.metricDesc}>Mean Average Precision at IoU=0.5</div>
+              </div>
+              <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>mAP@0.5:0.95</div>
+                <div className={styles.metricValue}>{formatNumber(metrics['mAP_0.5_0.95'])}</div>
+                <div className={styles.metricDesc}>Mean Average Precision at IoU=0.5:0.95</div>
+              </div>
               <div className={styles.metricCard}>
                 <div className={styles.metricLabel}>Precision</div>
                 <div className={styles.metricValue}>{formatNumber(metrics.mean_precision)}</div>

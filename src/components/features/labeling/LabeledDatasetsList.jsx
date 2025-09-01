@@ -96,7 +96,14 @@ const LabeledDatasetsList = ({ labeledDatasets, isPolling }) => {
                </tr>
              </thead>
             <tbody>
-                             {labeledDatasets.map((dataset, index) => (
+              {labeledDatasets
+                .sort((a, b) => {
+                  // 최신 순으로 정렬 (created_at 또는 createdAt 기준)
+                  const dateA = new Date(a.created_at || a.createdAt || 0);
+                  const dateB = new Date(b.created_at || b.createdAt || 0);
+                  return dateB - dateA; // 내림차순 (최신이 위로)
+                })
+                .map((dataset, index) => (
                  <tr 
                    key={dataset._id || dataset.id || index} 
                    style={{ 

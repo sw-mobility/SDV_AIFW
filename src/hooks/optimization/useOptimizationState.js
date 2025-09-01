@@ -1,196 +1,154 @@
 import { useState, useCallback } from 'react';
 import { runOptimization } from '../../api/optimization.js';
+import { uid } from '../../api/uid.js';
 
 /**
  * Optimization 페이지의 상태 관리 훅
- * Training/Validation 페이지와 동일한 패턴으로 구현
+ * API 명세서에 따라 구현
  */
 const useOptimizationState = () => {
-  // Core state
-  const [selectedModel, setSelectedModel] = useState('');
   const [optimizationType, setOptimizationType] = useState('');
   const [optimizationParams, setOptimizationParams] = useState({});
-  
-  // Execution state
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState('idle'); // 'idle', 'running', 'success', 'error'
-  const [logs, setLogs] = useState([]);
-  const [results, setResults] = useState(null);
-
-  // Event handlers
-  const handleModelChange = useCallback((model) => {
-    setSelectedModel(model);
-    // 모델 정보를 파라미터에 저장 (API 요청 시 사용)
-    const modelInfo = {
-      model_name: model.split('/').pop() || 'yolov8n.pt',
-      training_id: model.includes('T') ? model.split('/').find(part => part.startsWith('T')) : 'T0001'
-    };
-    setOptimizationParams(prev => ({
-      ...prev,
-      ...modelInfo
-    }));
-  }, []);
+  const [status, setStatus] = useState('idle');
+  const [results, setResults] = useState([]); // 배열로 변경
 
   const handleOptimizationTypeChange = useCallback((type) => {
     setOptimizationType(type);
-    // 최적화 타입이 변경되면 파라미터 초기화 (모델 정보는 유지)
+    
     const baseParams = {
-      training_id: 'T0001',
-      model_name: 'yolov8n.pt'
+      training_id: 'T0001', // Changed to T0001
+      model_name: 'best.pt' // Fixed to best.pt
     };
+    
+    setOptimizationParams(baseParams); // Set base params immediately
 
-    // 최적화 타입별 기본 파라미터 설정
     switch (type) {
       case 'pt_to_onnx_fp32':
       case 'pt_to_onnx_fp16':
-        setOptimizationParams({
-          ...baseParams,
+        setOptimizationParams(prev => ({
+          ...prev,
           input_size: [640, 640],
           batch_size: 1,
-          opset_version: 11,
-          dynamic_axes: false
-        });
+          channels: 3
+        }));
+        break;
+      case 'onnx_to_trt':
+        setOptimizationParams(prev => ({
+          ...prev,
+          precision: 'fp32',
+          device: 'gpu'
+        }));
+        break;
+      case 'onnx_to_trt_int8':
+        setOptimizationParams(prev => ({
+          ...prev,
+          calib_dir: '/app/int8_calib_images',
+          device: 'gpu',
+          mixed_fp16: false,
+          sparse: false,
+          int8_max_batches: 10,
+          input_size: [640, 640],
+          workspace_mib: 2048
+        }));
         break;
       case 'prune_unstructured':
-        setOptimizationParams({
-          ...baseParams,
+        setOptimizationParams(prev => ({
+          ...prev,
           amount: 0.2,
-          pruning_type: 'l1_unstructured',
-          global_unstructured: false,
-          importance: 'magnitude'
-        });
+          pruning_type: 'l1_unstructured'
+        }));
         break;
       case 'prune_structured':
-        setOptimizationParams({
-          ...baseParams,
+        setOptimizationParams(prev => ({
+          ...prev,
           amount: 0.2,
           pruning_type: 'ln_structured',
           n: 2,
           dim: 0
-        });
+        }));
         break;
       case 'check_model_stats':
-        setOptimizationParams({
-          ...baseParams,
-          save_stats: true,
-          detailed_stats: false,
-          save_format: 'json'
-        });
+        setOptimizationParams(baseParams); // Only input_path needed
         break;
       default:
         setOptimizationParams(baseParams);
     }
-  }, [selectedModel]);
+  }, []);
 
-  const handleParamChange = useCallback((key, value, param) => {
+  const handleParamChange = useCallback((key, value) => {
     setOptimizationParams(prev => ({
       ...prev,
       [key]: value
     }));
   }, []);
 
-  const handleReset = useCallback(() => {
-    // 현재 최적화 타입에 맞는 기본 파라미터로 리셋
-    handleOptimizationTypeChange(optimizationType);
-  }, [optimizationType, handleOptimizationTypeChange]);
-
   const handleRunOptimization = useCallback(async () => {
-    if (!selectedModel || !optimizationType) {
-      console.error('Model and optimization type are required');
+    if (!optimizationType) {
+      console.error('Optimization type is required');
       return;
     }
 
     setIsRunning(true);
     setStatus('running');
     setProgress(0);
-    setLogs([]);
-    setResults(null);
 
     try {
-      // API 호출을 위한 기본 파라미터 설정
-      const pid = 'P0001'; // Project ID
-      const oid = 'O0001'; // Optimization ID
-      const uid = '0001';  // User ID
+      const pid = 'P0001'; // TODO: 실제 프로젝트 ID를 동적으로 가져와야 함
+      const currentUid = uid; // uid.js에서 가져온 값 사용
 
-      // API 요청에 필요한 파라미터만 전달
-      const params = {
-        ...optimizationParams
-      };
-
-      setLogs(prev => [...prev, 'Initializing optimization...']);
-      setProgress(10);
-
-      // 실제 API 호출
-      const response = await runOptimization(optimizationType, params, pid, oid, uid);
-      
-      setLogs(prev => [...prev, 'Optimization request sent successfully']);
-      setProgress(50);
-      
-      // API 응답 처리
-      setLogs(prev => [...prev, 'Processing response...']);
-      setProgress(80);
-
-      // 성공 결과 설정
-      const getOutputPath = () => {
-        const basePath = `artifacts/${pid}/optimizing/${oid}`;
-        switch (optimizationType) {
-          case 'pt_to_onnx_fp32':
-            return `${basePath}/model_fp32.onnx`;
-          case 'pt_to_onnx_fp16':
-            return `${basePath}/model_fp16.onnx`;
-          case 'prune_unstructured':
-          case 'prune_structured':
-            return `${basePath}/pruned_model.pt`;
-          case 'check_model_stats':
-            return `${basePath}/model_stats.json`;
-          default:
-            return `${basePath}/optimized_model`;
-        }
-      };
-
-      setResults({
-        outputPath: getOutputPath(),
-        statsPath: optimizationType === 'check_model_stats' ? getOutputPath() : null,
-        processingTime: 'API response received',
-        taskId: response // API에서 반환된 task ID
+      console.log('Optimization request params:', {
+        optimizationType,
+        params: optimizationParams,
+        pid,
+        uid: currentUid
       });
 
-      setLogs(prev => [...prev, 'Optimization completed successfully!']);
+      setProgress(10);
+
+      const response = await runOptimization(optimizationType, optimizationParams, pid, currentUid);
+      
+      setProgress(50);
+      setProgress(80);
+
+      // 새로운 결과를 기존 배열에 추가
+      setResults(prevResults => [...prevResults, response]);
+
       setProgress(100);
       setStatus('success');
 
     } catch (error) {
       console.error('Optimization failed:', error);
       setStatus('error');
-      setLogs(prev => [...prev, `Error: ${error.message}`]);
+      const errorMessage = error.message || 'Unknown error occurred';
     } finally {
       setIsRunning(false);
     }
-  }, [selectedModel, optimizationType, optimizationParams]);
+  }, [optimizationType, optimizationParams, runOptimization]);
+
+  const resetOptimization = useCallback(() => {
+    setOptimizationType('');
+    setOptimizationParams({});
+    setIsRunning(false);
+    setProgress(0);
+    setStatus('idle');
+    setResults([]); // 배열 초기화
+  }, []);
 
   return {
-    // Core state
-    selectedModel,
-    setSelectedModel,
     optimizationType,
     setOptimizationType,
     optimizationParams,
     setOptimizationParams,
-    
-    // Execution state
     isRunning,
     progress,
     status,
-    logs,
     results,
-    
-    // Event handlers
     handleRunOptimization,
-    handleModelChange,
     handleOptimizationTypeChange,
     handleParamChange,
-    handleReset
+    resetOptimization
   };
 };
 

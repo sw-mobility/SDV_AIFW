@@ -16,6 +16,7 @@ export const useValidation = () => {
   
   // YOLO validation parameters (API 스펙에 맞게 구성)
   const [validationParams, setValidationParams] = useState({
+    tid: '', // Training ID - 사용자가 입력
     model: 'best.pt',
     task_type: 'detection',
     imgsz: 640,
@@ -160,7 +161,7 @@ export const useValidation = () => {
       // API 스펙에 맞는 요청 구조
       const requestData = {
         pid: selectedDataset.pid || 'P0001',
-        tid: selectedDataset.tid || 'T0001', 
+        tid: validationParams.tid || selectedDataset.tid || 'T0001', // 사용자 입력 TID 우선
         cid: 'yolo',
         did: datasetId,
         task_type: validationParams.task_type,
@@ -208,6 +209,7 @@ export const useValidation = () => {
   // Validation 파라미터 리셋
   const resetValidationParams = useCallback(() => {
     setValidationParams({
+      tid: '', // Training ID - 사용자가 입력
       model: 'best.pt',
       task_type: 'detection',
       imgsz: 640,

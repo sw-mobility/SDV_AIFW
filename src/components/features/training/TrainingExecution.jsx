@@ -56,24 +56,44 @@ const TrainingExecution = ({
         {/* Training Response Info */}
         {trainingResponse && (
           <div className={styles.responseInfo}>
-            <h4>Training Response</h4>
+            <h4>Training Details</h4>
             <div className={styles.responseDetails}>
-                             <div className={styles.responseItem}>
-                 <span className={styles.label}>Training ID:</span>
-                 <span className={styles.value}>{trainingResponse.data?.tid || trainingResponse.tid || 'N/A'}</span>
-               </div>
-              {trainingResponse.status && (
-                <div className={styles.responseItem}>
-                  <span className={styles.label}>Status:</span>
-                  <span className={styles.value}>{trainingResponse.status}</span>
-                </div>
-              )}
               {trainingResponse.message && (
                 <div className={styles.responseItem}>
-                  <span className={styles.label}>Message:</span>
+                  <span className={styles.label}>Status:</span>
                   <span className={styles.value}>{trainingResponse.message}</span>
                 </div>
               )}
+              
+              {trainingResponse.data?.parameters && (
+                <>
+                  <div className={styles.responseItem}>
+                    <span className={styles.label}>Model:</span>
+                    <span className={styles.value}>{trainingResponse.data.parameters.model}</span>
+                  </div>
+                  <div className={styles.responseItem}>
+                    <span className={styles.label}>Epochs:</span>
+                    <span className={styles.value}>{trainingResponse.data.parameters.epochs}</span>
+                  </div>
+                  <div className={styles.responseItem}>
+                    <span className={styles.label}>Batch Size:</span>
+                    <span className={styles.value}>{trainingResponse.data.parameters.batch}</span>
+                  </div>
+                  <div className={styles.responseItem}>
+                    <span className={styles.label}>Device:</span>
+                    <span className={styles.value}>{trainingResponse.data.parameters.device}</span>
+                  </div>
+                </>
+              )}
+              
+              {trainingResponse.data?.user_classes && trainingResponse.data.user_classes.length > 0 && (
+                <div className={styles.responseItem}>
+                  <span className={styles.label}>Classes:</span>
+                  <span className={styles.value}>{trainingResponse.data.user_classes.join(', ')}</span>
+                </div>
+              )}
+              
+
             </div>
           </div>
         )}

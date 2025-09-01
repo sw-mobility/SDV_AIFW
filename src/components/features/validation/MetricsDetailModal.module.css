@@ -54,10 +54,10 @@
   transition: all 0.2s ease;
 }
 
-.closeButton:hover {
+/* .closeButton:hover {
   background: #f3f4f6;
   color: #374151;
-}
+} */
 
 .modalBody {
   padding: 32px;
@@ -98,10 +98,10 @@
   transition: all 0.2s ease;
 }
 
-.metricCard:hover {
+/* .metricCard:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+} */
 
 .metricLabel {
   font-size: 14px;

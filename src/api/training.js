@@ -116,15 +116,8 @@ export async function createYoloSnapshot({ uid, pid, name, algorithm, task_type,
 export async function postYoloTraining(trainingData) {
     const url = `${BASE_URL}/training/yolo/detection`;
     
-    console.log('=== postYoloTraining API Call ===');
-    console.log('URL:', url);
-    console.log('Training data:', trainingData);
-    
     // uid를 body에서 제거하고 header로 이동
     const { uid, ...bodyData } = trainingData;
-    
-    console.log('Request body:', bodyData);
-    console.log('UID:', uid);
     
     const response = await fetch(url, {
         method: 'POST',
@@ -136,17 +129,11 @@ export async function postYoloTraining(trainingData) {
         body: JSON.stringify(bodyData)
     });
     
-    console.log('Response status:', response.status);
-    console.log('Response ok:', response.ok);
-    
     if (!response.ok) {
         const error = await response.text();
-        console.log('API Error:', error);
         throw new Error(error || 'YOLO training failed');
     }
     
-    const result = await response.json();
-    console.log('API Success result:', result);
-    return result;
+    return await response.json();
 }
 

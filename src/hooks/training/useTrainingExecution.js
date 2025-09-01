@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { validateTrainingExecution } from '../../domain/training/trainingValidation.js';
 import { useProgress } from '../common/useProgress.js';
-import { postYoloTraining } from '../../api/training.js';
+import { postYoloTraining, getYoloDefaultYaml } from '../../api/training.js';
 import { uid } from '../../api/uid.js';
 
 export const useTrainingExecution = (trainingConfig) => {
@@ -53,34 +53,21 @@ export const useTrainingExecution = (trainingConfig) => {
   }, [projectName]); // Remove progress from dependencies
 
   const runTraining = useCallback(async () => {
-    console.log('=== Training Execution Started ===');
-    console.log('Training config:', trainingConfig);
-    
     const validation = validateTrainingExecution(trainingConfig);
-    console.log('Validation result:', validation);
     
     if (!validation.isValid) {
       const errorMessages = validation.errors.map(error => error.message);
-      console.log('Validation errors:', errorMessages);
       alert(errorMessages.join('\n'));
       return;
     }
 
-    // Check if we have required data
-    console.log('Project data:', projectData);
-    console.log('Selected dataset:', trainingConfig.selectedDataset);
-    
     if (!projectData) {
       progress.addLog('Error: Project data not available');
-      progress.addLog(`Current projectName: ${projectName}`);
-      progress.addLog(`Current uid: ${uid}`);
-      console.log('Training stopped: No project data');
       return;
     }
 
     if (!trainingConfig.selectedDataset) {
       progress.addLog('Error: No dataset selected');
-      console.log('Training stopped: No dataset selected');
       return;
     }
 
@@ -88,10 +75,10 @@ export const useTrainingExecution = (trainingConfig) => {
     progress.addLog('Training started...');
 
     try {
-      console.log('Algorithm:', trainingConfig.algorithm);
       if (trainingConfig.algorithm === 'YOLO' || trainingConfig.algorithm === 'yolo_v8') {
-        progress.addLog('Calling YOLO training API...');
-        console.log('Starting YOLO training...');
+        progress.addLog('Starting YOLO training...');
+        
+
         
         // Parse split_ratio from string to array if needed
         let splitRatio = [0.8, 0.2];
@@ -107,39 +94,77 @@ export const useTrainingExecution = (trainingConfig) => {
 
         // Parse COCO classes from YAML to string list for API
         let userClasses = [];
-        if (trainingConfig.algoParams.coco_classes) {
+        
+        console.log('=== Training Config Debug ===');
+        console.log('trainingConfig.algoParams keys:', Object.keys(trainingConfig.algoParams || {}));
+        console.log('coco_classes value:', trainingConfig.algoParams?.coco_classes);
+        console.log('coco_classes type:', typeof trainingConfig.algoParams?.coco_classes);
+        console.log('coco_classes length:', trainingConfig.algoParams?.coco_classes?.length);
+        
+        if (trainingConfig.algoParams?.coco_classes) {
           try {
-            const lines = trainingConfig.algoParams.coco_classes.split('\n');
-            let inNamesSection = false;
+            const yamlContent = trainingConfig.algoParams.coco_classes.trim();
+            console.log('Raw coco_classes input:', yamlContent);
+            console.log('Input length:', yamlContent.length);
+            console.log('Input type:', typeof yamlContent);
             
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (trimmed === 'names:') {
-                inNamesSection = true;
-                continue;
-              }
+            // Check if input is empty or just whitespace
+            if (!yamlContent || yamlContent.length === 0) {
+              console.log('Input is empty or whitespace only');
+            } else {
+              const lines = yamlContent.split('\n');
+              console.log('Total lines:', lines.length);
+              let inNamesSection = false;
               
-              if (inNamesSection && trimmed.includes(':')) {
-                const [key, value] = trimmed.split(':').map(s => s.trim());
-                if (/^\d+$/.test(key) && value) {
-                  userClasses.push(value);  // String list 형태로 저장: ["class1", "class2"]
+              for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmed = line.trim();
+                console.log(`Line ${i}:`, `"${trimmed}"`);
+                
+                if (trimmed === 'names:') {
+                  inNamesSection = true;
+                  console.log('Found names section at line', i);
+                  continue;
+                }
+                
+                if (inNamesSection && trimmed.includes(':')) {
+                  const [key, value] = trimmed.split(':').map(s => s.trim());
+                  console.log('Parsing key-value:', key, '->', value);
+                  if (/^\d+$/.test(key) && value) {
+                    userClasses.push(value);
+                    console.log('Added class:', value);
+                  }
                 }
               }
             }
             
-            progress.addLog(`Parsed ${userClasses.length} classes from COCO configuration`);
-            progress.addLog(`Classes: ${JSON.stringify(userClasses)}`);
+            console.log('Final parsed user classes:', userClasses);
           } catch (error) {
-            progress.addLog(`Warning: Failed to parse COCO classes: ${error.message}`);
-            progress.addLog('Using default classes configuration');
+            console.warn('Failed to parse COCO classes:', error);
+            console.error('Error details:', error);
           }
+        } else {
+          console.log('No coco_classes provided in trainingConfig.algoParams');
+          
+          // Temporary: Set default classes if none provided
+          const defaultClasses = ['person', 'bicycle', 'car'];
+          console.log('Using default classes:', defaultClasses);
+          userClasses = defaultClasses;
         }
+        
+        // Temporary: Force test classes to verify the flow
+        if (userClasses.length === 0) {
+          userClasses = ['test_class_1', 'test_class_2', 'test_class_3'];
+          console.log('Forcing test classes:', userClasses);
+        }
+        
+        console.log('Final userClasses after parsing:', userClasses);
 
         // Prepare YOLO parameters based on API schema
         const yoloParameters = {
           model: trainingConfig.algoParams.model || 'yolov8n',
           split_ratio: splitRatio,
-          epochs: trainingConfig.algoParams.epochs || 50,
+          epochs: trainingConfig.algoParams.epochs || 5,
           batch: trainingConfig.algoParams.batch_size || 16,
           imgsz: trainingConfig.algoParams.input_size || 640,
           device: trainingConfig.algoParams.device || 'cpu',
@@ -161,7 +186,7 @@ export const useTrainingExecution = (trainingConfig) => {
           dropout: trainingConfig.algoParams.dropout || 0,
           label_smoothing: trainingConfig.algoParams.label_smoothing || 0,
           rect: trainingConfig.algoParams.rect !== false,
-          resume: trainingConfig.algoParams.resume || '',
+          resume: trainingConfig.algoParams.resume === true,
           amp: trainingConfig.algoParams.amp !== false,
           single_cls: trainingConfig.algoParams.single_cls !== false,
           cos_lr: trainingConfig.algoParams.cos_lr !== false,
@@ -169,48 +194,45 @@ export const useTrainingExecution = (trainingConfig) => {
           overlap_mask: trainingConfig.algoParams.overlap_mask !== false
         };
 
-        // Try different ways to get project ID - prioritize pid over _id
+        // Get project and dataset IDs
         const projectId = projectData.pid || projectData._id || projectData.id;
-        progress.addLog(`Using project ID: ${projectId}`);
-        progress.addLog(`Project data keys: ${Object.keys(projectData).join(', ')}`);
-        progress.addLog(`Project pid: ${projectData.pid}, _id: ${projectData._id}`);
-        progress.addLog(`Using dataset ID: ${trainingConfig.selectedDataset.id}`);
-        progress.addLog(`Dataset data:`, trainingConfig.selectedDataset);
-        progress.addLog(`Dataset keys: ${Object.keys(trainingConfig.selectedDataset).join(', ')}`);
-        progress.addLog(`Dataset did: ${trainingConfig.selectedDataset.did}, _id: ${trainingConfig.selectedDataset._id}, id: ${trainingConfig.selectedDataset.id}`);
-
-        // Use the dataset did as dataset_id for the API
         const datasetId = trainingConfig.selectedDataset.did;
-        progress.addLog(`Selected dataset ID: ${datasetId}`);
-        progress.addLog(`Selected model: ${trainingConfig.algoParams.model || 'yolov8n'}`);
-        
-        // Check if dataset has classes
         const datasetClasses = trainingConfig.selectedDataset.classes || [];
-        progress.addLog(`Dataset classes: ${JSON.stringify(datasetClasses)}`);
-        progress.addLog(`Dataset classes length: ${datasetClasses.length}`);
         
-        // Determine task type based on algorithm and model
-        let taskType = 'detection'; // default for YOLO
-        if (trainingConfig.algorithm === 'YOLO' || trainingConfig.algorithm === 'yolo_v8') {
-          const model = trainingConfig.algoParams.model || 'yolov8n';
-          if (model.includes('seg')) {
-            taskType = 'segmentation';
-          } else if (model.includes('pose')) {
-            taskType = 'pose';
-          } else if (model.includes('obb')) {
-            taskType = 'obb';
-          } else if (model.includes('cls')) {
-            taskType = 'classification';
-          } else {
-            taskType = 'detection'; // default for YOLO
-          }
+        // Convert dataset classes to string list if needed
+        const datasetClassesList = Array.isArray(datasetClasses) 
+          ? datasetClasses.map(cls => typeof cls === 'string' ? cls : cls.name || cls.toString())
+          : [];
+        
+        // Always prioritize user input over dataset classes
+        let finalUserClasses = userClasses.length > 0 ? userClasses : 
+          (datasetClassesList.length > 0 ? datasetClassesList : []);
+        
+        // If user provided custom classes, force them to be used
+        if (userClasses.length > 0) {
+          finalUserClasses = userClasses;
+          console.log('Forcing user-defined classes:', userClasses);
+        } else {
+          // Use default classes instead of dataset classes
+          finalUserClasses = ['person', 'bicycle', 'car'];
+          console.log('Using default classes instead of dataset classes:', finalUserClasses);
         }
         
-        progress.addLog(`Using task type: ${taskType}`);
+        // Log which classes are being used
+        if (userClasses.length > 0) {
+          console.log('Using user-defined classes:', userClasses);
+        } else {
+          console.log('No user classes provided, using dataset classes:', datasetClassesList);
+        }
         
-        // Use dataset classes if no custom classes are provided
-        const finalUserClasses = userClasses.length > 0 ? userClasses : 
-          (datasetClasses.length > 0 ? datasetClasses : undefined);
+        console.log('=== Classes Debug ===');
+        console.log('User input classes:', userClasses);
+        console.log('Dataset classes:', datasetClassesList);
+        console.log('Final classes being sent:', finalUserClasses);
+        console.log('Request body classes:', {
+          user_classes: finalUserClasses,
+          model_classes: finalUserClasses
+        });
         
         const requestBody = {
           pid: projectId,
@@ -218,24 +240,27 @@ export const useTrainingExecution = (trainingConfig) => {
           user_classes: finalUserClasses,
           parameters: yoloParameters
         };
+        
+        console.log('Final request body classes:', {
+          user_classes: finalUserClasses
+        });
 
-        console.log('Final request body:', requestBody);
-        console.log('Dataset ID:', datasetId);
-        console.log('User classes:', userClasses);
-        console.log('User classes length:', userClasses.length);
-        
-        progress.addLog('Sending training request with parameters:');
-        progress.addLog(JSON.stringify(requestBody, null, 2));
-        
-        console.log('About to call postYoloTraining API...');
         const response = await postYoloTraining({ uid, ...requestBody });
-        console.log('API response:', response);
         
-        // Save training response
+        // Log training start and response details
+        if (response?.message) {
+          progress.addLog(response.message);
+        } else {
+          progress.addLog('Training started successfully.');
+        }
+        
+        // Log response classes for debugging
+        console.log('=== API Response Classes ===');
+        console.log('Response user_classes:', response?.data?.user_classes);
+        console.log('Response model_classes:', response?.data?.model_classes);
+        console.log('Response dataset_classes:', response?.data?.dataset_classes);
+        
         setTrainingResponse(response);
-        
-        progress.addLog('YOLO training started successfully.');
-        progress.addLog(`Training ID: ${response.data?.tid || response.tid || 'N/A'}`);
         progress.complete();
       } else {
         // fallback: mock progress for other algorithms

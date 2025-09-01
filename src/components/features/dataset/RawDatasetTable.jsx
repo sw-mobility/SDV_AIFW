@@ -24,13 +24,22 @@ export default function RawDatasetTable({data, onRowClick, selectedId, searchPla
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
 
-  // 검색된 데이터
+  // 검색된 데이터 (최신 순으로 정렬)
   const filteredData = useMemo(() => {
-    if (!search) return data;
-    return data.filter(row => 
-      row.name?.toLowerCase().includes(search.toLowerCase()) ||
-      row.createdAt?.toLowerCase().includes(search.toLowerCase())
-    );
+    let filtered = data;
+    if (search) {
+      filtered = data.filter(row => 
+        row.name?.toLowerCase().includes(search.toLowerCase()) ||
+        row.createdAt?.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    
+    // 최신 순으로 정렬 (createdAt 기준)
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt || a.created_at || 0);
+      const dateB = new Date(b.createdAt || b.created_at || 0);
+      return dateB - dateA; // 내림차순 (최신이 위로)
+    });
   }, [data, search]);
 
   // 페이지네이션

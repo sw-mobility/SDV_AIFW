@@ -1,6 +1,5 @@
 import React from 'react';
 import styles from './OptimizationPage.module.css';
-import ModelSelector from '../../components/features/optimization/ModelSelector.jsx';
 import OptimizationTypeSelector from '../../components/features/optimization/OptimizationTypeSelector.jsx';
 import OptimizationParameterSection from '../../components/features/optimization/OptimizationParameterSection.jsx';
 import OptimizationExecution from '../../components/features/optimization/OptimizationExecution.jsx';
@@ -9,7 +8,6 @@ import { useOptimizationState } from '../../hooks';
 const OptimizationPage = () => {
   const {
     // Core state
-    selectedModel,
     optimizationType,
     optimizationParams,
     
@@ -17,15 +15,13 @@ const OptimizationPage = () => {
     isRunning,
     progress,
     status,
-    logs,
     results,
     
     // Event handlers
     handleRunOptimization,
-    handleModelChange,
     handleOptimizationTypeChange,
     handleParamChange,
-    handleReset
+    resetOptimization
   } = useOptimizationState();
 
   return (
@@ -40,11 +36,6 @@ const OptimizationPage = () => {
 
         {/* Selectors */}
         <div className={styles.selectorGroup}>
-          <ModelSelector
-            selectedModel={selectedModel}
-            onModelChange={handleModelChange}
-            disabled={isRunning}
-          />
           <OptimizationTypeSelector
             optimizationType={optimizationType}
             onOptimizationTypeChange={handleOptimizationTypeChange}
@@ -57,7 +48,7 @@ const OptimizationPage = () => {
           optimizationType={optimizationType}
           optimizationParams={optimizationParams}
           onParamChange={handleParamChange}
-          onReset={handleReset}
+          onReset={resetOptimization}
           isRunning={isRunning}
         />
         
@@ -66,11 +57,10 @@ const OptimizationPage = () => {
           isRunning={isRunning}
           progress={progress}
           status={status}
-          logs={logs}
           results={results}
           onRunOptimization={handleRunOptimization}
-          selectedModel={selectedModel}
           optimizationType={optimizationType}
+          optimizationParams={optimizationParams}
         />
       </div>
     </div>

@@ -1,6 +1,6 @@
 /**
  * Optimization 파라미터 그룹 정의
- * API 설명서에 따른 모든 최적화 파라미터들을 그룹별로 정리
+ * API 명세서에 따른 모든 최적화 파라미터들을 그룹별로 정리
  */
 
 export const OPTIMIZATION_PARAM_GROUPS = {
@@ -20,32 +20,24 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           label: 'Training ID',
           type: 'text',
           required: true,
-          desc: 'Training ID to use for optimization (e.g., T0001)',
-          placeholder: 'T0001'
-        },
-        {
-          key: 'model_name',
-          label: 'Model Name',
-          type: 'text',
-          required: true,
-          desc: 'Model file name (e.g., yolov8n.pt)',
-          placeholder: 'yolov8n.pt'
+          desc: 'Training ID to use for optimization (e.g., T0015)',
+          placeholder: 'T0015'
         }
       ]
     }
   ];
 
-  // 최적화 타입별 특화 파라미터 추가
+  // 최적화 타입별 특화 파라미터 추가 (API 명세서에 따라)
   if (optimizationType === 'pt_to_onnx_fp32' || optimizationType === 'pt_to_onnx_fp16') {
     baseGroups.push({
       group: OPTIMIZATION_PARAM_GROUPS.CONVERSION,
       params: [
         {
           key: 'input_size',
-          label: 'Input Size',
+          label: 'Input Size [H, W]',
           type: 'array',
           default: [640, 640],
-          desc: 'Input image size for ONNX conversion (width, height)',
+          desc: 'Input image size for ONNX conversion (Height, Width in pixels)',
           required: true
         },
         {
@@ -59,21 +51,104 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           desc: 'Batch size for ONNX conversion'
         },
         {
-          key: 'opset_version',
-          label: 'ONNX Opset Version',
+          key: 'channels',
+          label: 'Channels',
           type: 'number',
-          default: 11,
-          min: 7,
-          max: 17,
+          default: 3,
+          min: 1,
+          max: 4,
           step: 1,
-          desc: 'ONNX opset version for conversion'
+          desc: 'Number of input channels (RGB=3)'
+        }
+      ]
+    });
+  }
+
+  if (optimizationType === 'onnx_to_trt') {
+    baseGroups.push({
+      group: OPTIMIZATION_PARAM_GROUPS.CONVERSION,
+      params: [
+        {
+          key: 'precision',
+          label: 'Precision',
+          type: 'select',
+          options: ['fp32', 'fp16'],
+          default: 'fp32',
+          desc: 'TensorRT precision mode (FP32 or FP16)'
         },
         {
-          key: 'dynamic_axes',
-          label: 'Dynamic Axes',
+          key: 'device',
+          label: 'Device',
+          type: 'select',
+          options: ['gpu', 'dla', 'dla0', 'dla1'],
+          default: 'gpu',
+          desc: 'Target device (GPU or DLA cores for Jetson Orin)'
+        }
+      ]
+    });
+  }
+
+  if (optimizationType === 'onnx_to_trt_int8') {
+    baseGroups.push({
+      group: OPTIMIZATION_PARAM_GROUPS.CONVERSION,
+      params: [
+        {
+          key: 'calib_dir',
+          label: 'Calibration Directory',
+          type: 'text',
+          default: '/app/int8_calib_images',
+          desc: 'Container internal path to calibration images',
+          placeholder: '/app/int8_calib_images'
+        },
+        {
+          key: 'device',
+          label: 'Device',
+          type: 'select',
+          options: ['gpu', 'dla'],
+          default: 'gpu',
+          desc: 'Target device (GPU or DLA for INT8)'
+        },
+        {
+          key: 'mixed_fp16',
+          label: 'Mixed FP16',
           type: 'checkbox',
           default: false,
-          desc: 'Enable dynamic axes for variable input sizes'
+          desc: 'Allow mixed FP16 operations for some layers'
+        },
+        {
+          key: 'sparse',
+          label: 'Sparse Weights',
+          type: 'checkbox',
+          default: false,
+          desc: 'Enable sparse weights for INT8 quantization'
+        },
+        {
+          key: 'int8_max_batches',
+          label: 'Max Calibration Batches',
+          type: 'number',
+          default: 10,
+          min: 1,
+          max: 100,
+          step: 1,
+          desc: 'Maximum number of batches for calibration'
+        },
+        {
+          key: 'input_size',
+          label: 'Input Size [H, W]',
+          type: 'array',
+          default: [640, 640],
+          desc: 'Input image size for INT8 calibration (Height, Width in pixels)',
+          required: true
+        },
+        {
+          key: 'workspace_mib',
+          label: 'Workspace Size (MiB)',
+          type: 'number',
+          default: 2048,
+          min: 512,
+          max: 8192,
+          step: 512,
+          desc: 'TensorRT build workspace size in MiB'
         }
       ]
     });
@@ -100,21 +175,6 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           options: ['l1_unstructured', 'random_unstructured'],
           default: 'l1_unstructured',
           desc: 'Type of unstructured pruning to apply'
-        },
-        {
-          key: 'global_unstructured',
-          label: 'Global Pruning',
-          type: 'checkbox',
-          default: false,
-          desc: 'Apply pruning globally across all layers'
-        },
-        {
-          key: 'importance',
-          label: 'Importance Function',
-          type: 'select',
-          options: ['magnitude', 'random', 'gradient'],
-          default: 'magnitude',
-          desc: 'Function to determine weight importance'
         }
       ]
     });
@@ -166,36 +226,7 @@ export const getOptimizationParameterGroups = (optimizationType) => {
     });
   }
 
-  // check_model_stats에만 통계 관련 파라미터 추가
-  if (optimizationType === 'check_model_stats') {
-    baseGroups.push({
-      group: OPTIMIZATION_PARAM_GROUPS.OUTPUT,
-      params: [
-        {
-          key: 'save_stats',
-          label: 'Save Statistics',
-          type: 'checkbox',
-          default: true,
-          desc: 'Generate and save model statistics report'
-        },
-        {
-          key: 'detailed_stats',
-          label: 'Detailed Statistics',
-          type: 'checkbox',
-          default: false,
-          desc: 'Include detailed layer-wise statistics'
-        },
-        {
-          key: 'save_format',
-          label: 'Save Format',
-          type: 'select',
-          options: ['json', 'txt', 'csv'],
-          default: 'json',
-          desc: 'Format for saving statistics'
-        }
-      ]
-    });
-  }
+  // check_model_stats는 input_path만 필요하므로 추가 파라미터 없음
 
   return baseGroups;
 };
