@@ -1,56 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useCallback, useState } from 'react';
 import { validateTrainingExecution } from '../../domain/training/trainingValidation.js';
 import { useProgress } from '../common/useProgress.js';
-import { postYoloTraining, getYoloDefaultYaml } from '../../api/training.js';
+import { postYoloTraining} from '../../api/training.js';
 import { uid } from '../../api/uid.js';
 
 export const useTrainingExecution = (trainingConfig) => {
   const progress = useProgress();
-  const { projectName } = useParams();
-  const [projectData, setProjectData] = useState(null);
   const [trainingResponse, setTrainingResponse] = useState(null);
-
-  // Get project data for pid
-  useEffect(() => {
-    const fetchProjectData = async () => {
-      if (projectName) {
-        try {
-          console.log(`Fetching project data for: ${projectName}`);
-          const response = await fetch(`http://localhost:5002/projects/projects/`, {
-            headers: {
-              'uid': uid
-            }
-          });
-          if (response.ok) {
-            const data = await response.json();
-            console.log(`Found ${data.length} projects`);
-            console.log(`Available projects: ${data.map(p => `${p.name} (${p._id || p.id})`).join(', ')}`);
-            
-            const project = data.find(p => p.name === projectName);
-            if (project) {
-              console.log(`Project found: ${project.name}`);
-              console.log(`Project data:`, project);
-              setProjectData(project);
-            } else {
-              console.log(`Project not found: ${projectName}`);
-              console.log(`Available project names: ${data.map(p => p.name).join(', ')}`);
-            }
-          } else {
-            console.log(`Failed to fetch projects: ${response.status}`);
-            const errorText = await response.text();
-            console.log(`Error details: ${errorText}`);
-          }
-        } catch (error) {
-          console.log(`Error fetching project data: ${error.message}`);
-          console.error('Failed to fetch project data:', error);
-        }
-      } else {
-        console.log('No projectName in URL params');
-      }
-    };
-    fetchProjectData();
-  }, [projectName]); // Remove progress from dependencies
 
   const runTraining = useCallback(async () => {
     const validation = validateTrainingExecution(trainingConfig);
@@ -58,11 +14,6 @@ export const useTrainingExecution = (trainingConfig) => {
     if (!validation.isValid) {
       const errorMessages = validation.errors.map(error => error.message);
       alert(errorMessages.join('\n'));
-      return;
-    }
-
-    if (!projectData) {
-      progress.addLog('Error: Project data not available');
       return;
     }
 
@@ -77,8 +28,6 @@ export const useTrainingExecution = (trainingConfig) => {
     try {
       if (trainingConfig.algorithm === 'YOLO' || trainingConfig.algorithm === 'yolo_v8') {
         progress.addLog('Starting YOLO training...');
-        
-
         
         // Parse split_ratio from string to array if needed
         let splitRatio = [0.8, 0.2];
@@ -96,6 +45,7 @@ export const useTrainingExecution = (trainingConfig) => {
         let userClasses = [];
         
         console.log('=== Training Config Debug ===');
+        console.log('trainingConfig:', trainingConfig);
         console.log('trainingConfig.algoParams keys:', Object.keys(trainingConfig.algoParams || {}));
         console.log('coco_classes value:', trainingConfig.algoParams?.coco_classes);
         console.log('coco_classes type:', typeof trainingConfig.algoParams?.coco_classes);
@@ -146,16 +96,16 @@ export const useTrainingExecution = (trainingConfig) => {
         } else {
           console.log('No coco_classes provided in trainingConfig.algoParams');
           
-          // Temporary: Set default classes if none provided
-          const defaultClasses = ['person', 'bicycle', 'car'];
-          console.log('Using default classes:', defaultClasses);
-          userClasses = defaultClasses;
-        }
-        
-        // Temporary: Force test classes to verify the flow
-        if (userClasses.length === 0) {
-          userClasses = ['test_class_1', 'test_class_2', 'test_class_3'];
-          console.log('Forcing test classes:', userClasses);
+          // Use dataset classes if available
+          if (trainingConfig.selectedDataset?.classes) {
+            userClasses = trainingConfig.selectedDataset.classes;
+            console.log('Using dataset classes:', userClasses);
+          } else {
+            // Fallback to default classes
+            const defaultClasses = ['person', 'bicycle', 'car'];
+            console.log('Using default classes:', defaultClasses);
+            userClasses = defaultClasses;
+          }
         }
         
         console.log('Final userClasses after parsing:', userClasses);
@@ -194,10 +144,18 @@ export const useTrainingExecution = (trainingConfig) => {
           overlap_mask: trainingConfig.algoParams.overlap_mask !== false
         };
 
-        // Get project and dataset IDs
-        const projectId = projectData.pid || projectData._id || projectData.id;
+        // Get project and dataset IDs from trainingConfig
+        const projectId = trainingConfig.projectId || 'P0001'; // TrainingPage에서 전달받은 projectId 사용
         const datasetId = trainingConfig.selectedDataset.did;
         const datasetClasses = trainingConfig.selectedDataset.classes || [];
+        
+        // Check if using custom model
+        const isCustomModel = trainingConfig.modelType === 'custom';
+        const customModelId = trainingConfig.customModel;
+        
+        if (isCustomModel && !customModelId) {
+          throw new Error('Custom model을 선택해주세요.');
+        }
         
         // Convert dataset classes to string list if needed
         const datasetClassesList = Array.isArray(datasetClasses) 
@@ -213,37 +171,46 @@ export const useTrainingExecution = (trainingConfig) => {
           finalUserClasses = userClasses;
           console.log('Forcing user-defined classes:', userClasses);
         } else {
-          // Use default classes instead of dataset classes
-          finalUserClasses = ['person', 'bicycle', 'car'];
-          console.log('Using default classes instead of dataset classes:', finalUserClasses);
+          // Use dataset classes if available, otherwise default
+          if (datasetClassesList.length > 0) {
+            finalUserClasses = datasetClassesList;
+            console.log('Using dataset classes:', datasetClassesList);
+          } else {
+            finalUserClasses = ['person', 'bicycle', 'car'];
+            console.log('Using default classes:', finalUserClasses);
+          }
         }
         
         // Log which classes are being used
-        if (userClasses.length > 0) {
-          console.log('Using user-defined classes:', userClasses);
-        } else {
-          console.log('No user classes provided, using dataset classes:', datasetClassesList);
-        }
-        
         console.log('=== Classes Debug ===');
         console.log('User input classes:', userClasses);
         console.log('Dataset classes:', datasetClassesList);
         console.log('Final classes being sent:', finalUserClasses);
-        console.log('Request body classes:', {
-          user_classes: finalUserClasses,
-          model_classes: finalUserClasses
-        });
         
         const requestBody = {
           pid: projectId,
           did: datasetId,
-          user_classes: finalUserClasses,
-          parameters: yoloParameters
+          user_classes: finalUserClasses
         };
         
-        console.log('Final request body classes:', {
-          user_classes: finalUserClasses
-        });
+        // Model type에 따라 다른 방식으로 request body 구성
+        if (isCustomModel) {
+          // Custom model일 때: origin_tid 사용, parameters에서 model 제거
+          requestBody.origin_tid = customModelId;
+          
+          // parameters에서 model을 제거한 새로운 parameters 객체 생성
+          const { model, ...parametersWithoutModel } = yoloParameters;
+          requestBody.parameters = parametersWithoutModel;
+          
+          console.log('Using custom model with origin_tid:', customModelId);
+          console.log('Parameters without model:', parametersWithoutModel);
+        } else {
+          // Pretrained model일 때: 기존 방식대로 model 포함
+          requestBody.parameters = yoloParameters;
+          console.log('Using pretrained model:', yoloParameters.model);
+        }
+        
+        console.log('Final request body:', requestBody);
 
         const response = await postYoloTraining({ uid, ...requestBody });
         
@@ -280,7 +247,7 @@ export const useTrainingExecution = (trainingConfig) => {
       progress.addLog('Training failed: ' + err.message);
       progress.complete();
     }
-  }, [trainingConfig, progress, projectData, projectName]);
+  }, [trainingConfig, progress]);
 
   return {
     ...progress,

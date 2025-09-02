@@ -30,6 +30,21 @@ export default function OptimizationTypeSelector({
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
       </select>
+      
+      {!optimizationType && (
+        <div style={{
+          marginTop: '12px',
+          padding: '12px',
+          backgroundColor: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '6px',
+          fontSize: '14px',
+          color: '#64748b',
+          textAlign: 'center'
+        }}>
+          최적화 타입을 선택하면 파라미터 설정과 실행 옵션이 표시됩니다.
+        </div>
+      )}
     </div>
   );
 }

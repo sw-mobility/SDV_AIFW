@@ -3,6 +3,7 @@ import { HelpCircle } from 'lucide-react';
 import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
 import Switch from '@mui/material/Switch';
+import TrainingIdSelector from '../training/TrainingIdSelector.jsx';
 import styles from './OptimizationParameterEditor.module.css';
 import { normalizeOptimizationParamValue } from '../../../domain/optimization/optimizationParameters.js';
 
@@ -156,7 +157,6 @@ const OptimizationParameterEditor = ({
           <Switch
             checked={getCurrentValue()}
             onChange={e => handleParamChange(currentParam.key, e.target.checked, currentParam)}
-            color="primary"
             size="medium"
             disabled={isRunning}
           />
@@ -166,6 +166,15 @@ const OptimizationParameterEditor = ({
         </div>
       ) : currentParam.type === 'array' ? (
         renderArrayInput()
+      ) : currentParam.key === 'model_id' ? (
+        <TrainingIdSelector
+          selectedTid={getCurrentValue()}
+          onTidChange={(value) => handleParamChange(currentParam.key, value, currentParam)}
+          projectId={optimizationParams.pid || 'P0001'}
+          showCompletedOnly={true}
+          placeholder="Select Training ID"
+          disabled={isRunning}
+        />
       ) : (
         <input
           type="text"

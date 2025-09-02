@@ -24,7 +24,9 @@ const TrainingExecution = ({
   onRunTraining,
   status,
   completeText,
-  trainingResponse
+  trainingResponse,
+  modelType,
+  customModel
 }) => {
   return (
     <div className={styles.sectionCard}>
@@ -40,6 +42,15 @@ const TrainingExecution = ({
           >
             {isTraining ? 'Running...' : 'Run Training'}
           </Button>
+        </div>
+        
+        {/* Model Type Info */}
+        <div className={styles.modelInfo}>
+          <span className={styles.label}>Model Type:</span>
+          <span className={styles.value}>{modelType === 'pretrained' ? 'Pretrained Model' : 'Custom Model'}</span>
+          {modelType === 'custom' && customModel && (
+            <span className={styles.value}> ({customModel})</span>
+          )}
         </div>
       </div>
       <div className={styles.statusCard}>

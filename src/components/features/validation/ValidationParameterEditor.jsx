@@ -3,6 +3,7 @@ import { HelpCircle } from 'lucide-react';
 import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
 import Switch from '@mui/material/Switch';
+import TrainingIdSelector from '../training/TrainingIdSelector.jsx';
 import styles from './ValidationParameterEditor.module.css';
 import { normalizeValidationParamValue } from '../../../domain/validation/validationParameters.js';
 
@@ -129,6 +130,15 @@ const ValidationParameterEditor = ({
             {getCurrentValue() ? 'Enabled' : 'Disabled'}
           </span>
         </div>
+      ) : currentParam.key === 'tid' ? (
+        <TrainingIdSelector
+          selectedTid={getCurrentValue()}
+          onTidChange={(value) => handleParamChange(currentParam.key, value, currentParam)}
+          projectId={validationParams.pid || 'P0001'}
+          showCompletedOnly={true}
+          placeholder="Select Training ID"
+          disabled={disabled || currentParam.disabled}
+        />
       ) : (
         <input
           type="text"

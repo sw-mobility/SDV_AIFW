@@ -13,13 +13,15 @@ const useOptimizationState = () => {
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('idle');
   const [results, setResults] = useState([]); // 배열로 변경
+  const [error, setError] = useState(null); // 에러 상태 추가
 
   const handleOptimizationTypeChange = useCallback((type) => {
     setOptimizationType(type);
+    setError(null); // 에러 초기화
     
     const baseParams = {
-      training_id: 'T0001', // Changed to T0001
-      model_name: 'best.pt' // Fixed to best.pt
+      model_id: '', // Empty by default, user must input
+      model_name: 'best.pt' // Default model filename
     };
     
     setOptimizationParams(baseParams); // Set base params immediately
@@ -70,7 +72,7 @@ const useOptimizationState = () => {
         }));
         break;
       case 'check_model_stats':
-        setOptimizationParams(baseParams); // Only input_path needed
+        setOptimizationParams(baseParams); // Only model_id and model_name needed
         break;
       default:
         setOptimizationParams(baseParams);
@@ -90,12 +92,17 @@ const useOptimizationState = () => {
       return;
     }
 
+    if (!optimizationParams.model_id || optimizationParams.model_id.trim() === '') {
+      setError('Model ID는 필수 입력 항목입니다.');
+      return;
+    }
+
     setIsRunning(true);
     setStatus('running');
     setProgress(0);
 
     try {
-      const pid = 'P0001'; // TODO: 실제 프로젝트 ID를 동적으로 가져와야 함
+      const pid = optimizationParams.pid || 'P0001'; // optimizationParams에서 가져오기
       const currentUid = uid; // uid.js에서 가져온 값 사용
 
       console.log('Optimization request params:', {
@@ -121,7 +128,23 @@ const useOptimizationState = () => {
     } catch (error) {
       console.error('Optimization failed:', error);
       setStatus('error');
-      const errorMessage = error.message || 'Unknown error occurred';
+      
+      // 에러 메시지 개선
+      let errorMessage = 'Unknown error occurred';
+      
+      if (error.message) {
+        if (error.message.includes('404') || error.message.includes('Not Found')) {
+          errorMessage = '존재하지 않는 Model ID이거나 잘못 입력한 값이 존재합니다.';
+        } else if (error.message.includes('422') || error.message.includes('Validation Error')) {
+          errorMessage = '입력한 파라미터 값이 올바르지 않습니다. 값을 확인해주세요.';
+        } else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
+          errorMessage = '입력하신 Model ID가 올바른지 확인해주세요. 존재하지 않는 Model ID일 수 있습니다.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsRunning(false);
     }
@@ -134,6 +157,7 @@ const useOptimizationState = () => {
     setProgress(0);
     setStatus('idle');
     setResults([]); // 배열 초기화
+    setError(null); // 에러 초기화
   }, []);
 
   return {
@@ -145,6 +169,7 @@ const useOptimizationState = () => {
     progress,
     status,
     results,
+    error,
     handleRunOptimization,
     handleOptimizationTypeChange,
     handleParamChange,

@@ -63,7 +63,8 @@ const ParameterSection = ({
   isTraining,
   
   // Training type
-  trainingType
+  trainingType,
+  selectedDataset
 }) => {
   const renderSnapshotSelector = () => {
     if (!showCodeEditor) return null;
@@ -161,6 +162,7 @@ const ParameterSection = ({
           onParamChange={onParamChange}
           paramErrors={paramErrors}
           isTraining={isTraining}
+          selectedDataset={selectedDataset}
         />
       );
     });

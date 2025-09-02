@@ -39,19 +39,33 @@ const OptimizationParameterSection = ({
     setOpenParamGroup(openParamGroup === groupIndex ? null : groupIndex);
   };
 
+  // Model ID 파라미터 (항상 표시)
+  const modelIdParam = {
+    key: 'model_id',
+    label: 'Model ID',
+    type: 'text',
+    required: true,
+    desc: 'Training ID (e.g., T0001) or Optimizing ID (e.g., O0001) for the model to optimize',
+    placeholder: 'T0001 or O0001'
+  };
+
   // 선택된 파라미터들 렌더링
   const renderParameterEditors = () => {
-    if (selectedParamKeys.length === 0) {
-      return (
-        <div className={styles.paramCardEmpty}>
-          <div className={styles.emptyMessage}>
-            Select parameters from the left panel to configure optimization settings.
-          </div>
-        </div>
-      );
-    }
-
-    return selectedParamKeys.map((paramKey) => {
+    const editors = [];
+    
+    // Model ID는 항상 첫 번째에 표시
+    editors.push(
+      <OptimizationParameterEditor
+        key="model_id"
+        currentParam={modelIdParam}
+        optimizationParams={optimizationParams}
+        onParamChange={onParamChange}
+        isRunning={isRunning}
+      />
+    );
+    
+    // 선택된 다른 파라미터들 추가
+    selectedParamKeys.forEach((paramKey) => {
       let foundParam = null;
       
       // 모든 그룹에서 파라미터 찾기
@@ -66,24 +80,30 @@ const OptimizationParameterSection = ({
         if (foundParam) break;
       }
       
-      if (!foundParam) return null;
-
-      return (
-        <OptimizationParameterEditor
-          key={paramKey}
-          currentParam={foundParam}
-          optimizationParams={optimizationParams}
-          onParamChange={onParamChange}
-          isRunning={isRunning}
-        />
-      );
+      if (foundParam) {
+        editors.push(
+          <OptimizationParameterEditor
+            key={paramKey}
+            currentParam={foundParam}
+            optimizationParams={optimizationParams}
+            onParamChange={onParamChange}
+            isRunning={isRunning}
+          />
+        );
+      }
     });
+    
+    return editors;
   };
 
-  // 최적화 타입이 변경되면 선택된 파라미터 초기화
+  // 최적화 타입이 변경되면 선택된 파라미터 초기화하고 모든 그룹을 펼침
   React.useEffect(() => {
     setSelectedParamKeys([]);
-    setOpenParamGroup(null);
+    // 모든 그룹을 펼친 상태로 설정
+    const paramGroups = getOptimizationParameterGroups(optimizationType);
+    if (paramGroups.length > 0) {
+      setOpenParamGroup(0); // 첫 번째 그룹을 펼침
+    }
   }, [optimizationType]);
 
   const paramGroups = getOptimizationParameterGroups(optimizationType);

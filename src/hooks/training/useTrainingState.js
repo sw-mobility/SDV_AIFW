@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { getParameterGroupsByAlgorithm } from '../../domain/training/parameterGroups.js';
 import { validateParameter } from '../../domain/training/trainingValidation.js';
 import { useTrainingCore } from './useTrainingCore.js';
@@ -7,19 +7,26 @@ import { useTrainingSnapshots } from './useTrainingSnapshots.js';
 import { useTrainingExecution } from './useTrainingExecution.js';
 import { useTrainingUI } from './useTrainingUI.js';
 
-export const useTrainingState = () => {
+export const useTrainingState = (projectId = 'P0001') => {
   const core = useTrainingCore();
   const datasets = useTrainingDatasets();
   const snapshots = useTrainingSnapshots();
   const ui = useTrainingUI();
+
+  // Model type state 추가
+  const [modelType, setModelType] = useState('pretrained');
+  const [customModel, setCustomModel] = useState('');
 
   const trainingConfig = useMemo(() => ({
     trainingType: core.trainingType,
     selectedDataset: datasets.selectedDataset,
     selectedSnapshot: snapshots.selectedSnapshot,
     algorithm: core.algorithm,
-    algoParams: core.algoParams
-  }), [core.trainingType, datasets.selectedDataset, snapshots.selectedSnapshot, core.algorithm, core.algoParams]);
+    algoParams: core.algoParams,
+    modelType: modelType,
+    customModel: customModel,
+    projectId: projectId // projectId 추가
+  }), [core.trainingType, datasets.selectedDataset, snapshots.selectedSnapshot, core.algorithm, core.algoParams, modelType, customModel, projectId]);
 
   const execution = useTrainingExecution(trainingConfig);
 
@@ -57,6 +64,20 @@ export const useTrainingState = () => {
     execution.runTraining();
   }, [execution]);
 
+  // Model type 변경 핸들러
+  const handleModelTypeChange = useCallback((newModelType) => {
+    setModelType(newModelType);
+    // Model type이 변경되면 custom model 초기화
+    if (newModelType === 'pretrained') {
+      setCustomModel('');
+    }
+  }, []);
+
+  // Custom model 변경 핸들러
+  const handleCustomModelChange = useCallback((newCustomModel) => {
+    setCustomModel(newCustomModel);
+  }, []);
+
   return {
     // Core state
     trainingType: core.trainingType,
@@ -67,6 +88,12 @@ export const useTrainingState = () => {
     setAlgoParams: core.setAlgoParams,
     paramErrors: core.paramErrors,
     setParamErrors: core.setParamErrors,
+
+    // Model type state
+    modelType,
+    setModelType: handleModelTypeChange,
+    customModel,
+    setCustomModel: handleCustomModelChange,
 
     // Dataset state
     datasets: datasets.datasets,
@@ -84,11 +111,9 @@ export const useTrainingState = () => {
 
     // Training execution state
     isTraining: execution.isRunning,
-    setIsTraining: execution.start,
     progress: execution.progress,
-    setProgress: execution.updateProgress,
     status: execution.status,
-    setStatus: execution.start,
+    logs: execution.logs,
     trainingResponse: execution.trainingResponse,
 
     // UI state
@@ -97,11 +122,9 @@ export const useTrainingState = () => {
     showCodeEditor: ui.showCodeEditor,
     setShowCodeEditor: ui.setShowCodeEditor,
     selectedParamKeys: ui.selectedParamKeys,
-    setSelectedParamKeys: ui.setSelectedParamKeys,
 
     // Computed values
     paramGroups,
-    trainingConfig,
 
     // Event handlers
     handleAlgorithmChange,

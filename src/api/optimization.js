@@ -104,87 +104,107 @@ export const convertOnnxToTrtInt8 = async (data, uid = '0001') => {
 
 /**
  * 최적화 요청 데이터 생성 헬퍼 함수
- * API 명세서에 따라 정리
+ * Creates optimization request data according to API specification
  */
 export const createOptimizationRequest = (optimizationType, params, pid, uid = '0001') => {
-  // 기본 요청 구조 (API 명세서에 따라)
+  // Helper function to create input_path based on model ID type
+  const createInputPath = (modelId, modelName) => {
+    if (modelId.startsWith('T')) {
+      // Use training path for Training ID (best.pt)
+      return `artifacts/${pid}/training/${modelId}/best.pt`;
+    } else if (modelId.startsWith('O')) {
+      // Use optimizing path for Optimizing ID (best.onnx)
+      return `artifacts/${pid}/optimizing/${modelId}/best.onnx`;
+    } else {
+      // Default to training path for unknown ID format
+      return `artifacts/${pid}/training/${modelId}/best.pt`;
+    }
+  };
+
+  // Base request structure (according to API specification)
   const baseRequest = {
     pid,
     parameters: {
       kind: optimizationType,
-      input_path: `artifacts/${pid}/training/${params.training_id || 'T0001'}/${params.model_name || 'best.pt'}`
+      input_path: createInputPath(
+        params.model_id || 'T0001'
+      )
+    }
+  };
+
+  // Helper function to get optimization-specific parameters
+  const getOptimizationParams = (type, params) => {
+    const baseParams = { ...baseRequest.parameters };
+    
+    switch (type) {
+      case 'pt_to_onnx_fp32':
+      case 'pt_to_onnx_fp16':
+        return {
+          ...baseParams,
+          kind: 'pt_to_onnx',
+          output_path: params.output_path || `best_${type.includes('fp16') ? 'fp16' : 'fp32'}.onnx`,
+          input_size: params.input_size || [640, 640],
+          batch_size: params.batch_size || 1,
+          channels: params.channels || 3
+        };
+        
+      case 'onnx_to_trt':
+        return {
+          ...baseParams,
+          kind: 'onnx_to_trt',
+          output_path: params.output_path || `best_${params.precision || 'fp32'}.engine`,
+          precision: params.precision || 'fp32',
+          device: params.device || 'gpu'
+        };
+        
+      case 'onnx_to_trt_int8':
+        return {
+          ...baseParams,
+          kind: 'onnx_to_trt_int8',
+          output_path: params.output_path || 'best_int8.engine',
+          calib_dir: params.calib_dir || '/app/int8_calib_images',
+          precision: 'int8',
+          device: params.device || 'gpu',
+          mixed_fp16: params.mixed_fp16 || false,
+          sparse: params.sparse || false,
+          int8_max_batches: params.int8_max_batches || 10,
+          input_size: params.input_size || [640, 640],
+          workspace_mib: params.workspace_mib || 2048
+        };
+        
+      case 'prune_unstructured':
+        return {
+          ...baseParams,
+          kind: 'prune_unstructured',
+          output_path: params.output_path || 'best_pruned_unstructured.pt',
+          amount: params.amount || 0.2,
+          pruning_type: params.pruning_type || 'l1_unstructured'
+        };
+        
+      case 'prune_structured':
+        return {
+          ...baseParams,
+          kind: 'prune_structured',
+          output_path: params.output_path || 'best_pruned_structured.pt',
+          amount: params.amount || 0.2,
+          pruning_type: params.pruning_type || 'ln_structured',
+          n: params.n || 2,
+          dim: params.dim || 0
+        };
+        
+      case 'check_model_stats':
+        return {
+          ...baseParams,
+          kind: 'check_model_stats'
+        };
+        
+      default:
+        return baseParams;
     }
   };
 
   // 최적화 타입별 파라미터 추가
-  switch (optimizationType) {
-    case 'pt_to_onnx_fp32':
-    case 'pt_to_onnx_fp16':
-      baseRequest.parameters = {
-        ...baseRequest.parameters,
-        kind: 'pt_to_onnx', // API 명세서에 따라 'pt_to_onnx'로 통일
-        output_path: params.output_path || `${params.model_name?.replace('.pt', '') || 'model'}_${optimizationType.includes('fp16') ? 'fp16' : 'fp32'}.onnx`,
-        input_size: params.input_size || [640, 640],
-        batch_size: params.batch_size || 1,
-        channels: params.channels || 3
-      };
-      break;
-      
-    case 'onnx_to_trt':
-      baseRequest.parameters = {
-        ...baseRequest.parameters,
-        kind: 'onnx_to_trt', // API 명세서에 따라 'onnx_to_trt'로 통일
-        output_path: params.output_path || `${params.model_name?.replace('.onnx', '') || 'model'}_${params.precision || 'fp32'}.engine`,
-        precision: params.precision || 'fp32', // 'fp32' or 'fp16'
-        device: params.device || 'gpu' // 'gpu', 'dla', 'dla0', 'dla1'
-      };
-      break;
-      
-    case 'onnx_to_trt_int8':
-      baseRequest.parameters = {
-        ...baseRequest.parameters,
-        kind: 'onnx_to_trt_int8', // API 명세서에 따라 'onnx_to_trt_int8'로 통일
-        output_path: params.output_path || `${params.model_name?.replace('.onnx', '') || 'model'}_int8.engine`,
-        calib_dir: params.calib_dir || '/app/int8_calib_images',
-        precision: 'int8', // 고정값
-        device: params.device || 'gpu', // 'gpu' or 'dla'
-        mixed_fp16: params.mixed_fp16 || false,
-        sparse: params.sparse || false,
-        int8_max_batches: params.int8_max_batches || 10,
-        input_size: params.input_size || [640, 640],
-        workspace_mib: params.workspace_mib || 2048
-      };
-      break;
-      
-    case 'prune_unstructured':
-      baseRequest.parameters = {
-        ...baseRequest.parameters,
-        kind: 'prune_unstructured', // API 명세서에 따라 'prune_unstructured'로 통일
-        output_path: params.output_path || `${params.model_name?.replace('.pt', '') || 'model'}_pruned_unstructured.pt`,
-        amount: params.amount || 0.2,
-        pruning_type: params.pruning_type || 'l1_unstructured'
-      };
-      break;
-      
-    case 'prune_structured':
-      baseRequest.parameters = {
-        ...baseRequest.parameters,
-        kind: 'prune_structured', // API 명세서에 따라 'prune_structured'로 통일
-        output_path: params.output_path || `${params.model_name?.replace('.pt', '') || 'model'}_pruned_structured.pt`,
-        amount: params.amount || 0.2,
-        pruning_type: params.pruning_type || 'ln_structured',
-        n: params.n || 2,
-        dim: params.dim || 0
-      };
-      break;
-      
-    case 'check_model_stats':
-      baseRequest.parameters = {
-        ...baseRequest.parameters,
-        kind: 'check_model_stats' // API 명세서에 따라 'check_model_stats'로 통일
-      };
-      break;
-  }
+  baseRequest.parameters = getOptimizationParams(optimizationType, params);
 
   return baseRequest;
 };

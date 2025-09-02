@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './OptimizationPage.module.css';
 import OptimizationTypeSelector from '../../components/features/optimization/OptimizationTypeSelector.jsx';
 import OptimizationParameterSection from '../../components/features/optimization/OptimizationParameterSection.jsx';
@@ -6,6 +6,8 @@ import OptimizationExecution from '../../components/features/optimization/Optimi
 import { useOptimizationState } from '../../hooks';
 
 const OptimizationPage = () => {
+  const [projectId, setProjectId] = useState('P0001');
+  
   const {
     // Core state
     optimizationType,
@@ -16,6 +18,7 @@ const OptimizationPage = () => {
     progress,
     status,
     results,
+    error,
     
     // Event handlers
     handleRunOptimization,
@@ -23,6 +26,12 @@ const OptimizationPage = () => {
     handleParamChange,
     resetOptimization
   } = useOptimizationState();
+
+  // Project ID 변경 시 optimizationParams 업데이트
+  const handleProjectIdChange = (newProjectId) => {
+    setProjectId(newProjectId);
+    handleParamChange('pid', newProjectId);
+  };
 
   return (
     <div className={styles.pageContainer}>
@@ -33,6 +42,29 @@ const OptimizationPage = () => {
             Optimize your trained models through conversion, pruning, and analysis. Select a model and optimization type to get started.
           </p>
         </div>
+        
+        {/* Project ID Selector */}
+        <div className={styles.selectorGroup}>
+          <div className={styles.projectSelector}>
+            <label htmlFor="projectId">Project ID:</label>
+            <input
+              id="projectId"
+              type="text"
+              value={projectId}
+              onChange={(e) => handleProjectIdChange(e.target.value)}
+              placeholder="P0001"
+              className={styles.projectInput}
+              disabled={isRunning}
+            />
+          </div>
+        </div>
+        
+        {/* Error Message */}
+        {error && (
+          <div className={styles.errorMessage}>
+            <span>Error: {error}</span>
+          </div>
+        )}
 
         {/* Selectors */}
         <div className={styles.selectorGroup}>
@@ -43,25 +75,29 @@ const OptimizationPage = () => {
           />
         </div>
 
-        {/* Parameter Configuration */}
-        <OptimizationParameterSection
-          optimizationType={optimizationType}
-          optimizationParams={optimizationParams}
-          onParamChange={handleParamChange}
-          onReset={resetOptimization}
-          isRunning={isRunning}
-        />
+        {/* Parameter Configuration - Optimization Type 선택 후에만 표시 */}
+        {optimizationType && (
+          <OptimizationParameterSection
+            optimizationType={optimizationType}
+            optimizationParams={optimizationParams}
+            onParamChange={handleParamChange}
+            onReset={resetOptimization}
+            isRunning={isRunning}
+          />
+        )}
         
-        {/* Execution */}
-        <OptimizationExecution
-          isRunning={isRunning}
-          progress={progress}
-          status={status}
-          results={results}
-          onRunOptimization={handleRunOptimization}
-          optimizationType={optimizationType}
-          optimizationParams={optimizationParams}
-        />
+        {/* Execution - Optimization Type 선택 후에만 표시 */}
+        {optimizationType && (
+          <OptimizationExecution
+            isRunning={isRunning}
+            progress={progress}
+            status={status}
+            results={results}
+            onRunOptimization={handleRunOptimization}
+            optimizationType={optimizationType}
+            optimizationParams={optimizationParams}
+          />
+        )}
       </div>
     </div>
   );

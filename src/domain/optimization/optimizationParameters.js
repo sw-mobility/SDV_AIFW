@@ -11,21 +11,7 @@ export const OPTIMIZATION_PARAM_GROUPS = {
 };
 
 export const getOptimizationParameterGroups = (optimizationType) => {
-  const baseGroups = [
-    {
-      group: OPTIMIZATION_PARAM_GROUPS.GENERAL,
-      params: [
-        {
-          key: 'training_id',
-          label: 'Training ID',
-          type: 'text',
-          required: true,
-          desc: 'Training ID to use for optimization (e.g., T0015)',
-          placeholder: 'T0015'
-        }
-      ]
-    }
-  ];
+  const baseGroups = [];
 
   // 최적화 타입별 특화 파라미터 추가 (API 명세서에 따라)
   if (optimizationType === 'pt_to_onnx_fp32' || optimizationType === 'pt_to_onnx_fp16') {

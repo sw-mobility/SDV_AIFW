@@ -75,9 +75,12 @@ export const useValidation = () => {
       // Dataset에서 모델 정보를 가져와서 설정
       // 예: dataset에 model_path나 model_name 필드가 있다면 사용
       const modelPath = selectedDataset.model_path || selectedDataset.model_name || 'best.pt';
+      const projectId = selectedDataset.pid || selectedDataset.projectId || 'P0001';
+      
       setValidationParams(prev => ({
         ...prev,
-        model: modelPath
+        model: modelPath,
+        pid: projectId
       }));
     }
   }, [selectedDataset]);

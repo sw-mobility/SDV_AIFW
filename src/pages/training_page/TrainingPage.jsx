@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import AlgorithmSelector from '../../components/features/training/AlgorithmSelector.jsx';
 import DatasetSelector from '../../components/features/training/DatasetSelector.jsx';
 import TrainingExecution from '../../components/features/training/TrainingExecution.jsx';
 import ContinualLearningInfo from '../../components/features/training/ContinualLearningInfo.jsx';
 import TrainingTypeSelector from '../../components/features/training/TrainingTypeSelector.jsx';
+import ModelSelector from '../../components/features/training/ModelSelector.jsx';
 import ParameterSection from '../../components/features/training/ParameterSection.jsx';
+import TrainingResultList from '../../components/features/training/TrainingResultList.jsx';
 import { useTrainingState } from '../../hooks';
 import { TRAINING_TYPES } from '../../domain/training/trainingTypes.js';
+import { uid } from '../../api/uid.js';
 import styles from './TrainingPage.module.css';
 
 const TrainingPage = () => {
+  const { projectName } = useParams();
+  const [modelType, setModelType] = useState('pretrained');
+  const [customModel, setCustomModel] = useState('');
+  const [actualProjectId, setActualProjectId] = useState('P0001');
+  const [projectLoading, setProjectLoading] = useState(true);
+  
   const {
     // Core state
     trainingType,
@@ -56,7 +66,60 @@ const TrainingPage = () => {
     handleRemoveParamKey,
     handleReset,
     handleRunTraining,
-  } = useTrainingState();
+  } = useTrainingState(actualProjectId);
+
+  // Project 정보를 가져와서 실제 pid를 찾기
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      if (!projectName) {
+        setActualProjectId('P0001');
+        setProjectLoading(false);
+        return;
+      }
+      
+      try {
+        setProjectLoading(true);
+        const response = await fetch(`http://localhost:5002/projects/projects/`, {
+          headers: {
+            'uid': uid
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Projects API response:', data);
+          
+          // projectName으로 프로젝트 찾기 (예: "mynew" -> name이 "mynew"인 프로젝트)
+          const project = data.find(p => p.name === projectName);
+          if (project) {
+            // Projects API 응답에서 pid 필드를 사용 (Training API의 pid와 매칭)
+            const projectId = project.pid || 'P0001';
+            setActualProjectId(projectId);
+            console.log('Project found:', project.name, 'ID:', projectId);
+            console.log('Full project data:', project);
+          } else {
+            console.warn('Project not found, using default P0001');
+            setActualProjectId('P0001');
+          }
+        } else {
+          console.warn('Failed to fetch projects, using default P0001');
+          setActualProjectId('P0001');
+        }
+      } catch (error) {
+        console.error('Error fetching project data:', error);
+        setActualProjectId('P0001');
+      } finally {
+        setProjectLoading(false);
+      }
+    };
+    
+    fetchProjectData();
+  }, [projectName]);
+  
+  // 디버깅을 위한 로그
+  console.log('TrainingPage - projectName:', projectName);
+  console.log('TrainingPage - actualProjectId:', actualProjectId);
+  console.log('TrainingPage - projectLoading:', projectLoading);
 
   const renderDatasetSection = () => (
       <div className={styles.selectorGroup}>
@@ -68,6 +131,23 @@ const TrainingPage = () => {
             datasetError={datasetError}
         />
       </div>
+  );
+
+  const renderModelSection = () => (
+    <div className={styles.selectorGroup}>
+      {/* 통합된 Model Selector */}
+      <ModelSelector
+        modelType={modelType}
+        onModelTypeChange={setModelType}
+        algorithm={algorithm}
+        onAlgorithmChange={handleAlgorithmChange}
+        customModel={customModel}
+        onCustomModelChange={setCustomModel}
+        projectId={actualProjectId}
+        disabled={isTraining}
+        projectLoading={projectLoading}
+      />
+    </div>
   );
 
   const renderParameterSection = () => (
@@ -91,6 +171,7 @@ const TrainingPage = () => {
           paramErrors={paramErrors}
           isTraining={isTraining}
           trainingType={trainingType}
+          selectedDataset={selectedDataset}
       />
   );
 
@@ -109,39 +190,46 @@ const TrainingPage = () => {
               onTrainingTypeChange={setTrainingType}
           />
 
-          <AlgorithmSelector
-              algorithm={algorithm}
-              onAlgorithmChange={handleAlgorithmChange}
-          />
-
           {trainingType === TRAINING_TYPES.STANDARD ? (
               <>
                 {renderDatasetSection()}
+                {renderModelSection()}
               </>
           ) : (
               <>
                 <ContinualLearningInfo />
                 {renderDatasetSection()}
+                {renderModelSection()}
               </>
           )}
         </div>
 
-        {/* expert mode 삼단구조 부분 */}
-        <div className={styles.parameterSectionWrapper}>
-          {renderParameterSection()}
-        </div>
+        {/* Dataset과 Model이 모두 선택된 후에만 표시 */}
+        {selectedDataset && ((modelType === 'pretrained' && algorithm) || (modelType === 'custom' && customModel)) && (
+          <>
+            {/* expert mode 삼단구조 부분 */}
+            <div className={styles.parameterSectionWrapper}>
+              {renderParameterSection()}
+            </div>
 
-        {/* parameter 필드 height 에 따라 아래로 더 내려가는 하단 컴포넌트 */}
-        <div className={styles.container}>
-          <TrainingExecution
-              isTraining={isTraining}
-              progress={progress}
-              onRunTraining={handleRunTraining}
-              status={status}
-              completeText="Training completed!"
-              trainingResponse={trainingResponse}
-          />
-        </div>
+            {/* parameter 필드 height 에 따라 아래로 더 내려가는 하단 컴포넌트 */}
+            <div className={styles.container}>
+              <TrainingExecution
+                  isTraining={isTraining}
+                  progress={progress}
+                  onRunTraining={handleRunTraining}
+                  status={status}
+                  completeText="Training completed!"
+                  trainingResponse={trainingResponse}
+                  modelType={modelType}
+                  customModel={customModel}
+              />
+            </div>
+          </>
+        )}
+
+        {/* Training Results List - 항상 표시 */}
+        <TrainingResultList />
       </div>
   );
 };

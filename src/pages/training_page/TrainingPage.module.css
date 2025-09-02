@@ -49,6 +49,17 @@
   margin-bottom: 32px;
 }
 
+.classesInfo {
+  background: #f8fafc;
+  border: 1.5px solid #d1d5db;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 14px;
+  color: #475569;
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .container {
