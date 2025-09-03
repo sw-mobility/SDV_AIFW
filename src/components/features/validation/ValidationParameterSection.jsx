@@ -40,17 +40,33 @@ const ValidationParameterSection = ({
     setOpenParamGroup(openParamGroup === groupIndex ? null : groupIndex);
   };
 
+  // TID 파라미터 (항상 표시)
+  const tidParam = {
+    key: 'tid',
+    label: 'Training ID',
+    type: 'tid', // ValidationParameterEditor에서 특별 처리
+    required: true,
+    desc: 'Training ID (e.g., T0001) for the model to validate',
+    placeholder: 'T0001'
+  };
+
   // 선택된 파라미터들 렌더링
   const renderParameterEditors = () => {
-    if (selectedParamKeys.length === 0) {
-      return (
-        <div className={styles.paramCard + ' ' + styles.paramCardEmpty}>
-          <span className={styles.emptyMessage}>왼쪽에서 파라미터를 선택하세요.</span>
-        </div>
-      );
-    }
-
-    return selectedParamKeys.map((key) => {
+    const editors = [];
+    
+    // TID 파라미터는 항상 첫 번째로 표시
+    editors.push(
+      <ValidationParameterEditor
+        key="tid"
+        currentParam={tidParam}
+        validationParams={validationParams}
+        onParamChange={onParamChange}
+        disabled={disabled}
+      />
+    );
+    
+    // 선택된 파라미터들 추가
+    selectedParamKeys.forEach((key) => {
       // 파라미터 정의 찾기
       let foundParam = null;
       for (const group of VALIDATION_PARAM_GROUPS) {
@@ -63,9 +79,9 @@ const ValidationParameterSection = ({
         if (foundParam) break;
       }
       
-      if (!foundParam) return null;
+      if (!foundParam) return;
       
-      return (
+      editors.push(
         <ValidationParameterEditor
           key={key}
           currentParam={foundParam}
@@ -75,6 +91,17 @@ const ValidationParameterSection = ({
         />
       );
     });
+    
+    if (editors.length === 1) {
+      // TID만 있는 경우 안내 메시지 추가
+      editors.push(
+        <div key="empty-message" className={styles.paramCard + ' ' + styles.paramCardEmpty}>
+          <span className={styles.emptyMessage}>왼쪽에서 추가 파라미터를 선택하세요.</span>
+        </div>
+      );
+    }
+    
+    return editors;
   };
 
   return (

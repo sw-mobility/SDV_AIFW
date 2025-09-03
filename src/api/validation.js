@@ -100,3 +100,28 @@ export async function getValidationStatus({ vid }) {
     const result = await response.json();
     return result;
 }
+
+/**
+ * Get list of validation histories
+ * GET /validation/list
+ * 
+ * @param {Object} params - Validation list parameters
+ * @param {string} params.uid - User ID (header)
+ * @returns {Promise<Array>} List of validation histories
+ */
+export async function getValidationList({ uid }) {
+    const response = await fetch(`${BASE_URL}/validation/list`, {
+        method: 'GET',
+        headers: { 
+            'accept': 'application/json',
+            'uid': uid
+        }
+    });
+    
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to get validation list');
+    }
+    
+    return await response.json();
+}

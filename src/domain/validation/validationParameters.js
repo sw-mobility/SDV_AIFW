@@ -5,21 +5,6 @@
 
 export const VALIDATION_PARAM_GROUPS = [
   {
-    name: 'Training Info',
-    key: 'training',
-    params: [
-      {
-        key: 'tid',
-        label: 'Training ID',
-        type: 'text',
-        default: '',
-        desc: 'Training ID to validate (e.g., T0001)',
-        placeholder: 'T0001',
-        required: true
-      }
-    ]
-  },
-  {
     name: 'Model Settings',
     key: 'model',
     params: [

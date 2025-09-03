@@ -1,37 +1,35 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './OptimizationPage.module.css';
 import OptimizationTypeSelector from '../../components/features/optimization/OptimizationTypeSelector.jsx';
+import OptimizationModelSelector from '../../components/features/optimization/OptimizationModelSelector.jsx';
 import OptimizationParameterSection from '../../components/features/optimization/OptimizationParameterSection.jsx';
 import OptimizationExecution from '../../components/features/optimization/OptimizationExecution.jsx';
+import OptimizationHistoryList from '../../components/features/optimization/OptimizationHistoryList.jsx';
 import { useOptimizationState } from '../../hooks';
 
 const OptimizationPage = () => {
-  const [projectId, setProjectId] = useState('P0001');
-  
   const {
     // Core state
     optimizationType,
+    modelType,
+    modelId,
     optimizationParams,
     
     // Execution state
     isRunning,
     progress,
     status,
-    results,
     error,
     
     // Event handlers
     handleRunOptimization,
     handleOptimizationTypeChange,
+    handleModelTypeChange,
+    handleModelIdChange,
     handleParamChange,
-    resetOptimization
+    resetOptimization,
+    refreshOptimizationHistory
   } = useOptimizationState();
-
-  // Project ID 변경 시 optimizationParams 업데이트
-  const handleProjectIdChange = (newProjectId) => {
-    setProjectId(newProjectId);
-    handleParamChange('pid', newProjectId);
-  };
 
   return (
     <div className={styles.pageContainer}>
@@ -43,21 +41,7 @@ const OptimizationPage = () => {
           </p>
         </div>
         
-        {/* Project ID Selector */}
-        <div className={styles.selectorGroup}>
-          <div className={styles.projectSelector}>
-            <label htmlFor="projectId">Project ID:</label>
-            <input
-              id="projectId"
-              type="text"
-              value={projectId}
-              onChange={(e) => handleProjectIdChange(e.target.value)}
-              placeholder="P0001"
-              className={styles.projectInput}
-              disabled={isRunning}
-            />
-          </div>
-        </div>
+
         
         {/* Error Message */}
         {error && (
@@ -74,6 +58,15 @@ const OptimizationPage = () => {
             disabled={isRunning}
           />
         </div>
+
+        {/* Model Selection */}
+        <OptimizationModelSelector
+          selectedModelType={modelType}
+          selectedModelId={modelId}
+          onModelTypeChange={handleModelTypeChange}
+          onModelIdChange={handleModelIdChange}
+          disabled={isRunning}
+        />
 
         {/* Parameter Configuration - Optimization Type 선택 후에만 표시 */}
         {optimizationType && (
@@ -92,12 +85,16 @@ const OptimizationPage = () => {
             isRunning={isRunning}
             progress={progress}
             status={status}
-            results={results}
             onRunOptimization={handleRunOptimization}
             optimizationType={optimizationType}
             optimizationParams={optimizationParams}
           />
         )}
+      </div>
+
+      {/* Optimization History List - 항상 표시 */}
+      <div className={`${styles.container} ${styles.historyContainer}`}>
+        <OptimizationHistoryList onRefresh={refreshOptimizationHistory} />
       </div>
     </div>
   );

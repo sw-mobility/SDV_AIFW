@@ -229,7 +229,9 @@ const TrainingPage = () => {
         )}
 
         {/* Training Results List - 항상 표시 */}
-        <TrainingResultList />
+        <div className={styles.container}>
+          <TrainingResultList />
+        </div>
       </div>
   );
 };

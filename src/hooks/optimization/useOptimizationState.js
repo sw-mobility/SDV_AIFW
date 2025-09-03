@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { runOptimization } from '../../api/optimization.js';
+import { runOptimization, getOptimizationList } from '../../api/optimization.js';
 import { uid } from '../../api/uid.js';
 
 /**
@@ -8,11 +8,13 @@ import { uid } from '../../api/uid.js';
  */
 const useOptimizationState = () => {
   const [optimizationType, setOptimizationType] = useState('');
+  const [modelType, setModelType] = useState('training'); // 'training' 또는 'optimization'
+  const [modelId, setModelId] = useState(''); // TID 또는 OID
   const [optimizationParams, setOptimizationParams] = useState({});
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('idle');
-  const [results, setResults] = useState([]); // 배열로 변경
+  // results state 제거 - Optimization History로 통일
   const [error, setError] = useState(null); // 에러 상태 추가
 
   const handleOptimizationTypeChange = useCallback((type) => {
@@ -86,13 +88,26 @@ const useOptimizationState = () => {
     }));
   }, []);
 
+  // Model type 변경 (training 또는 optimization)
+  const handleModelTypeChange = useCallback((type) => {
+    setModelType(type);
+    setModelId(''); // 모델 타입 변경 시 ID 초기화
+    setError(null);
+  }, []);
+
+  // Model ID 변경 (TID 또는 OID)
+  const handleModelIdChange = useCallback((id) => {
+    setModelId(id);
+    setError(null);
+  }, []);
+
   const handleRunOptimization = useCallback(async () => {
     if (!optimizationType) {
       console.error('Optimization type is required');
       return;
     }
 
-    if (!optimizationParams.model_id || optimizationParams.model_id.trim() === '') {
+    if (!modelId || modelId.trim() === '') {
       setError('Model ID는 필수 입력 항목입니다.');
       return;
     }
@@ -102,11 +117,14 @@ const useOptimizationState = () => {
     setProgress(0);
 
     try {
-      const pid = optimizationParams.pid || 'P0001'; // optimizationParams에서 가져오기
+      // PID는 기본값으로 P0001 사용 (다른 페이지들과 동일)
+      const pid = 'P0001';
       const currentUid = uid; // uid.js에서 가져온 값 사용
 
       console.log('Optimization request params:', {
         optimizationType,
+        modelType,
+        modelId,
         params: optimizationParams,
         pid,
         uid: currentUid
@@ -114,16 +132,18 @@ const useOptimizationState = () => {
 
       setProgress(10);
 
-      const response = await runOptimization(optimizationType, optimizationParams, pid, currentUid);
+      const response = await runOptimization(optimizationType, { ...optimizationParams, model_id: modelId }, pid, currentUid);
       
       setProgress(50);
       setProgress(80);
 
-      // 새로운 결과를 기존 배열에 추가
-      setResults(prevResults => [...prevResults, response]);
-
       setProgress(100);
       setStatus('success');
+      
+      // Optimization 완료 시 history 자동 새로고침
+      setTimeout(() => {
+        refreshOptimizationHistory();
+      }, 1000);
 
     } catch (error) {
       console.error('Optimization failed:', error);
@@ -152,28 +172,46 @@ const useOptimizationState = () => {
 
   const resetOptimization = useCallback(() => {
     setOptimizationType('');
+    setModelType('training');
+    setModelId('');
     setOptimizationParams({});
     setIsRunning(false);
     setProgress(0);
     setStatus('idle');
-    setResults([]); // 배열 초기화
+    // results 초기화 제거 - Optimization History로 통일
     setError(null); // 에러 초기화
+  }, []);
+
+  // Optimization History 새로고침 함수
+  const refreshOptimizationHistory = useCallback(async () => {
+    try {
+      // OptimizationHistoryList 컴포넌트에서 직접 API 호출하므로
+      // 여기서는 단순히 콜백만 제공
+      console.log('Optimization history refresh requested');
+    } catch (error) {
+      console.error('Failed to refresh optimization history:', error);
+    }
   }, []);
 
   return {
     optimizationType,
     setOptimizationType,
+    modelType,
+    modelId,
     optimizationParams,
     setOptimizationParams,
     isRunning,
     progress,
     status,
-    results,
+    // results 제거 - Optimization History로 통일
     error,
     handleRunOptimization,
     handleOptimizationTypeChange,
+    handleModelTypeChange,
+    handleModelIdChange,
     handleParamChange,
-    resetOptimization
+    resetOptimization,
+    refreshOptimizationHistory
   };
 };
 

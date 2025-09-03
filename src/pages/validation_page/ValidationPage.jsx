@@ -5,7 +5,8 @@ import ValidationParameterSection from '../../components/features/validation/Val
 import Button from '../../components/ui/atoms/Button.jsx';
 import ProgressBar from '../../components/ui/atoms/ProgressBar.jsx';
 import StatusBadge from '../../components/features/validation/StatusBadge.jsx';
-import ResultsTable from '../../components/features/validation/ResultsTable.jsx';
+
+import ValidationHistoryList from '../../components/features/validation/ValidationHistoryList.jsx';
 import { useValidation } from '../../hooks';
 
 const ValidationPage = () => {
@@ -23,7 +24,8 @@ const ValidationPage = () => {
     handleRunValidation,
     validationParams,
     updateValidationParams,
-    resetValidationParams
+    resetValidationParams,
+    refreshValidationHistory
   } = useValidation();
 
   const renderDatasetSection = () => (
@@ -53,22 +55,11 @@ const ValidationPage = () => {
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>Validation</h1>
           <p className={styles.pageDescription}>
-            Select a dataset to run validation. The model will be automatically determined from the dataset.
+            Validate your trained models with selected datasets and analyze performance metrics.
           </p>
         </div>
-        
-        {error && (
-          <div className={styles.errorMessage}>
-            <span>Error: {error}</span>
-          </div>
-        )}
-        
-        {/* Dataset 선택기 */}
-        {renderDatasetSection()}
-      </div>
 
-      {/* 파라미터 섹션 - training 페이지와 동일한 구조 */}
-      <div className={styles.parameterSectionWrapper}>
+        {renderDatasetSection()}
         {renderParameterSection()}
       </div>
 
@@ -106,14 +97,13 @@ const ValidationPage = () => {
             </div>
           )}
           
-          {/* 결과 섹션 */}
-          {results.length > 0 && (
-            <div className={styles.resultsSection}>
-              <h3 style={{ marginBottom: 16 }}>Results</h3>
-              <ResultsTable results={results} />
-            </div>
-          )}
+
         </div>
+      </div>
+
+      {/* Validation History List - 항상 표시 */}
+      <div className={`${styles.container} ${styles.historyContainer}`}>
+        <ValidationHistoryList onRefresh={refreshValidationHistory} />
       </div>
     </div>
   );

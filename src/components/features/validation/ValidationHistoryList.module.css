@@ -1,6 +1,6 @@
 /* 전체 컨테이너 */
 .container {
-  margin-top: 32px;
+  margin-top: 0; /* 상단 여백 제거 (상위 container에서 처리) */
   background: transparent;
 }
 
@@ -97,14 +97,14 @@
 }
 
 /* 셀별 스타일 */
-.tidCell {
+.vidCell {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 13px;
   font-weight: 500;
   color: #1f2937;
 }
 
-.tidValue {
+.vidValue {
   display: block;
   margin-bottom: 4px;
 }
@@ -117,18 +117,18 @@
   border-radius: 4px;
 }
 
-.algorithmCell {
+.modelCell {
   font-size: 14px;
   color: #374151;
   font-weight: 500;
 }
 
-.algorithmName {
+.modelName {
   display: block;
   margin-bottom: 4px;
 }
 
-.pretrainedTag {
+.codebaseTag {
   font-size: 11px;
   color: #059669;
   background: #d1fae5;
@@ -156,29 +156,18 @@
   border-radius: 4px;
 }
 
+.metricsCell {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 400;
+  max-width: 200px;
+  word-break: break-word;
+}
+
 .dateCell {
   font-size: 13px;
   color: #6b7280;
   font-weight: 400;
-}
-
-.epochsCell {
-  font-size: 14px;
-  color: #374151;
-  font-weight: 500;
-}
-
-.epochsValue {
-  display: block;
-  margin-bottom: 4px;
-}
-
-.batchInfo {
-  font-size: 11px;
-  color: #6b7280;
-  background: #f3f4f6;
-  padding: 2px 6px;
-  border-radius: 4px;
 }
 
 /* 상태 배지 스타일 */
@@ -395,6 +384,36 @@
   word-break: break-word;
 }
 
+/* Metrics 섹션 스타일 */
+.metricsSection {
+  margin-bottom: 24px;
+}
+
+.metricsSection h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.metricItem {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
 .errorDetails {
   background: #fef2f2;
   border: 1px solid #fecaca;
@@ -446,5 +465,10 @@
   .detailGrid {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+  
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 }

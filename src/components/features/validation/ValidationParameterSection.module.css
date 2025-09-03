@@ -9,7 +9,6 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 40px;
   box-sizing: border-box;
   min-height: 0;
   flex: 1;
@@ -96,7 +95,6 @@
   .paramSectionWrap {
     grid-template-columns: 1fr;
     gap: 24px;
-    padding: 0 20px;
   }
 
   .paramSummaryBox {
@@ -107,6 +105,6 @@
 
 @media (max-width: 900px) {
   .paramSectionWrap {
-    padding: 0 20px;
+    /* padding 제거 - 상위 container에서 처리 */
   }
 }

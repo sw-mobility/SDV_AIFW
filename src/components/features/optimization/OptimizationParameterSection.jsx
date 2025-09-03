@@ -39,32 +39,11 @@ const OptimizationParameterSection = ({
     setOpenParamGroup(openParamGroup === groupIndex ? null : groupIndex);
   };
 
-  // Model ID 파라미터 (항상 표시)
-  const modelIdParam = {
-    key: 'model_id',
-    label: 'Model ID',
-    type: 'text',
-    required: true,
-    desc: 'Training ID (e.g., T0001) or Optimizing ID (e.g., O0001) for the model to optimize',
-    placeholder: 'T0001 or O0001'
-  };
-
   // 선택된 파라미터들 렌더링
   const renderParameterEditors = () => {
     const editors = [];
     
-    // Model ID는 항상 첫 번째에 표시
-    editors.push(
-      <OptimizationParameterEditor
-        key="model_id"
-        currentParam={modelIdParam}
-        optimizationParams={optimizationParams}
-        onParamChange={onParamChange}
-        isRunning={isRunning}
-      />
-    );
-    
-    // 선택된 다른 파라미터들 추가
+    // 선택된 파라미터들 추가
     selectedParamKeys.forEach((paramKey) => {
       let foundParam = null;
       
@@ -92,6 +71,15 @@ const OptimizationParameterSection = ({
         );
       }
     });
+    
+    if (editors.length === 0) {
+      // 파라미터가 선택되지 않은 경우 안내 메시지 추가
+      editors.push(
+        <div key="empty-message" className={styles.paramCard + ' ' + styles.paramCardEmpty}>
+          <span className={styles.emptyMessage}>왼쪽에서 파라미터를 선택하세요.</span>
+        </div>
+      );
+    }
     
     return editors;
   };

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { getTrainingList } from '../../../api/training.js';
 import { uid } from '../../../api/uid.js';
-import Table from '../../ui/atoms/Table.jsx';
 import styles from './TrainingResultList.module.css';
 
 const TrainingResultList = () => {
   const [trainings, setTrainings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedTraining, setSelectedTraining] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchTrainings = async () => {
     setLoading(true);
@@ -94,117 +95,15 @@ const TrainingResultList = () => {
     return '-';
   };
 
-  const columns = [
-    { 
-      key: 'tid', 
-      label: 'Training ID', 
-      sortable: true,
-      width: '120px'
-    },
-    { 
-      key: 'algorithm', 
-      label: 'Algorithm', 
-      sortable: true,
-      width: '140px'
-    },
-    { 
-      key: 'dataset', 
-      label: 'Dataset', 
-      sortable: true,
-      width: '160px'
-    },
-    { 
-      key: 'status', 
-      label: 'Status', 
-      sortable: true,
-      width: '100px'
-    },
-    { 
-      key: 'started_at', 
-      label: 'Started At', 
-      sortable: true,
-      width: '140px'
-    },
-    { 
-      key: 'epochs', 
-      label: 'Epochs', 
-      sortable: true,
-      width: '80px'
-    },
-    { 
-      key: 'actions', 
-      label: 'Actions', 
-      sortable: false,
-      width: '120px'
-    }
-  ];
+  const handleRowClick = (training) => {
+    setSelectedTraining(training);
+    setIsModalOpen(true);
+  };
 
-  const tableData = trainings.map(training => ({
-    id: training.tid, // Table 컴포넌트의 rowKey로 사용
-    cells: [
-      (
-        <div className={styles.tidCell}>
-          <span className={styles.tidValue}>{training.tid}</span>
-          {training.pid && <span className={styles.projectId}>P: {training.pid}</span>}
-        </div>
-      ),
-      (
-        <div className={styles.algorithmCell}>
-          <span className={styles.algorithmName}>{getAlgorithmDisplay(training)}</span>
-          {training.parameters?.pretrained !== false && (
-            <span className={styles.pretrainedTag}>Pretrained</span>
-          )}
-        </div>
-      ),
-      (
-        <div className={styles.datasetCell}>
-          <span className={styles.datasetName}>{getDatasetDisplay(training)}</span>
-          {training.classes && training.classes.length > 0 && (
-            <span className={styles.classesCount}>
-              {training.classes.length} classes
-            </span>
-          )}
-        </div>
-      ),
-      getStatusBadge(training.status),
-      formatDate(training.started_at),
-      (
-        <div className={styles.epochsCell}>
-          <span className={styles.epochsValue}>
-            {training.parameters?.epochs || '-'}
-          </span>
-          {training.parameters?.batch && (
-            <span className={styles.batchInfo}>Batch: {training.parameters.batch}</span>
-          )}
-        </div>
-      ),
-      (
-        <div className={styles.actionButtons}>
-          <button 
-            className={`${styles.actionBtn} ${styles.viewBtn}`}
-            onClick={() => console.log('View details for:', training.tid)}
-            title="View Details"
-          >
-            View
-          </button>
-          <button 
-            className={`${styles.actionBtn} ${styles.downloadBtn}`}
-            onClick={() => console.log('Download model for:', training.tid)}
-            title="Download Model"
-          >
-            Download
-          </button>
-          <button 
-            className={`${styles.actionBtn} ${styles.cloneBtn}`}
-            onClick={() => console.log('Clone training for:', training.tid)}
-            title="Clone Training"
-          >
-            Clone
-          </button>
-        </div>
-      )
-    ]
-  }));
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedTraining(null);
+  };
 
   if (loading) {
     return (
@@ -247,14 +146,209 @@ const TrainingResultList = () => {
         </div>
       ) : (
         <div className={styles.tableContainer}>
-          <Table 
-            data={tableData} 
-            columns={columns}
-            className={styles.trainingTable}
-            rowKey="id"
-          />
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Training ID</th>
+                <th>Algorithm</th>
+                <th>Dataset</th>
+                <th>Status</th>
+                <th>Started At</th>
+                <th>Epochs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {trainings.map((training) => (
+                <tr 
+                  key={training.tid} 
+                  className={styles.tableRow}
+                  onClick={() => handleRowClick(training)}
+                >
+                  <td className={styles.tidCell}>
+                    <span className={styles.tidValue}>{training.tid}</span>
+                    {training.pid && <span className={styles.projectId}>P: {training.pid}</span>}
+                  </td>
+                  <td className={styles.algorithmCell}>
+                    <span className={styles.algorithmName}>{getAlgorithmDisplay(training)}</span>
+                    {training.parameters?.pretrained !== false && (
+                      <span className={styles.pretrainedTag}>Pretrained</span>
+                    )}
+                  </td>
+                  <td className={styles.datasetCell}>
+                    <span className={styles.datasetName}>{getDatasetDisplay(training)}</span>
+                    {training.classes && training.classes.length > 0 && (
+                      <span className={styles.classesCount}>
+                        {training.classes.length} classes
+                      </span>
+                    )}
+                  </td>
+                  <td>{getStatusBadge(training.status)}</td>
+                  <td className={styles.dateCell}>{formatDate(training.started_at)}</td>
+                  <td className={styles.epochsCell}>
+                    <span className={styles.epochsValue}>
+                      {training.parameters?.epochs || '-'}
+                    </span>
+                    {training.parameters?.batch && (
+                      <span className={styles.batchInfo}>Batch: {training.parameters.batch}</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
+
+      {/* Training Detail Modal */}
+      {isModalOpen && selectedTraining && (
+        <TrainingDetailModal
+          training={selectedTraining}
+          isOpen={isModalOpen}
+          onClose={closeModal}
+        />
+      )}
+    </div>
+  );
+};
+
+// Training Detail Modal Component
+const TrainingDetailModal = ({ training, isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>Training Details - {training.tid}</h2>
+          <button className={styles.closeButton} onClick={onClose}>×</button>
+        </div>
+        
+        <div className={styles.modalBody}>
+          <div className={styles.detailSection}>
+            <h3>Basic Information</h3>
+            <div className={styles.detailGrid}>
+              <div className={styles.detailItem}>
+                <label>Training ID:</label>
+                <span>{training.tid}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Project ID:</label>
+                <span>{training.pid}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Status:</label>
+                <span>{training.status}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Started At:</label>
+                <span>{formatDate(training.started_at)}</span>
+              </div>
+              {training.completed_at && (
+                <div className={styles.detailItem}>
+                  <label>Completed At:</label>
+                  <span>{formatDate(training.completed_at)}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.detailSection}>
+            <h3>Model Information</h3>
+            <div className={styles.detailGrid}>
+              <div className={styles.detailItem}>
+                <label>Model:</label>
+                <span>{training.parameters?.model || training.origin_tid || '-'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Model Type:</label>
+                <span>{training.origin_tid && training.origin_tid !== training.parameters?.model ? 'Custom Model' : 'Pretrained Model'}</span>
+              </div>
+              {training.artifacts_path && (
+                <div className={styles.detailItem}>
+                  <label>Artifacts Path:</label>
+                  <span>{training.artifacts_path}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.detailSection}>
+            <h3>Dataset Information</h3>
+            <div className={styles.detailGrid}>
+              <div className={styles.detailItem}>
+                <label>Original Dataset:</label>
+                <span>{training.origin_dataset_name || training.origin_did || '-'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Processed Dataset:</label>
+                <span>{training.processed_dataset_name || training.processed_did || '-'}</span>
+              </div>
+              {training.classes && training.classes.length > 0 && (
+                <div className={styles.detailItem}>
+                  <label>Classes ({training.classes.length}):</label>
+                  <span>{training.classes.join(', ')}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.detailSection}>
+            <h3>Training Parameters</h3>
+            <div className={styles.detailGrid}>
+              <div className={styles.detailItem}>
+                <label>Epochs:</label>
+                <span>{training.parameters?.epochs || '-'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Batch Size:</label>
+                <span>{training.parameters?.batch || '-'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Image Size:</label>
+                <span>{training.parameters?.imgsz || '-'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Device:</label>
+                <span>{training.parameters?.device || '-'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Optimizer:</label>
+                <span>{training.parameters?.optimizer || '-'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <label>Learning Rate:</label>
+                <span>{training.parameters?.lr0 || '-'}</span>
+              </div>
+            </div>
+          </div>
+
+          {training.error_details && (
+            <div className={styles.detailSection}>
+              <h3>Error Details</h3>
+              <div className={styles.errorDetails}>
+                <pre>{training.error_details}</pre>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

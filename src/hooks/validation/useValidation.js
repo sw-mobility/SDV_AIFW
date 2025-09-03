@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
-import { startYoloValidation, getValidationStatus } from '../../api/validation.js';
+import { startYoloValidation, getValidationStatus, getValidationList } from '../../api/validation.js';
 import { uid } from '../../api/uid.js';
 
 export const useValidation = () => {
@@ -16,7 +16,7 @@ export const useValidation = () => {
   
   // YOLO validation parameters (API 스펙에 맞게 구성)
   const [validationParams, setValidationParams] = useState({
-    tid: '', // Training ID - 사용자가 입력
+    tid: 'T0001', // Training ID - 기본값 설정
     model: 'best.pt',
     task_type: 'detection',
     imgsz: 640,
@@ -100,20 +100,42 @@ export const useValidation = () => {
         clearInterval(pollingInterval);
         setPollingInterval(null);
         
-        // 결과 추가 (metrics 정보 포함)
-        setResults(prev => [
-          ...prev,
-          {
-            vid: result.vid || vid,
-            model: validationParams.model,
-            dataset: selectedDataset?.name || '',
-            timestamp: new Date().toISOString(),
-            status: result.status,
-            metrics: result.metrics || {},
-            result_path: result.result_path,
-            plots_path: result.plots_path
+        // Validation이 완료되면 list API를 호출하여 최신 결과를 가져옴
+        try {
+          const validationList = await getValidationList({ uid });
+          console.log('Fetched latest validation list:', validationList);
+          
+          // 최신 validation 결과를 results에 설정
+          if (validationList && validationList.length > 0) {
+            const latestResults = validationList.map(validation => ({
+              vid: validation.vid,
+              model: validation.parameters?.model || validation.used_codebase || 'Unknown',
+              dataset: validation.dataset_name || '',
+              timestamp: validation.created_at,
+              status: validation.status,
+              metrics: validation.metrics_summary || {},
+              result_path: validation.artifacts_path,
+              plots_path: null
+            }));
+            setResults(latestResults);
           }
-        ]);
+        } catch (listError) {
+          console.error('Failed to fetch validation list:', listError);
+          // list API 실패 시 기존 방식으로 결과 추가
+          setResults(prev => [
+            ...prev,
+            {
+              vid: result.vid || vid,
+              model: validationParams.model,
+              dataset: selectedDataset?.name || '',
+              timestamp: new Date().toISOString(),
+              status: result.status,
+              metrics: result.metrics || {},
+              result_path: result.result_path,
+              plots_path: result.plots_path
+            }
+          ]);
+        }
       } else if (result.status === 'failed' || result.status === 'error') {
         setStatus('error');
         setError(result.error || result.message || 'Validation failed');
@@ -142,6 +164,11 @@ export const useValidation = () => {
   const handleRunValidation = useCallback(async () => {
     if (!selectedDataset) {
       setError('Please select a dataset');
+      return;
+    }
+
+    if (!validationParams.tid || validationParams.tid.trim() === '') {
+      setError('Training ID는 필수 입력 항목입니다.');
       return;
     }
 
@@ -212,7 +239,7 @@ export const useValidation = () => {
   // Validation 파라미터 리셋
   const resetValidationParams = useCallback(() => {
     setValidationParams({
-      tid: '', // Training ID - 사용자가 입력
+      tid: 'T0001', // Training ID - 기본값 설정
       model: 'best.pt',
       task_type: 'detection',
       imgsz: 640,
@@ -233,6 +260,30 @@ export const useValidation = () => {
       augment: false,
       rect: false
     });
+  }, []);
+
+  // Validation History 새로고침 함수
+  const refreshValidationHistory = useCallback(async () => {
+    try {
+      const validationList = await getValidationList({ uid });
+      console.log('Refreshed validation list:', validationList);
+      
+      if (validationList && validationList.length > 0) {
+        const latestResults = validationList.map(validation => ({
+          vid: validation.vid,
+          model: validation.parameters?.model || validation.used_codebase || 'Unknown',
+          dataset: validation.dataset_name || '',
+          timestamp: validation.created_at,
+          status: validation.status,
+          metrics: validation.metrics_summary || {},
+          result_path: validation.artifacts_path,
+          plots_path: null
+        }));
+        setResults(latestResults);
+      }
+    } catch (error) {
+      console.error('Failed to refresh validation history:', error);
+    }
   }, []);
 
   // 컴포넌트 언마운트 시 폴링 정리
@@ -261,6 +312,7 @@ export const useValidation = () => {
     // 핸들러
     handleRunValidation,
     updateValidationParams,
-    resetValidationParams
+    resetValidationParams,
+    refreshValidationHistory
   };
 }; 

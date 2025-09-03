@@ -62,11 +62,11 @@
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
 }
 
-.customModelSection {
+.trainingModelSection {
   margin-top: 16px;
 }
 
-.pretrainedModelSection {
+.optimizationModelSection {
   margin-top: 16px;
 }
 
@@ -88,7 +88,7 @@
   font-weight: 500;
   outline: none;
   transition: all 0.2s ease;
-  margin-bottom: var(--spacing-base);
+  margin-bottom: 16px;
 }
 
 .select:focus {

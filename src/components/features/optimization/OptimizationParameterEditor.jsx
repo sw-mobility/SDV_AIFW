@@ -170,7 +170,7 @@ const OptimizationParameterEditor = ({
         <TrainingIdSelector
           selectedTid={getCurrentValue()}
           onTidChange={(value) => handleParamChange(currentParam.key, value, currentParam)}
-          projectId={optimizationParams.pid || 'P0001'}
+          projectId="P0001"
           showCompletedOnly={true}
           placeholder="Select Training ID"
           disabled={isRunning}

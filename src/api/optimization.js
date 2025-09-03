@@ -1,5 +1,4 @@
-import { API_BASE_URL } from './init.js';
-
+const BASE_URL = 'http://localhost:5002';
 /**
  * Optimization API
  * API 명세서에 따른 최적화 엔드포인트들
@@ -12,13 +11,13 @@ const getHeaders = (uid = '0001') => ({
 });
 
 /**
- * 공통 API 호출 함수
+ * 공통 API 호출 function
  */
 const callOptimizationAPI = async (endpoint, data, uid = '0001') => {
   try {
     console.log(`${endpoint} request data:`, data);
     
-    const response = await fetch(`${API_BASE_URL}/optimizing/${endpoint}`, {
+    const response = await fetch(`${BASE_URL}/optimizing/${endpoint}`, {
       method: 'POST',
       headers: getHeaders(uid),
       body: JSON.stringify(data)
@@ -96,25 +95,38 @@ export const convertOnnxToTrt = async (data, uid = '0001') => {
 };
 
 /**
- * ONNX to TensorRT INT8 변환 (엔트로피 캘리브레이션)
+ * ONNX to TensorRT INT8 변환
  */
 export const convertOnnxToTrtInt8 = async (data, uid = '0001') => {
   return callOptimizationAPI('onnx_to_trt_int8', data, uid);
 };
 
 /**
- * 최적화 요청 데이터 생성 헬퍼 함수
- * Creates optimization request data according to API specification
+ * optimizing input path 생성하는 helper function
  */
-export const createOptimizationRequest = (optimizationType, params, pid, uid = '0001') => {
+export const createOptimizationRequest = async (optimizationType, params, pid, uid = '0001') => {
   // Helper function to create input_path based on model ID type
-  const createInputPath = (modelId, modelName) => {
+  const createInputPath = async (modelId) => {
     if (modelId.startsWith('T')) {
       // Use training path for Training ID (best.pt)
       return `artifacts/${pid}/training/${modelId}/best.pt`;
     } else if (modelId.startsWith('O')) {
-      // Use optimizing path for Optimizing ID (best.onnx)
-      return `artifacts/${pid}/optimizing/${modelId}/best.onnx`;
+      // Use optimizing path for Optimizing ID - need to check format
+      try {
+        const optimizationList = await getOptimizationList({ uid });
+        const optimization = optimizationList.find(opt => opt.oid === modelId);
+        if (optimization && optimization.metrics && optimization.metrics.stats) {
+          const format = optimization.metrics.stats.format;
+          if (format === 'onnx') return `artifacts/${pid}/optimizing/${modelId}/best.onnx`;
+          if (format === 'engine') return `artifacts/${pid}/optimizing/${modelId}/best.engine`;
+          if (format === 'pt') return `artifacts/${pid}/optimizing/${modelId}/best.pt`;
+        }
+        // Default fallback for optimization
+        return `artifacts/${pid}/optimizing/${modelId}/best.onnx`;
+      } catch (error) {
+        console.error('Failed to get optimization format, using default:', error);
+        return `artifacts/${pid}/optimizing/${modelId}/best.onnx`;
+      }
     } else {
       // Default to training path for unknown ID format
       return `artifacts/${pid}/training/${modelId}/best.pt`;
@@ -125,16 +137,16 @@ export const createOptimizationRequest = (optimizationType, params, pid, uid = '
   const baseRequest = {
     pid,
     parameters: {
-      kind: optimizationType,
-      input_path: createInputPath(
-        params.model_id || 'T0001'
-      )
+      kind: optimizationType
     }
   };
 
   // Helper function to get optimization-specific parameters
-  const getOptimizationParams = (type, params) => {
+  const getOptimizationParams = async (type, params) => {
     const baseParams = { ...baseRequest.parameters };
+    
+    // Set input_path based on model ID
+    baseParams.input_path = await createInputPath(params.model_id || 'T0001');
     
     switch (type) {
       case 'pt_to_onnx_fp32':
@@ -142,7 +154,6 @@ export const createOptimizationRequest = (optimizationType, params, pid, uid = '
         return {
           ...baseParams,
           kind: 'pt_to_onnx',
-          output_path: params.output_path || `best_${type.includes('fp16') ? 'fp16' : 'fp32'}.onnx`,
           input_size: params.input_size || [640, 640],
           batch_size: params.batch_size || 1,
           channels: params.channels || 3
@@ -152,7 +163,6 @@ export const createOptimizationRequest = (optimizationType, params, pid, uid = '
         return {
           ...baseParams,
           kind: 'onnx_to_trt',
-          output_path: params.output_path || `best_${params.precision || 'fp32'}.engine`,
           precision: params.precision || 'fp32',
           device: params.device || 'gpu'
         };
@@ -161,7 +171,6 @@ export const createOptimizationRequest = (optimizationType, params, pid, uid = '
         return {
           ...baseParams,
           kind: 'onnx_to_trt_int8',
-          output_path: params.output_path || 'best_int8.engine',
           calib_dir: params.calib_dir || '/app/int8_calib_images',
           precision: 'int8',
           device: params.device || 'gpu',
@@ -176,7 +185,6 @@ export const createOptimizationRequest = (optimizationType, params, pid, uid = '
         return {
           ...baseParams,
           kind: 'prune_unstructured',
-          output_path: params.output_path || 'best_pruned_unstructured.pt',
           amount: params.amount || 0.2,
           pruning_type: params.pruning_type || 'l1_unstructured'
         };
@@ -185,7 +193,6 @@ export const createOptimizationRequest = (optimizationType, params, pid, uid = '
         return {
           ...baseParams,
           kind: 'prune_structured',
-          output_path: params.output_path || 'best_pruned_structured.pt',
           amount: params.amount || 0.2,
           pruning_type: params.pruning_type || 'ln_structured',
           n: params.n || 2,
@@ -204,10 +211,35 @@ export const createOptimizationRequest = (optimizationType, params, pid, uid = '
   };
 
   // 최적화 타입별 파라미터 추가
-  baseRequest.parameters = getOptimizationParams(optimizationType, params);
+  baseRequest.parameters = await getOptimizationParams(optimizationType, params);
 
   return baseRequest;
 };
+
+/**
+ * Get list of optimization histories
+ * GET /optimizing/list
+ * 
+ * @param {Object} params - Optimization list parameters
+ * @param {string} params.uid - User ID (header)
+ * @returns {Promise<Array>} List of optimization histories
+ */
+export async function getOptimizationList({ uid }) {
+    const response = await fetch(`${BASE_URL}/optimizing/list`, {
+        method: 'GET',
+        headers: { 
+            'accept': 'application/json',
+            'uid': uid
+        }
+    });
+    
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to get optimization list');
+    }
+    
+    return await response.json();
+}
 
 /**
  * 최적화 실행 함수
@@ -215,7 +247,7 @@ export const createOptimizationRequest = (optimizationType, params, pid, uid = '
 export const runOptimization = async (optimizationType, params, pid, uid = '0001') => {
   console.log('runOptimization called with:', { optimizationType, params, pid, uid });
   
-  const requestData = createOptimizationRequest(optimizationType, params, pid, uid);
+  const requestData = await createOptimizationRequest(optimizationType, params, pid, uid);
   console.log('Created request data:', requestData);
   
   switch (optimizationType) {
