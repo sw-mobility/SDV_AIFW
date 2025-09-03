@@ -114,24 +114,74 @@ export const useDatasetData = (dataset, isOpen = false) => {
     
     setShowDeleteConfirm(false);
     try {
-      // selected 배열에서 파일명만 추출 (uniqueRowId에서 fileName-index 형태에서 fileName만 추출)
-      const target_name_list = selected.map(id => {
-        // uniqueRowId가 fileName-index 형태인 경우 fileName만 추출
-        if (id.includes('-')) {
-          const parts = id.split('-');
-          const lastPart = parts[parts.length - 1];
-          // 마지막 부분이 숫자인지 확인
-          if (!isNaN(lastPart)) {
-            return parts.slice(0, -1).join('-');
+      // selected 배열에서 실제 파일명과 경로 추출
+      const target_name_list = [];
+      const target_path_list = [];
+      
+      console.log('Selected IDs:', selected);
+      console.log('Data list length:', data?.data_list?.length);
+      
+      selected.forEach(selectedId => {
+        console.log('Processing selectedId:', selectedId);
+        
+        // data.data_list에서 해당 ID를 가진 항목 찾기
+        let dataItem = data?.data_list?.find(item => item._id === selectedId);
+        
+        // 정확한 매칭이 안 되면 여러 가지 매칭 방법 시도
+        if (!dataItem) {
+          // 1. 파일명 부분으로 매칭 (예: 4046b4261847fad4_jpg.rf.Pu8ZmWKhSQ9UmJVGH0o4.jpg)
+          const fileNamePart = selectedId.split('-')[0];
+          dataItem = data?.data_list?.find(item => 
+            item._id && item._id.includes(fileNamePart)
+          );
+          
+          // 2. 여전히 못 찾으면 다른 필드들로 검색
+          if (!dataItem) {
+            dataItem = data?.data_list?.find(item => 
+              item.file_name && item.file_name.includes(fileNamePart) ||
+              item.name && item.name.includes(fileNamePart) ||
+              item.path && item.path.includes(fileNamePart)
+            );
           }
         }
-        return id;
+        
+        if (dataItem) {
+          console.log('Found data item:', dataItem);
+          
+          // 파일명 추가 (가장 적절한 필드 선택)
+          const fileName = dataItem.file_name || dataItem.name || dataItem._id;
+          target_name_list.push(fileName);
+          
+          // 파일 경로 추가 (있는 경우)
+          if (dataItem.file_path || dataItem.path) {
+            target_path_list.push(dataItem.file_path || dataItem.path);
+          }
+        } else {
+          console.warn('Could not find data item for selectedId:', selectedId);
+          // 매칭되는 항목을 찾을 수 없으면 selectedId를 파일명으로 사용
+          target_name_list.push(selectedId);
+        }
       });
+
+      console.log('=== DELETE DATA DEBUG INFO ===');
+      console.log('Selected IDs:', selected);
+      console.log('Target name list:', target_name_list);
+      console.log('Target path list:', target_path_list);
+      console.log('Dataset data:', data);
+      console.log('Dataset data.data_list length:', data?.data_list?.length);
+      
+      // data_list의 첫 번째 항목 구조 확인
+      if (data?.data_list && data.data_list.length > 0) {
+        console.log('First data item structure:', data.data_list[0]);
+        console.log('First data item keys:', Object.keys(data.data_list[0]));
+      }
+      console.log('================================');
 
       const result = await deleteData({ 
         uid: dataset.uid || '', 
         target_did: dataset.did,
-        target_name_list: target_name_list
+        target_name_list: target_name_list,
+        target_path_list: target_path_list
       });
       
       console.log('Delete data result:', result);
@@ -161,7 +211,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
       
       setError(err.message);
     }
-  }, [selected, dataset]);
+  }, [selected, dataset, data]);
 
   // 업로드 처리
   const handleUpload = useCallback(async (e) => {

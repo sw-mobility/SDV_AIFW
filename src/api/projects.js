@@ -91,4 +91,26 @@ export async function getProjectById({ id, uid }) {
     }
     const data = await response.json();
     return { success: true, data, message: 'Project fetched successfully' };
+}
+
+export async function getProjectByName({ name, uid }) {
+    // 먼저 모든 프로젝트를 가져온 다음, name으로 필터링
+    const response = await fetch(`${BASE_URL}/projects/projects/`, {
+        headers: {
+            'uid': uid
+        }
+    });
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to fetch projects');
+    }
+    const projects = await response.json();
+    
+    // name과 일치하는 프로젝트 찾기
+    const project = projects.find(p => p.name === name);
+    if (!project) {
+        throw new Error(`Project with name '${name}' not found`);
+    }
+    
+    return { success: true, data: project, message: 'Project fetched successfully' };
 } 

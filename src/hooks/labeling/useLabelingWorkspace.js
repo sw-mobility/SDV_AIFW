@@ -1,9 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { startYoloLabeling, DEFAULT_YOLO_PARAMS } from '../../api';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
+import { getProjectByName } from '../../api/projects.js';
 import { uid } from '../../api/uid.js';
 
 export const useLabelingWorkspace = (dataset) => {
+  const { projectName } = useParams();
   const [modelType, setModelType] = useState('YOLO');
   const [taskType, setTaskType] = useState('Object detection');
   const [status, setStatus] = useState('idle'); // idle | running | success | error
@@ -65,8 +68,28 @@ export const useLabelingWorkspace = (dataset) => {
 
       console.log('Dataset object:', dataset); // 디버깅용
 
+      // projectName을 기반으로 project ID 가져오기
+      let pid = null;
+      if (projectName) {
+        try {
+          const projectRes = await getProjectByName({ name: projectName, uid });
+          if (projectRes.data && projectRes.data.pid) {
+            pid = projectRes.data.pid;
+          } else {
+            throw new Error('Project data does not contain pid field');
+          }
+        } catch (err) {
+          console.error('Failed to get project ID:', err.message);
+          throw new Error(`Failed to get project ID for '${projectName}': ${err.message}`);
+        }
+      }
+      
+      if (!pid) {
+        throw new Error('Project ID is required but could not be determined');
+      }
+      
       const params = {
-        pid: dataset?.projectId,
+        pid: pid,
         did: dataset.did,
         name: dataset?.name,
         parameters: parameters

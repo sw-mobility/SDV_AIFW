@@ -126,7 +126,17 @@ export async function deleteDatasets({ uid, target_did_list = [], target_path_li
 }
 
 export async function deleteData({ uid, target_did, target_name_list = [], target_path_list = [] }) {
-    console.log('Delete data request:', { uid, target_did, target_name_list, target_path_list });
+    console.log('Delete data request params:', { uid, target_did, target_name_list, target_path_list });
+    
+    // API 문서에 맞춰 요청 본문 구성
+    const requestBody = {
+        target_did,
+        target_name_list,
+        target_path_list
+    };
+    
+    console.log('Delete data request body:', requestBody);
+    console.log('Delete data request body JSON:', JSON.stringify(requestBody, null, 2));
     
     const response = await fetch(`${BASE_URL}/datasets/data`, {
         method: 'DELETE',
@@ -134,7 +144,7 @@ export async function deleteData({ uid, target_did, target_name_list = [], targe
             'Content-Type': 'application/json',
             'uid': uid
         },
-        body: JSON.stringify({ target_did, target_name_list, target_path_list }),
+        body: JSON.stringify(requestBody),
     });
 
     // 응답 텍스트 먼저 가져오기
