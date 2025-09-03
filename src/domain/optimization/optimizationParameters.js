@@ -13,7 +13,7 @@ export const OPTIMIZATION_PARAM_GROUPS = {
 export const getOptimizationParameterGroups = (optimizationType) => {
   const baseGroups = [];
 
-  // 최적화 타입별 특화 파라미터 추가 (API 명세서에 따라)
+  // 1. PT to ONNX FP32/FP16
   if (optimizationType === 'pt_to_onnx_fp32' || optimizationType === 'pt_to_onnx_fp16') {
     baseGroups.push({
       group: OPTIMIZATION_PARAM_GROUPS.CONVERSION,
@@ -24,7 +24,7 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           type: 'array',
           default: [640, 640],
           desc: 'Input image size for ONNX conversion (Height, Width in pixels)',
-          required: true
+          required: false
         },
         {
           key: 'batch_size',
@@ -34,7 +34,8 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           min: 1,
           max: 32,
           step: 1,
-          desc: 'Batch size for ONNX conversion'
+          desc: 'Batch size for ONNX conversion',
+          required: false
         },
         {
           key: 'channels',
@@ -44,12 +45,14 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           min: 1,
           max: 4,
           step: 1,
-          desc: 'Number of input channels (RGB=3)'
+          desc: 'Number of input channels (RGB=3)',
+          required: false
         }
       ]
     });
   }
 
+  // 2. ONNX to TensorRT (FP32/FP16)
   if (optimizationType === 'onnx_to_trt') {
     baseGroups.push({
       group: OPTIMIZATION_PARAM_GROUPS.CONVERSION,
@@ -60,7 +63,8 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           type: 'select',
           options: ['fp32', 'fp16'],
           default: 'fp32',
-          desc: 'TensorRT precision mode (FP32 or FP16)'
+          desc: 'TensorRT precision mode (FP32 or FP16)',
+          required: true
         },
         {
           key: 'device',
@@ -68,12 +72,14 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           type: 'select',
           options: ['gpu', 'dla', 'dla0', 'dla1'],
           default: 'gpu',
-          desc: 'Target device (GPU or DLA cores for Jetson Orin)'
+          desc: 'Target device (GPU or DLA cores for Jetson Orin)',
+          required: false
         }
       ]
     });
   }
 
+  // 3. ONNX to TensorRT INT8
   if (optimizationType === 'onnx_to_trt_int8') {
     baseGroups.push({
       group: OPTIMIZATION_PARAM_GROUPS.CONVERSION,
@@ -84,7 +90,17 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           type: 'text',
           default: '/app/int8_calib_images',
           desc: 'Container internal path to calibration images',
-          placeholder: '/app/int8_calib_images'
+          placeholder: '/app/int8_calib_images',
+          required: true
+        },
+        {
+          key: 'precision',
+          label: 'Precision',
+          type: 'text',
+          default: 'int8',
+          desc: 'TensorRT precision mode (fixed to INT8)',
+          required: true,
+          readonly: true
         },
         {
           key: 'device',
@@ -92,21 +108,24 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           type: 'select',
           options: ['gpu', 'dla'],
           default: 'gpu',
-          desc: 'Target device (GPU or DLA for INT8)'
+          desc: 'Target device (GPU or DLA for INT8)',
+          required: false
         },
         {
           key: 'mixed_fp16',
           label: 'Mixed FP16',
           type: 'checkbox',
           default: false,
-          desc: 'Allow mixed FP16 operations for some layers'
+          desc: 'Allow mixed FP16 operations for some layers',
+          required: false
         },
         {
           key: 'sparse',
           label: 'Sparse Weights',
           type: 'checkbox',
           default: false,
-          desc: 'Enable sparse weights for INT8 quantization'
+          desc: 'Enable sparse weights for INT8 quantization',
+          required: false
         },
         {
           key: 'int8_max_batches',
@@ -116,7 +135,8 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           min: 1,
           max: 100,
           step: 1,
-          desc: 'Maximum number of batches for calibration'
+          desc: 'Maximum number of batches for calibration',
+          required: false
         },
         {
           key: 'input_size',
@@ -134,12 +154,14 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           min: 512,
           max: 8192,
           step: 512,
-          desc: 'TensorRT build workspace size in MiB'
+          desc: 'TensorRT build workspace size in MiB',
+          required: false
         }
       ]
     });
   }
 
+  // 4. Unstructured Pruning
   if (optimizationType === 'prune_unstructured') {
     baseGroups.push({
       group: OPTIMIZATION_PARAM_GROUPS.PRUNING,
@@ -152,7 +174,8 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           min: 0.0,
           max: 0.9,
           step: 0.05,
-          desc: 'Fraction of weights to prune (0.0 to 0.9)'
+          desc: 'Fraction of weights to prune (0.0 to 0.9)',
+          required: false
         },
         {
           key: 'pruning_type',
@@ -160,12 +183,14 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           type: 'select',
           options: ['l1_unstructured', 'random_unstructured'],
           default: 'l1_unstructured',
-          desc: 'Type of unstructured pruning to apply'
+          desc: 'Type of unstructured pruning to apply',
+          required: false
         }
       ]
     });
   }
 
+  // 5. Structured Pruning
   if (optimizationType === 'prune_structured') {
     baseGroups.push({
       group: OPTIMIZATION_PARAM_GROUPS.PRUNING,
@@ -178,7 +203,8 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           min: 0.0,
           max: 0.9,
           step: 0.05,
-          desc: 'Fraction of channels to prune (0.0 to 0.9)'
+          desc: 'Fraction of channels to prune (0.0 to 0.9)',
+          required: false
         },
         {
           key: 'pruning_type',
@@ -186,7 +212,8 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           type: 'select',
           options: ['ln_structured'],
           default: 'ln_structured',
-          desc: 'Type of structured pruning to apply'
+          desc: 'Type of structured pruning to apply',
+          required: false
         },
         {
           key: 'n',
@@ -196,7 +223,8 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           min: 1,
           max: 10,
           step: 1,
-          desc: 'L-norm value for structured pruning (L1, L2, etc.)'
+          desc: 'L-norm value for structured pruning (L1, L2, etc.)',
+          required: false
         },
         {
           key: 'dim',
@@ -206,13 +234,29 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           min: 0,
           max: 3,
           step: 1,
-          desc: 'Dimension to apply pruning (0 for output channels)'
+          desc: 'Dimension to apply pruning (0 for output channels)',
+          required: false
         }
       ]
     });
   }
 
-  // check_model_stats는 input_path만 필요하므로 추가 파라미터 없음
+  // 6. Check Model Stats - 파라미터 없음
+  if (optimizationType === 'check_model_stats') {
+    baseGroups.push({
+      group: OPTIMIZATION_PARAM_GROUPS.GENERAL,
+      params: [
+        {
+          key: 'info',
+          label: 'Information',
+          type: 'info',
+          default: 'No additional parameters required',
+          desc: 'This optimization type only requires input_path',
+          required: false
+        }
+      ]
+    });
+  }
 
   return baseGroups;
 };

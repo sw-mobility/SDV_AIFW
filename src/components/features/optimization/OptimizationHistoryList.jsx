@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getOptimizationList } from '../../../api/optimization.js';
 import { uid } from '../../../api/uid.js';
 import styles from './OptimizationHistoryList.module.css';
@@ -10,7 +10,7 @@ const OptimizationHistoryList = ({ onRefresh }) => {
   const [selectedOptimization, setSelectedOptimization] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchOptimizations = async () => {
+  const fetchOptimizations = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -37,11 +37,24 @@ const OptimizationHistoryList = ({ onRefresh }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [uid]);
 
   useEffect(() => {
     fetchOptimizations();
-  }, []);
+  }, [uid, fetchOptimizations, onRefresh]);
+
+  // onRefresh prop이 있을 때는 그것을 사용, 없을 때는 자체 fetchOptimizations 사용
+  const handleRefresh = useCallback(async () => {
+    if (onRefresh) {
+      console.log('Using onRefresh prop for refresh');
+      await onRefresh();
+      // onRefresh 후에 OptimizationHistoryList도 새로고침
+      await fetchOptimizations();
+    } else {
+      console.log('Using local fetchOptimizations for refresh');
+      await fetchOptimizations();
+    }
+  }, [onRefresh, fetchOptimizations]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -160,10 +173,11 @@ const OptimizationHistoryList = ({ onRefresh }) => {
         </div>
         <div className={styles.headerRight}>
           <button 
-            onClick={onRefresh || fetchOptimizations} 
+                          onClick={handleRefresh} 
             className={styles.refreshBtn}
+            disabled={loading}
           >
-            REFRESH
+            {loading ? 'REFRESHING...' : 'REFRESH'}
           </button>
         </div>
       </div>

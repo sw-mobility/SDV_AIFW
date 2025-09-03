@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getValidationList } from '../../../api/validation.js';
 import { uid } from '../../../api/uid.js';
 import styles from './ValidationHistoryList.module.css';
@@ -10,7 +10,7 @@ const ValidationHistoryList = ({ onRefresh }) => {
   const [selectedValidation, setSelectedValidation] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchValidations = async () => {
+  const fetchValidations = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -37,11 +37,24 @@ const ValidationHistoryList = ({ onRefresh }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [uid]);
+
+  // onRefresh prop이 있을 때는 그것을 사용, 없을 때는 자체 fetchValidations 사용
+  const handleRefresh = useCallback(async () => {
+    if (onRefresh) {
+      console.log('Using onRefresh prop for refresh');
+      await onRefresh();
+      // onRefresh 후에 ValidationHistoryList도 새로고침
+      await fetchValidations();
+    } else {
+      console.log('Using local fetchValidations for refresh');
+      await fetchValidations();
+    }
+  }, [onRefresh, fetchValidations]);
 
   useEffect(() => {
     fetchValidations();
-  }, []);
+  }, [uid, fetchValidations, onRefresh]); // uid, fetchValidations, onRefresh가 변경될 때마다 refresh
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -152,10 +165,11 @@ const ValidationHistoryList = ({ onRefresh }) => {
         </div>
         <div className={styles.headerRight}>
           <button 
-            onClick={onRefresh || fetchValidations} 
+            onClick={handleRefresh} 
             className={styles.refreshBtn}
+            disabled={loading}
           >
-            REFRESH
+            {loading ? 'REFRESHING...' : 'REFRESH'}
           </button>
         </div>
       </div>

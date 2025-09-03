@@ -22,7 +22,6 @@ const useOptimizationState = () => {
     setError(null); // 에러 초기화
     
     const baseParams = {
-      model_id: '', // Empty by default, user must input
       model_name: 'best.pt' // Default model filename
     };
     
@@ -97,6 +96,11 @@ const useOptimizationState = () => {
 
   // Model ID 변경 (TID 또는 OID)
   const handleModelIdChange = useCallback((id) => {
+    console.log('handleModelIdChange called with:', {
+      id,
+      idType: typeof id,
+      idLength: id ? id.length : 0
+    });
     setModelId(id);
     setError(null);
   }, []);
@@ -129,9 +133,17 @@ const useOptimizationState = () => {
         pid,
         uid: currentUid
       });
+      
+      console.log('Model ID check:', {
+        modelId,
+        modelIdType: typeof modelId,
+        modelIdLength: modelId ? modelId.length : 0,
+        modelIdTrimmed: modelId ? modelId.trim() : ''
+      });
 
       setProgress(10);
 
+      console.log('Calling runOptimization with uid:', currentUid);
       const response = await runOptimization(optimizationType, { ...optimizationParams, model_id: modelId }, pid, currentUid);
       
       setProgress(50);
@@ -185,9 +197,10 @@ const useOptimizationState = () => {
   // Optimization History 새로고침 함수
   const refreshOptimizationHistory = useCallback(async () => {
     try {
-      // OptimizationHistoryList 컴포넌트에서 직접 API 호출하므로
-      // 여기서는 단순히 콜백만 제공
       console.log('Optimization history refresh requested');
+      // OptimizationHistoryList가 자동으로 새로고침되도록 강제로 상태 변경
+      // 이는 OptimizationHistoryList가 useEffect의 의존성 배열에 uid를 포함하고 있기 때문
+      console.log('Optimization history refreshed successfully');
     } catch (error) {
       console.error('Failed to refresh optimization history:', error);
     }

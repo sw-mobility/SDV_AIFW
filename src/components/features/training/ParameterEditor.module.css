@@ -22,11 +22,11 @@
 }
 
 @keyframes simpleFadeIn {
-  0% { 
-    opacity: 0; 
+  0% {
+    opacity: 0;
   }
-  100% { 
-    opacity: 1; 
+  100% {
+    opacity: 1;
   }
 }
 
@@ -209,4 +209,133 @@
 .yamlEditorContainer {
   width: 100%;
   margin-top: 8px;
+}
+
+.sliderValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4f8cff;
+  min-width: 40px;
+  text-align: center;
+  padding: 4px 8px;
+  background: #eff6ff;
+  border-radius: 6px;
+  border: 1px solid #dbeafe;
+}
+
+.errorMessage {
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 8px;
+  line-height: 1.3;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  animation: errorSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.description {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: 8px;
+  line-height: 1.4;
+  transition: color 0.2s ease;
+}
+
+.paramCard:hover .description {
+  color: #4b5563;
+}
+
+.paramSelect {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  font-weight: 500;
+  transform: translateZ(0);
+}
+
+.paramSelect:hover {
+  border-color: #94a3b8;
+  background: #fafafa;
+}
+
+.paramSelect:focus {
+  border-color: #4f8cff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+  transform: translateY(-1px);
+  background: #ffffff;
+}
+
+.paramSelect:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+  transform: none;
+}
+
+.paramCheckbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #4f8cff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.paramCheckbox:hover {
+  transform: scale(1.1);
+}
+
+.paramCheckbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.switchLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  transition: color 0.2s ease;
+}
+
+.switchContainer:hover .switchLabel {
+  color: #1f2937;
+}
+
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0;
+}
+
+.required {
+  color: #ef4444;
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+.unit {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.helpIcon {
+  color: #9ca3af;
+  cursor: help;
+  transition: color 0.2s ease;
+}
+
+.helpIcon:hover {
+  color: #6b7280;
 } 

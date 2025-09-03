@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import AlgorithmSelector from '../../components/features/training/AlgorithmSelector.jsx';
 import DatasetSelector from '../../components/features/training/DatasetSelector.jsx';
@@ -150,6 +150,13 @@ const TrainingPage = () => {
     </div>
   );
 
+  const handleRefreshTrainingResults = useCallback(() => {
+    console.log('Refreshing training results...');
+    // TrainingResultList 컴포넌트에서 직접 API 호출하므로
+    // 여기서는 단순히 콜백만 제공
+    // 실제 refresh는 TrainingResultList 컴포넌트 내부에서 처리됨
+  }, []);
+
   const renderParameterSection = () => (
       <ParameterSection
           showCodeEditor={showCodeEditor}
@@ -208,7 +215,7 @@ const TrainingPage = () => {
         {selectedDataset && ((modelType === 'pretrained' && algorithm) || (modelType === 'custom' && customModel)) && (
           <>
             {/* expert mode 삼단구조 부분 */}
-            <div className={styles.parameterSectionWrapper}>
+            <div className={styles.container}>
               {renderParameterSection()}
             </div>
 
@@ -230,7 +237,7 @@ const TrainingPage = () => {
 
         {/* Training Results List - 항상 표시 */}
         <div className={styles.container}>
-          <TrainingResultList />
+          <TrainingResultList onRefresh={handleRefreshTrainingResults} />
         </div>
       </div>
   );

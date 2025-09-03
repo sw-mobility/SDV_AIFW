@@ -28,6 +28,11 @@ export const useTrainingCore = () => {
     setParamErrors(prev => ({ ...prev, [key]: error }));
   }, []);
 
+  const resetParams = useCallback(() => {
+    setAlgoParams({});
+    setParamErrors({});
+  }, []);
+
   return {
     trainingType,
     setTrainingType,
@@ -39,6 +44,7 @@ export const useTrainingCore = () => {
     setParamErrors,
     updateParam,
     updateParamError,
+    resetParams,
     resetTraining
   };
 }; 

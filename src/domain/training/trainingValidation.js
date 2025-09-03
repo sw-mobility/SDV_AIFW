@@ -10,7 +10,7 @@ export class TrainingValidationError extends Error {
 
 export const validateTrainingExecution = (trainingConfig) => {
   const errors = [];
-  const { trainingType, selectedDataset, selectedSnapshot, algorithm } = trainingConfig;
+  const { trainingType, selectedDataset, selectedSnapshot, algorithm, modelType, customModel } = trainingConfig;
 
   // Dataset validation
   if (!selectedDataset) {
@@ -22,9 +22,11 @@ export const validateTrainingExecution = (trainingConfig) => {
     errors.push(new TrainingValidationError('Continual training을 위해서는 기본 스냅샷을 선택해야 합니다.', 'snapshot'));
   }
 
-  // Algorithm validation
-  if (!algorithm) {
+  // Algorithm validation - modelType에 따라 다르게 처리
+  if (modelType === 'pretrained' && !algorithm) {
     errors.push(new TrainingValidationError('알고리즘을 선택해주세요.', 'algorithm'));
+  } else if (modelType === 'custom' && !customModel) {
+    errors.push(new TrainingValidationError('커스텀 모델을 선택해주세요.', 'customModel'));
   }
 
   return {

@@ -49,27 +49,10 @@ const OptimizationParameterEditor = ({
   // Array 타입을 위한 특별한 렌더링
   const renderArrayInput = () => {
     const value = getCurrentValue();
-    const [width, height] = Array.isArray(value) ? value : [640, 640];
+    const [height, width] = Array.isArray(value) ? value : [640, 640];
     
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <label style={{ fontSize: '12px', color: '#666' }}>Width</label>
-          <input
-            type="number"
-            value={width}
-            min={224}
-            max={1024}
-            step={32}
-            onChange={e => {
-              const newWidth = Number(e.target.value);
-              handleParamChange(currentParam.key, [newWidth, height], currentParam);
-            }}
-            className={styles.paramInput}
-            style={{ width: 80 }}
-            disabled={isRunning}
-          />
-        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <label style={{ fontSize: '12px', color: '#666' }}>Height</label>
           <input
@@ -80,7 +63,24 @@ const OptimizationParameterEditor = ({
             step={32}
             onChange={e => {
               const newHeight = Number(e.target.value);
-              handleParamChange(currentParam.key, [width, newHeight], currentParam);
+              handleParamChange(currentParam.key, [newHeight, width], currentParam);
+            }}
+            className={styles.paramInput}
+            style={{ width: 80 }}
+            disabled={isRunning}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <label style={{ fontSize: '12px', color: '#666' }}>Width</label>
+          <input
+            type="number"
+            value={width}
+            min={224}
+            max={1024}
+            step={32}
+            onChange={e => {
+              const newWidth = Number(e.target.value);
+              handleParamChange(currentParam.key, [height, newWidth], currentParam);
             }}
             className={styles.paramInput}
             style={{ width: 80 }}
@@ -154,18 +154,24 @@ const OptimizationParameterEditor = ({
         </select>
       ) : currentParam.type === 'checkbox' ? (
         <div className={styles.switchContainer}>
-          <Switch
-            checked={getCurrentValue()}
-            onChange={e => handleParamChange(currentParam.key, e.target.checked, currentParam)}
-            size="medium"
-            disabled={isRunning}
-          />
+                  <Switch
+          checked={getCurrentValue()}
+          onChange={e => handleParamChange(currentParam.key, e.target.checked, currentParam)}
+          size="medium"
+          disabled={isRunning}
+        />
           <span style={{ marginLeft: 8, fontSize: '14px', color: '#666' }}>
             {getCurrentValue() ? 'Enabled' : 'Disabled'}
           </span>
         </div>
       ) : currentParam.type === 'array' ? (
         renderArrayInput()
+      ) : currentParam.type === 'info' ? (
+        <div className={styles.infoMessage}>
+          <span style={{ color: '#666', fontStyle: 'italic' }}>
+            {currentParam.default}
+          </span>
+        </div>
       ) : currentParam.key === 'model_id' ? (
         <TrainingIdSelector
           selectedTid={getCurrentValue()}
@@ -184,6 +190,7 @@ const OptimizationParameterEditor = ({
           style={{ width: 180 }}
           placeholder={currentParam.placeholder || ''}
           disabled={isRunning}
+          readOnly={currentParam.readonly}
         />
       )}
       

@@ -9,10 +9,15 @@ export const useTrainingExecution = (trainingConfig) => {
   const [trainingResponse, setTrainingResponse] = useState(null);
 
   const runTraining = useCallback(async () => {
+    console.log('=== Training Execution Start ===');
+    console.log('trainingConfig:', trainingConfig);
+    
     const validation = validateTrainingExecution(trainingConfig);
+    console.log('validation result:', validation);
     
     if (!validation.isValid) {
       const errorMessages = validation.errors.map(error => error.message);
+      console.error('Validation failed:', errorMessages);
       alert(errorMessages.join('\n'));
       return;
     }
@@ -26,8 +31,13 @@ export const useTrainingExecution = (trainingConfig) => {
     progress.addLog('Training started...');
 
     try {
-      if (trainingConfig.algorithm === 'YOLO' || trainingConfig.algorithm === 'yolo_v8') {
-        progress.addLog('Starting YOLO training...');
+      // Algorithm 체크를 더 유연하게 수정
+      const isYoloAlgorithm = trainingConfig.algorithm && 
+        (trainingConfig.algorithm.toLowerCase().includes('yolo') || 
+         trainingConfig.algorithm.toLowerCase().includes('yolo_v'));
+      
+      if (isYoloAlgorithm) {
+        progress.addLog(`Starting ${trainingConfig.algorithm} training...`);
         
         // Parse split_ratio from string to array if needed
         let splitRatio = [0.8, 0.2];
@@ -110,6 +120,23 @@ export const useTrainingExecution = (trainingConfig) => {
         
         console.log('Final userClasses after parsing:', userClasses);
 
+        // Device 값을 API 형식으로 변환
+        const convertDeviceForAPI = (deviceValue) => {
+          console.log('Converting device value:', deviceValue);
+          let apiDevice;
+          
+          if (deviceValue === 'gpu0') {
+            apiDevice = '0';
+          } else if (deviceValue === 'gpu1') {
+            apiDevice = '1';
+          } else {
+            apiDevice = deviceValue; // cpu, cuda는 그대로
+          }
+          
+          console.log('Converted device for API:', apiDevice);
+          return apiDevice;
+        };
+
         // Prepare YOLO parameters based on API schema
         const yoloParameters = {
           model: trainingConfig.algoParams.model || 'yolov8n',
@@ -117,7 +144,7 @@ export const useTrainingExecution = (trainingConfig) => {
           epochs: trainingConfig.algoParams.epochs || 5,
           batch: trainingConfig.algoParams.batch_size || 16,
           imgsz: trainingConfig.algoParams.input_size || 640,
-          device: trainingConfig.algoParams.device || 'cpu',
+          device: convertDeviceForAPI(trainingConfig.algoParams.device || 'gpu0'),
           save_period: trainingConfig.algoParams.save_period || 5,
           workers: trainingConfig.algoParams.workers || 4,
           pretrained: trainingConfig.algoParams.pretrained !== false,
@@ -148,6 +175,11 @@ export const useTrainingExecution = (trainingConfig) => {
         const projectId = trainingConfig.projectId || 'P0001'; // TrainingPage에서 전달받은 projectId 사용
         const datasetId = trainingConfig.selectedDataset.did;
         const datasetClasses = trainingConfig.selectedDataset.classes || [];
+        
+        console.log('=== Dataset Info ===');
+        console.log('selectedDataset:', trainingConfig.selectedDataset);
+        console.log('datasetId:', datasetId);
+        console.log('projectId:', projectId);
         
         // Check if using custom model
         const isCustomModel = trainingConfig.modelType === 'custom';
@@ -189,9 +221,12 @@ export const useTrainingExecution = (trainingConfig) => {
         
         const requestBody = {
           pid: projectId,
-          did: datasetId,
+          did: datasetId, // API에서 did 필드 요구
           user_classes: finalUserClasses
         };
+        
+        console.log('=== Request Body Before Model Type Check ===');
+        console.log('requestBody:', requestBody);
         
         // Model type에 따라 다른 방식으로 request body 구성
         if (isCustomModel) {
@@ -210,9 +245,18 @@ export const useTrainingExecution = (trainingConfig) => {
           console.log('Using pretrained model:', yoloParameters.model);
         }
         
-        console.log('Final request body:', requestBody);
+        console.log('=== Final Request Body ===');
+        console.log('requestBody:', JSON.stringify(requestBody, null, 2));
+        console.log('requestBody.did:', requestBody.did);
+        console.log('requestBody.pid:', requestBody.pid);
+        console.log('requestBody.user_classes:', requestBody.user_classes);
+        console.log('requestBody.parameters:', requestBody.parameters);
 
-        const response = await postYoloTraining({ uid, ...requestBody });
+        const apiRequestData = { uid, ...requestBody };
+        console.log('=== API Request Data ===');
+        console.log('apiRequestData:', JSON.stringify(apiRequestData, null, 2));
+        
+        const response = await postYoloTraining(apiRequestData);
         
         // Log training start and response details
         if (response?.message) {

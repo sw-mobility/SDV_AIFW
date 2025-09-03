@@ -107,7 +107,8 @@ export const getParameterGroupsByAlgorithm = (algorithm) => {
         { key: 'epochs', label: 'Epochs', type: 'number', min: 1, max: 1000, default: 50, step: 1, desc: 'Number of training epochs' },
         { key: 'batch_size', label: 'Batch Size', type: 'number', min: 1, max: 512, default: 16, step: 1, desc: 'Batch size for training' },
         { key: 'learning_rate', label: 'Learning Rate (lr0)', type: 'number', min: 0.0001, max: 1, default: 0.01, step: 0.001, desc: 'Initial learning rate' },
-        { key: 'optimizer', label: 'Optimizer', type: 'select', options: ['SGD', 'Adam', 'AdamW'], default: 'SGD', desc: 'Optimizer algorithm' }
+        { key: 'optimizer', label: 'Optimizer', type: 'select', options: ['SGD', 'Adam', 'AdamW'], default: 'SGD', desc: 'Optimizer algorithm' },
+        { key: 'device', label: 'Device', type: 'select', options: ['cpu', 'cuda', 'gpu0', 'gpu1'], default: 'gpu0', desc: 'Training device (CPU or GPU)' }
       ]
     },
     {
@@ -142,7 +143,6 @@ export const getParameterGroupsByAlgorithm = (algorithm) => {
     
     baseGroups[2].params.push(
       { key: 'model', label: 'Model', type: 'select', options: ['yolov8n', 'yolov8s', 'yolov8m', 'yolov8l', 'yolov8x'], default: 'yolov8n', desc: 'YOLO model variant' },
-      { key: 'device', label: 'Device', type: 'select', options: ['cpu', 'cuda:0', 'cuda:1'], default: 'cuda:0', desc: 'Training device' },
       { key: 'save_period', label: 'Save Period', type: 'number', min: 1, max: 50, default: 5, step: 1, desc: 'Save checkpoint every x epochs' },
       { key: 'workers', label: 'Workers', type: 'number', min: 0, max: 16, default: 4, step: 1, desc: 'Number of worker threads' },
       { key: 'pretrained', label: 'Use Pretrained', type: 'checkbox', default: true, desc: 'Use pretrained weights' },
@@ -169,6 +169,16 @@ export const getParameterGroupsByAlgorithm = (algorithm) => {
   } else if (algorithm === 'ResNet') {
     baseGroups[2].params.push(
       { key: 'resnet_depth', label: 'ResNet Depth', type: 'number', min: 18, max: 152, default: 50, step: 1 },
+      { key: 'pretrained', label: 'Use Pretrained', type: 'checkbox', default: true }
+    );
+  } else if (algorithm === 'SSD') {
+    baseGroups[2].params.push(
+      { key: 'ssd_variant', label: 'SSD Variant', type: 'select', options: ['ssd300', 'ssd512'], default: 'ssd300', desc: 'SSD model variant' },
+      { key: 'pretrained', label: 'Use Pretrained', type: 'checkbox', default: true }
+    );
+  } else if (algorithm === 'Faster R-CNN') {
+    baseGroups[2].params.push(
+      { key: 'backbone', label: 'Backbone', type: 'select', options: ['resnet50', 'resnet101'], default: 'resnet50', desc: 'Backbone network' },
       { key: 'pretrained', label: 'Use Pretrained', type: 'checkbox', default: true }
     );
   }

@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getTrainingList } from '../../../api/training.js';
 import { uid } from '../../../api/uid.js';
 import styles from './TrainingResultList.module.css';
 
-const TrainingResultList = () => {
+const TrainingResultList = ({ onRefresh }) => {
   const [trainings, setTrainings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedTraining, setSelectedTraining] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchTrainings = async () => {
+  const fetchTrainings = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -37,11 +37,24 @@ const TrainingResultList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [uid]);
 
   useEffect(() => {
     fetchTrainings();
-  }, []);
+  }, [uid, fetchTrainings, onRefresh]);
+
+  // onRefresh prop이 있을 때는 그것을 사용, 없을 때는 자체 fetchTrainings 사용
+  const handleRefresh = useCallback(async () => {
+    if (onRefresh) {
+      console.log('Using onRefresh prop for refresh');
+      await onRefresh();
+      // onRefresh 후에 TrainingResultList도 새로고침
+      await fetchTrainings();
+    } else {
+      console.log('Using local fetchTrainings for refresh');
+      await fetchTrainings();
+    }
+  }, [onRefresh, fetchTrainings]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -133,8 +146,12 @@ const TrainingResultList = () => {
           <span className={styles.count}>({trainings.length})</span>
         </div>
         <div className={styles.headerRight}>
-          <button onClick={fetchTrainings} className={styles.refreshBtn}>
-            REFRESH
+          <button 
+                          onClick={handleRefresh} 
+            className={styles.refreshBtn}
+            disabled={loading}
+          >
+            {loading ? 'REFRESHING...' : 'REFRESH'}
           </button>
         </div>
       </div>

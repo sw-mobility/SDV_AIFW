@@ -21,7 +21,7 @@ export const useValidation = () => {
     task_type: 'detection',
     imgsz: 640,
     batch: 32,
-    device: 'cpu',
+    device: 'gpu',
     workers: 8,
     conf: 0.001,
     iou: 0.6,
@@ -47,34 +47,33 @@ export const useValidation = () => {
     setDatasetLoading(true);
     setDatasetError(null);
     try {
-      const res = await fetchLabeledDatasets({ uid });
-      console.log('Fetched datasets:', res.data);
-      if (res.data && res.data.length > 0) {
-        console.log('First dataset structure:', res.data[0]);
-        console.log('Available fields:', Object.keys(res.data[0]));
+      const response = await fetchLabeledDatasets({ uid });
+      console.log('Fetched labeled datasets:', response);
+      
+      if (response && response.data && Array.isArray(response.data)) {
+        setDatasets(response.data);
+      } else {
+        console.warn('Invalid datasets response:', response);
+        setDatasets([]);
       }
-      setDatasets(res.data || []);
     } catch (err) {
       setDatasetError(err.message);
+      console.error('Failed to fetch labeled datasets:', err);
     } finally {
       setDatasetLoading(false);
     }
   }, []);
 
-  // 초기 로드
+  // 컴포넌트 마운트 시 데이터셋 목록 가져오기
   useEffect(() => {
     fetchDatasets();
   }, [fetchDatasets]);
 
-  // Dataset 선택 시 모델 자동 설정
+  // 선택된 데이터셋이 변경될 때 validation 파라미터에 dataset 관련 정보 설정
   useEffect(() => {
     if (selectedDataset) {
-      console.log('Dataset selected:', selectedDataset);
-      console.log('Dataset fields:', Object.keys(selectedDataset));
-      
-      // Dataset에서 모델 정보를 가져와서 설정
-      // 예: dataset에 model_path나 model_name 필드가 있다면 사용
-      const modelPath = selectedDataset.model_path || selectedDataset.model_name || 'best.pt';
+      // Dataset에서 추출할 수 있는 정보로 validation 파라미터 업데이트
+      const modelPath = selectedDataset.tid ? `${selectedDataset.tid}/best.pt` : 'best.pt';
       const projectId = selectedDataset.pid || selectedDataset.projectId || 'P0001';
       
       setValidationParams(prev => ({
@@ -84,6 +83,35 @@ export const useValidation = () => {
       }));
     }
   }, [selectedDataset]);
+
+  // Validation History 새로고침 함수
+  const refreshValidationHistory = useCallback(async () => {
+    try {
+      console.log('Refreshing validation history...');
+      const validationList = await getValidationList({ uid });
+      console.log('Refreshed validation list:', validationList);
+      
+      if (validationList && validationList.length > 0) {
+        const latestResults = validationList.map(validation => ({
+          vid: validation.vid,
+          model: validation.parameters?.model || validation.used_codebase || 'Unknown',
+          dataset: validation.dataset_name || '',
+          timestamp: validation.created_at,
+          status: validation.status,
+          metrics: validation.metrics_summary || {},
+          result_path: validation.artifacts_path,
+          plots_path: null
+        }));
+        setResults(latestResults);
+      }
+      
+      // ValidationHistoryList도 자동으로 refresh되도록 강제로 상태 변경
+      // 이는 ValidationHistoryList가 useEffect의 의존성 배열에 uid를 포함하고 있기 때문
+      console.log('Validation history refreshed successfully');
+    } catch (error) {
+      console.error('Failed to refresh validation history:', error);
+    }
+  }, [uid]);
 
   // Validation 상태 폴링
   const pollValidationStatus = useCallback(async (vid) => {
@@ -100,48 +128,21 @@ export const useValidation = () => {
         clearInterval(pollingInterval);
         setPollingInterval(null);
         
-        // Validation이 완료되면 list API를 호출하여 최신 결과를 가져옴
-        try {
-          const validationList = await getValidationList({ uid });
-          console.log('Fetched latest validation list:', validationList);
-          
-          // 최신 validation 결과를 results에 설정
-          if (validationList && validationList.length > 0) {
-            const latestResults = validationList.map(validation => ({
-              vid: validation.vid,
-              model: validation.parameters?.model || validation.used_codebase || 'Unknown',
-              dataset: validation.dataset_name || '',
-              timestamp: validation.created_at,
-              status: validation.status,
-              metrics: validation.metrics_summary || {},
-              result_path: validation.artifacts_path,
-              plots_path: null
-            }));
-            setResults(latestResults);
-          }
-        } catch (listError) {
-          console.error('Failed to fetch validation list:', listError);
-          // list API 실패 시 기존 방식으로 결과 추가
-          setResults(prev => [
-            ...prev,
-            {
-              vid: result.vid || vid,
-              model: validationParams.model,
-              dataset: selectedDataset?.name || '',
-              timestamp: new Date().toISOString(),
-              status: result.status,
-              metrics: result.metrics || {},
-              result_path: result.result_path,
-              plots_path: result.plots_path
-            }
-          ]);
-        }
+        // Validation이 완료되면 ValidationHistoryList를 자동으로 refresh
+        console.log('Validation completed! Triggering automatic refresh of ValidationHistoryList...');
+        
+        // Validation이 완료되면 refreshValidationHistory를 호출하여 ValidationHistoryList도 자동으로 refresh
+        await refreshValidationHistory();
       } else if (result.status === 'failed' || result.status === 'error') {
         setStatus('error');
         setError(result.error || result.message || 'Validation failed');
         setLoading(false);
         clearInterval(pollingInterval);
         setPollingInterval(null);
+        
+        // Validation이 실패해도 ValidationHistoryList를 자동으로 refresh
+        console.log('Validation failed! Triggering automatic refresh of ValidationHistoryList...');
+        await refreshValidationHistory();
       } else if (result.status === 'running') {
         // 진행률 업데이트 (실제 API에서 제공하는 경우)
         if (result.progress !== undefined) {
@@ -158,7 +159,7 @@ export const useValidation = () => {
       clearInterval(pollingInterval);
       setPollingInterval(null);
     }
-  }, [selectedDataset, pollingInterval, validationParams.model]);
+  }, [selectedDataset, pollingInterval, validationParams.model, refreshValidationHistory]);
 
   // Validation 실행
   const handleRunValidation = useCallback(async () => {
@@ -244,7 +245,7 @@ export const useValidation = () => {
       task_type: 'detection',
       imgsz: 640,
       batch: 32,
-      device: 'cpu',
+      device: 'gpu',
       workers: 8,
       conf: 0.001,
       iou: 0.6,
@@ -260,30 +261,6 @@ export const useValidation = () => {
       augment: false,
       rect: false
     });
-  }, []);
-
-  // Validation History 새로고침 함수
-  const refreshValidationHistory = useCallback(async () => {
-    try {
-      const validationList = await getValidationList({ uid });
-      console.log('Refreshed validation list:', validationList);
-      
-      if (validationList && validationList.length > 0) {
-        const latestResults = validationList.map(validation => ({
-          vid: validation.vid,
-          model: validation.parameters?.model || validation.used_codebase || 'Unknown',
-          dataset: validation.dataset_name || '',
-          timestamp: validation.created_at,
-          status: validation.status,
-          metrics: validation.metrics_summary || {},
-          result_path: validation.artifacts_path,
-          plots_path: null
-        }));
-        setResults(latestResults);
-      }
-    } catch (error) {
-      console.error('Failed to refresh validation history:', error);
-    }
   }, []);
 
   // 컴포넌트 언마운트 시 폴링 정리

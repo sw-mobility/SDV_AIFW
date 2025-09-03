@@ -19,6 +19,8 @@ export async function postYoloTraining(trainingData) {
 
     const { uid, ...bodyData } = trainingData;
     
+    console.log('Sending training request:', bodyData);
+    
     const response = await fetch(url, {
         method: 'POST',
         headers: { 
@@ -31,6 +33,7 @@ export async function postYoloTraining(trainingData) {
     
     if (!response.ok) {
         const error = await response.text();
+        console.error('Training API error:', error);
         throw new Error(error || 'YOLO training failed');
     }
     

@@ -72,6 +72,11 @@ const OptimizationModelSelector = ({
 
   const handleModelIdChange = (event) => {
     const selectedValue = event.target.value;
+    console.log('Model ID changed:', {
+      selectedValue,
+      selectedValueType: typeof selectedValue,
+      selectedValueLength: selectedValue ? selectedValue.length : 0
+    });
     onModelIdChange(selectedValue);
   };
 

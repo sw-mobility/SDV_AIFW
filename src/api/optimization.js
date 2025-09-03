@@ -113,10 +113,17 @@ export const createOptimizationRequest = async (optimizationType, params, pid, u
     } else if (modelId.startsWith('O')) {
       // Use optimizing path for Optimizing ID - need to check format
       try {
+        console.log('Getting optimization list for uid:', uid);
         const optimizationList = await getOptimizationList({ uid });
+        console.log('Optimization list:', optimizationList);
+        
         const optimization = optimizationList.find(opt => opt.oid === modelId);
+        console.log('Found optimization:', optimization);
+        
         if (optimization && optimization.metrics && optimization.metrics.stats) {
           const format = optimization.metrics.stats.format;
+          console.log('Optimization format:', format);
+          
           if (format === 'onnx') return `artifacts/${pid}/optimizing/${modelId}/best.onnx`;
           if (format === 'engine') return `artifacts/${pid}/optimizing/${modelId}/best.engine`;
           if (format === 'pt') return `artifacts/${pid}/optimizing/${modelId}/best.pt`;
@@ -225,6 +232,8 @@ export const createOptimizationRequest = async (optimizationType, params, pid, u
  * @returns {Promise<Array>} List of optimization histories
  */
 export async function getOptimizationList({ uid }) {
+    console.log('getOptimizationList called with uid:', uid);
+    
     const response = await fetch(`${BASE_URL}/optimizing/list`, {
         method: 'GET',
         headers: { 
@@ -233,12 +242,17 @@ export async function getOptimizationList({ uid }) {
         }
     });
     
+    console.log('getOptimizationList response status:', response.status);
+    
     if (!response.ok) {
         const error = await response.text();
+        console.error('getOptimizationList error:', error);
         throw new Error(error || 'Failed to get optimization list');
     }
     
-    return await response.json();
+    const result = await response.json();
+    console.log('getOptimizationList result:', result);
+    return result;
 }
 
 /**

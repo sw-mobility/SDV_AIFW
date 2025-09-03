@@ -15,13 +15,7 @@
   box-sizing: border-box;
 }
 
-/* 파라미터 섹션 래퍼 - 동적 높이 조절 */
-.parameterSectionWrapper {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
+
 
 .pageHeader {
   margin-bottom: 32px;

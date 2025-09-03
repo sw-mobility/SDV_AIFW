@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import styles from './ValidationPage.module.css';
 import DatasetSelector from '../../components/features/training/DatasetSelector.jsx';
 import ValidationParameterSection from '../../components/features/validation/ValidationParameterSection.jsx';

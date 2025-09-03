@@ -30,7 +30,7 @@ export const VALIDATION_PARAM_GROUPS = [
         key: 'device',
         label: 'Device',
         type: 'select',
-        default: 'cpu',
+        default: 'gpu',
         options: ['cpu', 'gpu'],
         desc: 'Device to run validation on (CPU or GPU)'
       }

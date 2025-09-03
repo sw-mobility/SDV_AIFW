@@ -7,12 +7,20 @@ const DEFAULT_COCO_CLASSES = `names:
   1: bicycle
   2: car`;
 
-const COCOClassesEditor = ({ value, onChange }) => {
+const COCOClassesEditor = ({ value, onChange, dataset }) => {
   const [yamlContent, setYamlContent] = useState(value || DEFAULT_COCO_CLASSES);
 
   useEffect(() => {
-    setYamlContent(value || DEFAULT_COCO_CLASSES);
-  }, [value]);
+    if (value) {
+      setYamlContent(value);
+    } else if (dataset?.classes && dataset.classes.length > 0) {
+      // Dataset의 classes를 YAML 형식으로 변환하여 기본값으로 설정
+      const datasetClasses = `names:\n${dataset.classes.map((cls, index) => `  ${index}: ${cls}`).join('\n')}`;
+      setYamlContent(datasetClasses);
+    } else {
+      setYamlContent(DEFAULT_COCO_CLASSES);
+    }
+  }, [value, dataset]);
 
   const handleContentChange = (e) => {
     const newContent = e.target.value;
@@ -21,8 +29,15 @@ const COCOClassesEditor = ({ value, onChange }) => {
   };
 
   const handleReset = () => {
-    setYamlContent(DEFAULT_COCO_CLASSES);
-    onChange?.(DEFAULT_COCO_CLASSES);
+    if (dataset?.classes && dataset.classes.length > 0) {
+      // Dataset의 classes를 YAML 형식으로 변환
+      const datasetClasses = `names:\n${dataset.classes.map((cls, index) => `  ${index}: ${cls}`).join('\n')}`;
+      setYamlContent(datasetClasses);
+      onChange?.(datasetClasses);
+    } else {
+      setYamlContent(DEFAULT_COCO_CLASSES);
+      onChange?.(DEFAULT_COCO_CLASSES);
+    }
   };
 
 

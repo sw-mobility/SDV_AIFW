@@ -131,15 +131,10 @@ const ParameterSection = ({
   };
 
   const renderParameterEditors = () => {
-    if (selectedParamKeys.length === 0) {
-      return (
-        <div className={styles.paramCard + ' ' + styles.paramCardEmpty}>
-          <span className={styles.emptyMessage}>왼쪽에서 파라미터를 선택하세요.</span>
-        </div>
-      );
-    }
-
-    return selectedParamKeys.map((key) => {
+    const editors = [];
+    
+    // 선택된 파라미터들 추가
+    selectedParamKeys.forEach((key) => {
       // Find parameter definition
       let foundParam = null;
       for (const group of paramGroups) {
@@ -152,20 +147,31 @@ const ParameterSection = ({
         if (foundParam) break;
       }
       
-      if (!foundParam) return null;
-      
-      return (
-        <ParameterEditor
-          key={key}
-          currentParam={foundParam}
-          algoParams={algoParams}
-          onParamChange={onParamChange}
-          paramErrors={paramErrors}
-          isTraining={isTraining}
-          selectedDataset={selectedDataset}
-        />
-      );
+      if (foundParam) {
+        editors.push(
+          <ParameterEditor
+            key={key}
+            currentParam={foundParam}
+            algoParams={algoParams}
+            onParamChange={onParamChange}
+            paramErrors={paramErrors}
+            disabled={false}
+            selectedDataset={selectedDataset}
+          />
+        );
+      }
     });
+    
+    if (editors.length === 0) {
+      // 파라미터가 선택되지 않은 경우 안내 메시지 추가
+      editors.push(
+        <div key="empty-message" className={styles.paramCard + ' ' + styles.paramCardEmpty}>
+          <span className={styles.emptyMessage}>왼쪽에서 파라미터를 선택하세요.</span>
+        </div>
+      );
+    }
+    
+    return editors;
   };
 
   return (
@@ -183,12 +189,14 @@ const ParameterSection = ({
           trainingType={trainingType}
         />
         
-        <ExpertModeToggle
+        {/* Expert Mode Toggle - UI에서 숨김 */}
+        {/* <ExpertModeToggle
           isActive={showCodeEditor}
           onToggle={() => setShowCodeEditor(!showCodeEditor)}
-        />
+        /> */}
         
-        {renderSnapshotSelector()}
+        {/* Snapshot Selector - UI에서 숨김 */}
+        {/* {renderSnapshotSelector()} */}
       </div>
       
       {/* Center: Parameter Input Fields */}
