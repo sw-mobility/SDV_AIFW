@@ -66,9 +66,9 @@ export const useLabelingWorkspace = (dataset) => {
       console.log('Dataset object:', dataset); // 디버깅용
 
       const params = {
-        pid: dataset?.projectId || 'P0001',
-        did: dataset?.id || 'R0001',
-        name: dataset?.name || 'l',
+        pid: dataset?.projectId,
+        did: dataset.did,
+        name: dataset?.name,
         parameters: parameters
       };
 
