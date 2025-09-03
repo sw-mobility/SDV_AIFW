@@ -130,7 +130,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
 
       const result = await deleteData({ 
         uid: dataset.uid || '', 
-        target_did: dataset._id,
+        target_did: dataset.did,
         target_name_list: target_name_list
       });
       
