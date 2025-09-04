@@ -43,27 +43,56 @@ export async function createProject({ uid, name, description = '' }) {
 }
 
 export async function updateProject({ id, uid, name, description }) {
-    const url = `${BASE_URL}/projects/projects/update?id=${encodeURIComponent(id)}`;
+    const url = `${BASE_URL}/projects/projects/update?pid=${encodeURIComponent(id)}`;
     const response = await fetch(url, {
         method: 'PUT',
         headers: { 
             'Content-Type': 'application/json',
             'uid': uid
         },
-        body: JSON.stringify({ name, description }),
+        body: JSON.stringify({ pid: id, name, description }),
     });
 
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to update project');
+        let errorMessage = 'Failed to update project';
+        
+        try {
+            if (response.status === 422) {
+                // Validation Error 처리
+                const errorData = await response.json();
+                console.log('Update validation error data:', errorData);
+                errorMessage = errorData.detail?.[0]?.msg || 'Validation error occurred';
+            } else {
+                const errorText = await response.text();
+                console.log('Update error response text:', errorText);
+                
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    if (errorJson.detail) {
+                        errorMessage = errorJson.detail;
+                    }
+                } catch {
+                    errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
+                }
+            }
+        } catch (parseError) {
+            console.error('Error parsing update response:', parseError);
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        
+        throw new Error(errorMessage);
     }
 
     const data = await response.json();
+    console.log('Update project success response:', data);
     return { success: true, data, message: 'Project updated successfully' };
 }
 
 export async function deleteProject({uid, id}) {
-    const response = await fetch(`${BASE_URL}/projects/projects/?project_id=${encodeURIComponent(id)}`, {
+    const url = `${BASE_URL}/projects/projects/?pid=${encodeURIComponent(id)}`;
+    console.log('Delete project request:', { url, uid, id });
+    
+    const response = await fetch(url, {
         method: 'DELETE',
         headers: { 
             'Content-Type': 'application/json',
@@ -71,16 +100,51 @@ export async function deleteProject({uid, id}) {
         },
     });
 
+    console.log('Delete project response:', { 
+        status: response.status, 
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+    });
+
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to delete project');
+        let errorMessage = 'Failed to delete project';
+        
+        try {
+            if (response.status === 422) {
+                // Validation Error 처리
+                const errorData = await response.json();
+                console.log('Validation error data:', errorData);
+                errorMessage = errorData.detail?.[0]?.msg || 'Validation error occurred';
+            } else {
+                // 다른 에러들 처리
+                const errorText = await response.text();
+                console.log('Error response text:', errorText);
+                
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    if (errorJson.detail) {
+                        errorMessage = errorJson.detail;
+                    }
+                } catch {
+                    errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
+                }
+            }
+        } catch (parseError) {
+            console.error('Error parsing response:', parseError);
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        
+        throw new Error(errorMessage);
     }
 
-    return { success: true, message: 'Project deleted successfully' };
+    // 성공 시 응답 데이터 처리 (API 명세에 따르면 string 반환)
+    const responseData = await response.text();
+    console.log('Delete project success response:', responseData);
+    return { success: true, data: responseData, message: 'Project deleted successfully' };
 }
 
 export async function getProjectById({ id, uid }) {
-    const response = await fetch(`${BASE_URL}/projects/projects/single/?id=${encodeURIComponent(id)}`, {
+    const response = await fetch(`${BASE_URL}/projects/projects/single/?pid=${encodeURIComponent(id)}`, {
         headers: {
             'uid': uid
         }

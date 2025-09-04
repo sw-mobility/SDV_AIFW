@@ -108,7 +108,11 @@ export const getParameterGroupsByAlgorithm = (algorithm) => {
         { key: 'batch_size', label: 'Batch Size', type: 'number', min: 1, max: 512, default: 16, step: 1, desc: 'Batch size for training' },
         { key: 'learning_rate', label: 'Learning Rate (lr0)', type: 'number', min: 0.0001, max: 1, default: 0.01, step: 0.001, desc: 'Initial learning rate' },
         { key: 'optimizer', label: 'Optimizer', type: 'select', options: ['SGD', 'Adam', 'AdamW'], default: 'SGD', desc: 'Optimizer algorithm' },
-        { key: 'device', label: 'Device', type: 'select', options: ['cpu', 'cuda', 'gpu0', 'gpu1'], default: 'gpu0', desc: 'Training device (CPU or GPU)' }
+        { key: 'device', label: 'Device', type: 'select', options: [
+          { value: 'cpu', label: 'CPU' },
+          { value: '0', label: 'GPU 0' },
+          { value: '1', label: 'GPU 1' }
+        ], default: '0', desc: 'Training device (CPU or GPU)' }
       ]
     },
     {

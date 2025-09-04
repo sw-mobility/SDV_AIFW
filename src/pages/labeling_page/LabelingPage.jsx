@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styles from './LabelingPage.module.css';
 import DatasetSelector from '../../components/features/training/DatasetSelector';
 import LabelingParameterSection from '../../components/features/labeling/LabelingParameterSection';
@@ -34,6 +34,12 @@ const LabelingPage = () => {
     setSelectedParamKeys,
     fetchLabeledDatasetsList
   } = useLabelingWorkspace(selectedDataset);
+
+  // Refresh 핸들러
+  const handleRefreshLabeledDatasets = useCallback(() => {
+    console.log('Refreshing labeled datasets...');
+    fetchLabeledDatasetsList();
+  }, [fetchLabeledDatasetsList]);
 
   const renderDatasetSection = () => (
     <div className={styles.selectorGroup}>
@@ -126,7 +132,9 @@ const LabelingPage = () => {
           {/* Labeled Datasets 목록 */}
           <LabeledDatasetsList 
             labeledDatasets={labeledDatasets} 
-            isPolling={isPolling} 
+            isPolling={isPolling}
+            onRefresh={handleRefreshLabeledDatasets}
+            loading={false}
           />
         </div>
       </div>

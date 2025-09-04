@@ -26,6 +26,19 @@ export const useProjects = () => {
         setError(null);
         try {
             const res = await fetchProjects({ uid });
+            console.log('Fetched projects:', res.data);
+            // 각 프로젝트 객체의 구조 확인
+            res.data.forEach((project, index) => {
+                console.log(`Project ${index}:`, {
+                    _id: project._id,
+                    uid: project.uid,
+                    pid: project.pid,
+                    name: project.name,
+                    description: project.description,
+                    status: project.status,
+                    created_at: project.created_at
+                });
+            });
             setProjects(res.data);
         } catch (err) {
             setError(err.message);
@@ -89,8 +102,16 @@ export const useProjects = () => {
             const name = typeof projectData === 'string' ? projectData : projectData.name;
             const description = typeof projectData === 'string' ? (editProject.description || '') : projectData.description;
             
+            console.log('Editing project:', {
+                editProject,
+                editProject_pid: editProject.pid,
+                editProject_id: editProject._id,
+                name,
+                description
+            });
+            
             await updateProject({ 
-                id: editProject._id || editProject.id, 
+                id: editProject.pid, 
                 uid, 
                 name, 
                 description
@@ -130,7 +151,22 @@ export const useProjects = () => {
     // 삭제 확인 모달에서 삭제 실행
     const confirmDelete = async () => {
         if (deleteTarget) {
-            await handleDeleteProject(deleteTarget._id);
+            // 프로젝트 객체의 모든 필드 확인
+            console.log('Full deleteTarget object:', deleteTarget);
+            console.log('deleteTarget._id:', deleteTarget._id);
+            console.log('deleteTarget.pid:', deleteTarget.pid);
+            console.log('deleteTarget.id:', deleteTarget.id);
+            
+            // pid 필드가 실제 프로젝트 ID인지 확인
+            const projectId = deleteTarget.pid;
+            console.log('Using projectId (pid):', projectId);
+            
+            if (!projectId) {
+                setError('Project ID (pid) not found. Cannot delete project.');
+                return;
+            }
+            
+            await handleDeleteProject(projectId);
             setIsDeleteConfirmOpen(false);
             setDeleteTarget(null);
         }

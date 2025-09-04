@@ -125,12 +125,12 @@ export const useTrainingExecution = (trainingConfig) => {
           console.log('Converting device value:', deviceValue);
           let apiDevice;
           
-          if (deviceValue === 'gpu0') {
-            apiDevice = '0';
-          } else if (deviceValue === 'gpu1') {
-            apiDevice = '1';
+          if (deviceValue === '0') {
+            apiDevice = '0'; // GPU 0
+          } else if (deviceValue === '1') {
+            apiDevice = '1'; // GPU 1
           } else {
-            apiDevice = deviceValue; // cpu, cuda는 그대로
+            apiDevice = deviceValue; // cpu는 그대로
           }
           
           console.log('Converted device for API:', apiDevice);
@@ -144,7 +144,7 @@ export const useTrainingExecution = (trainingConfig) => {
           epochs: trainingConfig.algoParams.epochs || 5,
           batch: trainingConfig.algoParams.batch_size || 16,
           imgsz: trainingConfig.algoParams.input_size || 640,
-          device: convertDeviceForAPI(trainingConfig.algoParams.device || 'gpu0'),
+          device: convertDeviceForAPI(trainingConfig.algoParams.device || '0'),
           save_period: trainingConfig.algoParams.save_period || 5,
           workers: trainingConfig.algoParams.workers || 4,
           pretrained: trainingConfig.algoParams.pretrained !== false,

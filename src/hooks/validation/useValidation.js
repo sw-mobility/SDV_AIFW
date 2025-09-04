@@ -188,11 +188,31 @@ export const useValidation = () => {
       
       console.log('Selected dataset:', selectedDataset);
       console.log('Dataset ID:', datasetId);
+      console.log('Dataset details:', {
+        did: selectedDataset.did,
+        _id: selectedDataset._id,
+        id: selectedDataset.id,
+        name: selectedDataset.name,
+        type: selectedDataset.type,
+        datasetType: selectedDataset.datasetType,
+        pid: selectedDataset.pid,
+        tid: selectedDataset.tid
+      });
       
       // API 스펙에 맞는 요청 구조
+      // Labeled dataset의 경우, 해당 dataset과 연결된 training ID를 사용
+      const trainingId = selectedDataset.tid || selectedDataset.origin_tid || validationParams.tid || 'T0001';
+      
+      console.log('Training ID selection:', {
+        selectedDatasetTid: selectedDataset.tid,
+        selectedDatasetOriginTid: selectedDataset.origin_tid,
+        validationParamsTid: validationParams.tid,
+        finalTrainingId: trainingId
+      });
+      
       const requestData = {
         pid: selectedDataset.pid || 'P0001',
-        tid: validationParams.tid || selectedDataset.tid || 'T0001', // 사용자 입력 TID 우선
+        tid: trainingId, // 데이터셋과 연결된 training ID 우선 사용
         cid: 'yolo',
         did: datasetId,
         task_type: validationParams.task_type,
@@ -200,6 +220,7 @@ export const useValidation = () => {
       };
 
       console.log('Starting validation with:', requestData);
+      console.log('Validation parameters:', validationParams);
       
       // Validation 시작
       const result = await startYoloValidation({

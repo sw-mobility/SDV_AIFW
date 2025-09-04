@@ -68,8 +68,8 @@ const OptimizationPage = () => {
           disabled={isRunning}
         />
 
-        {/* Parameter Configuration - Optimization Type 선택 후에만 표시 */}
-        {optimizationType && (
+        {/* Parameter Configuration - Optimization Type 선택 후에만 표시 (CHECK MODEL STATS 제외) */}
+        {optimizationType && optimizationType !== 'check_model_stats' && (
           <OptimizationParameterSection
             optimizationType={optimizationType}
             optimizationParams={optimizationParams}

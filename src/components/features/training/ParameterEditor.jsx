@@ -101,9 +101,14 @@ const ParameterEditor = ({
           style={{ width: 180 }}
           disabled={disabled}
         >
-          {currentParam.options.map(opt => (
-            <option key={opt} value={opt}>{opt}</option>
-          ))}
+          {currentParam.options.map(opt => {
+            // options가 객체 배열인지 문자열 배열인지 확인
+            if (typeof opt === 'object' && opt.value !== undefined) {
+              return <option key={opt.value} value={opt.value}>{opt.label}</option>;
+            } else {
+              return <option key={opt} value={opt}>{opt}</option>;
+            }
+          })}
         </select>
       ) : currentParam.type === 'checkbox' ? (
         <div className={styles.switchContainer}>

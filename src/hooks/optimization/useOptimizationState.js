@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { runOptimization, getOptimizationList } from '../../api/optimization.js';
 import { uid } from '../../api/uid.js';
 
@@ -16,6 +16,14 @@ const useOptimizationState = () => {
   const [status, setStatus] = useState('idle');
   // results state 제거 - Optimization History로 통일
   const [error, setError] = useState(null); // 에러 상태 추가
+  
+  // 최신 modelId를 추적하기 위한 ref
+  const modelIdRef = useRef(modelId);
+  
+  // modelId가 변경될 때마다 ref 업데이트
+  useEffect(() => {
+    modelIdRef.current = modelId;
+  }, [modelId]);
 
   const handleOptimizationTypeChange = useCallback((type) => {
     setOptimizationType(type);
@@ -99,19 +107,40 @@ const useOptimizationState = () => {
     console.log('handleModelIdChange called with:', {
       id,
       idType: typeof id,
-      idLength: id ? id.length : 0
+      idLength: id ? id.length : 0,
+      idTrimmed: id ? id.trim() : '',
+      isEmpty: !id || id.trim() === ''
     });
     setModelId(id);
     setError(null);
   }, []);
 
   const handleRunOptimization = useCallback(async () => {
+    // ref를 사용하여 최신 modelId 가져오기
+    const currentModelId = modelIdRef.current;
+    
+    console.log('handleRunOptimization called with:', {
+      optimizationType,
+      modelType,
+      modelId: currentModelId,
+      modelIdType: typeof currentModelId,
+      modelIdLength: currentModelId ? currentModelId.length : 0,
+      modelIdTrimmed: currentModelId ? currentModelId.trim() : '',
+      isEmpty: !currentModelId || currentModelId.trim() === ''
+    });
+
     if (!optimizationType) {
       console.error('Optimization type is required');
       return;
     }
 
-    if (!modelId || modelId.trim() === '') {
+    if (!currentModelId || currentModelId.trim() === '') {
+      console.error('Model ID validation failed:', {
+        modelId: currentModelId,
+        modelIdType: typeof currentModelId,
+        modelIdLength: currentModelId ? currentModelId.length : 0,
+        modelIdTrimmed: currentModelId ? currentModelId.trim() : ''
+      });
       setError('Model ID는 필수 입력 항목입니다.');
       return;
     }
@@ -144,7 +173,7 @@ const useOptimizationState = () => {
       setProgress(10);
 
       console.log('Calling runOptimization with uid:', currentUid);
-      const response = await runOptimization(optimizationType, { ...optimizationParams, model_id: modelId }, pid, currentUid);
+      const response = await runOptimization(optimizationType, { ...optimizationParams, model_id: currentModelId }, pid, currentUid);
       
       setProgress(50);
       setProgress(80);
@@ -180,7 +209,7 @@ const useOptimizationState = () => {
     } finally {
       setIsRunning(false);
     }
-  }, [optimizationType, optimizationParams, runOptimization]);
+  }, [optimizationType, modelType, optimizationParams, runOptimization]);
 
   const resetOptimization = useCallback(() => {
     setOptimizationType('');

@@ -7,10 +7,12 @@ import { uid } from '../../../api/uid.js';
  * 주요 기능: 실시간으로 업데이트되는 labeled datasets 목록을 표시
  * @param labeledDatasets
  * @param isPolling
+ * @param onRefresh - refresh 콜백 함수
+ * @param loading - 로딩 상태
  * @returns {React.JSX.Element|null}
  * @constructor
  */
-const LabeledDatasetsList = ({ labeledDatasets, isPolling }) => {
+const LabeledDatasetsList = ({ labeledDatasets, isPolling, onRefresh, loading = false }) => {
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [isDataPanelOpen, setIsDataPanelOpen] = useState(false);
 
@@ -43,30 +45,66 @@ const LabeledDatasetsList = ({ labeledDatasets, isPolling }) => {
         justifyContent: 'space-between',
         marginBottom: 16 
       }}>
-        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1e293b' }}>
-          Labeled Datasets
-        </h3>
-        {isPolling && (
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 8,
-            padding: '4px 12px',
-            background: '#dbeafe',
-            borderRadius: '16px',
-            fontSize: '12px',
-            color: '#1d4ed8'
-          }}>
-            <div style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: '#1d4ed8',
-              animation: 'pulse 1.5s infinite'
-            }}></div>
-            Polling for new datasets...
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1e293b' }}>
+            Labeled Datasets
+          </h3>
+          <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '500' }}>
+            ({labeledDatasets.length})
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {isPolling && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 8,
+              padding: '4px 12px',
+              background: '#dbeafe',
+              borderRadius: '16px',
+              fontSize: '12px',
+              color: '#1d4ed8'
+            }}>
+              <div style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#1d4ed8',
+                animation: 'pulse 1.5s infinite'
+              }}></div>
+              Polling for new datasets...
+            </div>
+          )}
+          {onRefresh && (
+            <button 
+              onClick={onRefresh} 
+              style={{
+                padding: '8px 16px',
+                background: '#f8fafc',
+                border: '1.5px solid #d1d5db',
+                borderRadius: '8px',
+                color: '#6b7280',
+                fontSize: '12px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = '#f59e0b';
+                e.target.style.color = '#f59e0b';
+                e.target.style.background = '#fef3c7';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#d1d5db';
+                e.target.style.color = '#6b7280';
+                e.target.style.background = '#f8fafc';
+              }}
+              disabled={loading}
+            >
+              {loading ? 'REFRESHING...' : 'REFRESH'}
+            </button>
+          )}
+        </div>
       </div>
 
       {labeledDatasets.length === 0 ? (

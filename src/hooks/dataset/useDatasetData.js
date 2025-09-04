@@ -56,6 +56,18 @@ export const useDatasetData = (dataset, isOpen = false) => {
         processedData = res;
       }
       
+      console.log('=== FETCH DATA DEBUG ===');
+      console.log('Dataset type:', dataset.datasetType || dataset.type);
+      console.log('Dataset DID:', dataset.did);
+      console.log('Raw API response:', res);
+      console.log('Processed data:', processedData);
+      console.log('Data list length:', processedData?.data_list?.length);
+      if (processedData?.data_list && processedData.data_list.length > 0) {
+        console.log('First data item:', processedData.data_list[0]);
+        console.log('First data item keys:', Object.keys(processedData.data_list[0]));
+      }
+      console.log('========================');
+      
       setData(processedData);
     } catch (err) {
       console.error('Error fetching dataset data:', err);
@@ -293,17 +305,59 @@ export const useDatasetData = (dataset, isOpen = false) => {
     
     setDownloading(true);
     try {
-      await downloadDatasetById({ 
-        uid: dataset.uid, 
-        target_did: datasetId,
-        dataset_name: dataset.name
-      });
+      // Labeled dataset의 경우 download-data 엔드포인트 사용
+      const isLabeled = dataset.datasetType === 'labeled' || dataset.type === 'labeled';
+      
+      console.log('=== DOWNLOAD DATASET DEBUG ===');
+      console.log('Dataset type:', dataset.datasetType || dataset.type);
+      console.log('Is labeled:', isLabeled);
+      console.log('Dataset DID:', datasetId);
+      console.log('Dataset UID:', dataset.uid);
+      console.log('Dataset name:', dataset.name);
+      
+      if (isLabeled) {
+        // Labeled dataset: 모든 파일의 경로를 가져와서 download-data 사용
+        if (!data?.data_list || !Array.isArray(data.data_list)) {
+          throw new Error('No data available for download');
+        }
+        
+        console.log('Data list length:', data.data_list.length);
+        console.log('First data item structure:', data.data_list[0]);
+        console.log('First data item keys:', data.data_list[0] ? Object.keys(data.data_list[0]) : 'No data');
+        
+        const allPaths = data.data_list
+          .filter(d => d.path || d.file_path || d.image_path || d.data_path || d.filePath)
+          .map(d => d.path || d.file_path || d.image_path || d.data_path || d.filePath);
+        
+        console.log('All paths found:', allPaths);
+        console.log('Paths count:', allPaths.length);
+        
+        if (allPaths.length === 0) {
+          throw new Error('No valid data paths found');
+        }
+        
+        await downloadDataByPaths({ 
+          uid: dataset.uid, 
+          target_path_list: allPaths,
+          dataset_name: dataset.name
+        });
+      } else {
+        // Raw dataset: 기존 방식 사용
+        console.log('Using downloadDatasetById for raw dataset');
+        await downloadDatasetById({ 
+          uid: dataset.uid, 
+          target_did: datasetId,
+          dataset_name: dataset.name
+        });
+      }
+      console.log('===============================');
     } catch (err) {
+      console.error('Download dataset error:', err);
       setError('Download failed: ' + err.message);
     } finally {
       setDownloading(false);
     }
-  }, [dataset]);
+  }, [dataset, data]);
 
   const handleDownloadSelected = useCallback(async () => {
     if (!selected.length || !data?.data_list || !Array.isArray(data.data_list) || !dataset) {
@@ -312,19 +366,33 @@ export const useDatasetData = (dataset, isOpen = false) => {
     
     setDownloading(true);
     try {
+      console.log('=== DOWNLOAD SELECTED DEBUG ===');
+      console.log('Selected IDs:', selected);
+      console.log('Dataset type:', dataset.datasetType || dataset.type);
+      console.log('Dataset DID:', dataset.did);
+      console.log('Dataset UID:', dataset.uid);
+      console.log('Data list length:', data.data_list.length);
+      console.log('First data item structure:', data.data_list[0]);
+      console.log('First data item keys:', data.data_list[0] ? Object.keys(data.data_list[0]) : 'No data');
+      
       // selected 배열에는 uniqueRowId가 들어있으므로, 이를 기반으로 path를 찾아야 함
       const selectedPaths = data.data_list
         .filter(d => {
           // uniqueRowId는 fileName-index 형태이므로, fileName으로 매칭
-          const fileName = d.fileName || d.name;
+          const fileName = d.fileName || d.name || d.file_name;
           const isSelected = selected.some(selectedId => {
             // selectedId가 fileName으로 시작하는지 확인
             return selectedId.startsWith(fileName);
           });
-          const hasPath = d.path;
+          const hasPath = d.path || d.file_path || d.image_path || d.data_path || d.filePath;
+          const actualPath = d.path || d.file_path || d.image_path || d.data_path || d.filePath;
+          console.log(`File: ${fileName}, Selected: ${isSelected}, HasPath: ${hasPath}, Path: ${actualPath}`);
           return isSelected && hasPath;
         })
-        .map(d => d.path);
+        .map(d => d.path || d.file_path || d.image_path || d.data_path || d.filePath);
+      
+      console.log('Selected paths:', selectedPaths);
+      console.log('===============================');
       
       if (selectedPaths.length === 0) {
         throw new Error('No valid data paths');
@@ -336,6 +404,7 @@ export const useDatasetData = (dataset, isOpen = false) => {
         dataset_name: dataset.name
       });
     } catch (err) {
+      console.error('Download selected error:', err);
       setError('Download failed: ' + err.message);
     } finally {
       setDownloading(false);

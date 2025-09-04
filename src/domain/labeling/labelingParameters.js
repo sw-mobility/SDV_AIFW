@@ -8,12 +8,20 @@ export const LABELING_PARAM_GROUPS = [
     title: 'Basic Settings',
     params: [
       {
+        key: 'name',
+        label: 'Result Name',
+        type: 'text',
+        defaultValue: '',
+        description: 'Name for the labeled dataset result',
+        placeholder: 'Enter result name'
+      },
+      {
         key: 'model',
         label: 'Model',
         type: 'text',
-        defaultValue: 'yolo11n',
-        description: 'Model file path or name',
-        placeholder: 'yolo11n'
+        defaultValue: 'yolov8n.pt',
+        description: 'Model file path or name (e.g., yolov8n.pt)',
+        placeholder: 'yolov8n.pt'
       },
       {
         key: 'device',
@@ -22,7 +30,6 @@ export const LABELING_PARAM_GROUPS = [
         defaultValue: 'cpu',
         options: [
           { value: 'cpu', label: 'CPU' },
-          { value: 'cuda', label: 'CUDA' },
           { value: '0', label: 'GPU 0' },
           { value: '1', label: 'GPU 1' }
         ],
@@ -109,114 +116,6 @@ export const LABELING_PARAM_GROUPS = [
         type: 'boolean',
         defaultValue: false,
         description: 'Use FP16 half-precision inference'
-      }
-    ]
-  },
-  {
-    title: 'Output Settings',
-    params: [
-      {
-        key: 'project',
-        label: 'Project Name',
-        type: 'text',
-        defaultValue: 'runs/labeling',
-        description: 'Project name for output'
-      },
-      {
-        key: 'name',
-        label: 'Run Name',
-        type: 'text',
-        defaultValue: 'exp',
-        description: 'Run name for output'
-      },
-      {
-        key: 'save',
-        label: 'Save Results',
-        type: 'boolean',
-        defaultValue: true,
-        description: 'Save results'
-      },
-      {
-        key: 'save_txt',
-        label: 'Save Text',
-        type: 'boolean',
-        defaultValue: true,
-        description: 'Save results to text file'
-      },
-      {
-        key: 'save_conf',
-        label: 'Save Confidence',
-        type: 'boolean',
-        defaultValue: false,
-        description: 'Save confidence scores'
-      },
-      {
-        key: 'save_crop',
-        label: 'Save Crops',
-        type: 'boolean',
-        defaultValue: false,
-        description: 'Save cropped detections'
-      },
-      {
-        key: 'save_frames',
-        label: 'Save Frames',
-        type: 'boolean',
-        defaultValue: false,
-        description: 'Save video frames'
-      }
-    ]
-  },
-  {
-    title: 'Visualization Settings',
-    params: [
-      {
-        key: 'show_labels',
-        label: 'Show Labels',
-        type: 'boolean',
-        defaultValue: true,
-        description: 'Show labels on detections'
-      },
-      {
-        key: 'show_conf',
-        label: 'Show Confidence',
-        type: 'boolean',
-        defaultValue: true,
-        description: 'Show confidence scores'
-      },
-      {
-        key: 'show_boxes',
-        label: 'Show Boxes',
-        type: 'boolean',
-        defaultValue: true,
-        description: 'Show bounding boxes'
-      },
-      {
-        key: 'show',
-        label: 'Show Results',
-        type: 'boolean',
-        defaultValue: false,
-        description: 'Show results'
-      },
-      {
-        key: 'visualize',
-        label: 'Visualize',
-        type: 'boolean',
-        defaultValue: false,
-        description: 'Visualize features'
-      },
-      {
-        key: 'augment',
-        label: 'Augment',
-        type: 'boolean',
-        defaultValue: false,
-        description: 'Apply augmentations'
-      },
-      {
-        key: 'verbose',
-        label: 'Verbose',
-        type: 'boolean',
-        defaultValue: false,
-        description: 'Verbose output'
       }
     ]
   },

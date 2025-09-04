@@ -15,7 +15,7 @@ export const useLabelingWorkspace = (dataset) => {
     ...DEFAULT_YOLO_PARAMS,
     project: 'runs/labeling'
   });
-  const [selectedParamKeys, setSelectedParamKeys] = useState(['model']); // 기본적으로 model은 선택됨
+  const [selectedParamKeys, setSelectedParamKeys] = useState(['name', 'model']); // 기본적으로 name과 model은 선택됨
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [labeledDatasets, setLabeledDatasets] = useState([]);
@@ -31,9 +31,9 @@ export const useLabelingWorkspace = (dataset) => {
     setResult(null);
     
     try {
-      // API 스펙에 맞춰 모든 필수 파라미터 포함
+      // API 스펙에 맞춰 필수 파라미터만 포함 (save_txt는 항상 true)
       const parameters = {
-        model: labelingParams.model || 'yolo11n',
+        model: labelingParams.model || 'yolov8n.pt',
         conf: labelingParams.conf || 0.25,
         iou: labelingParams.iou || 0.45,
         imgsz: labelingParams.imgsz || 640,
@@ -44,8 +44,6 @@ export const useLabelingWorkspace = (dataset) => {
         max_det: labelingParams.max_det || 300,
         vid_stride: labelingParams.vid_stride || 1,
         stream_buffer: labelingParams.stream_buffer || false,
-        visualize: labelingParams.visualize || false,
-        augment: labelingParams.augment || false,
         agnostic_nms: labelingParams.agnostic_nms || false,
         classes: labelingParams.classes || [0],
         retina_masks: labelingParams.retina_masks || false,
@@ -53,16 +51,8 @@ export const useLabelingWorkspace = (dataset) => {
         project: labelingParams.project || 'runs/detect',
         name: labelingParams.name || 'exp',
         stream: labelingParams.stream || false,
-        verbose: labelingParams.verbose || false,
-        show: labelingParams.show || false,
         save: labelingParams.save || true,
-        save_frames: labelingParams.save_frames || false,
-        save_txt: labelingParams.save_txt || true,
-        save_conf: labelingParams.save_conf || false,
-        save_crop: labelingParams.save_crop || false,
-        show_labels: labelingParams.show_labels || true,
-        show_conf: labelingParams.show_conf || true,
-        show_boxes: labelingParams.show_boxes || true,
+        save_txt: true, // 항상 true로 고정
         line_width: labelingParams.line_width || 3
       };
 
@@ -91,7 +81,7 @@ export const useLabelingWorkspace = (dataset) => {
       const params = {
         pid: pid,
         did: dataset.did,
-        name: dataset?.name,
+        name: labelingParams.name || `${dataset.name} (labeled)`,
         parameters: parameters
       };
 
@@ -140,6 +130,17 @@ export const useLabelingWorkspace = (dataset) => {
       console.error('Failed to fetch labeled datasets:', err);
     }
   }, []);
+
+  // dataset이 변경될 때 name 기본값 설정
+  useEffect(() => {
+    if (dataset && dataset.name) {
+      const defaultName = `${dataset.name} (labeled)`;
+      setLabelingParams(prev => ({
+        ...prev,
+        name: defaultName
+      }));
+    }
+  }, [dataset]);
 
   // 초기 로드
   useEffect(() => {
