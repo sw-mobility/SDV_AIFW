@@ -1,4 +1,4 @@
-/* 전체 페이지 컨테이너 - Training Page와 동일한 구조 */
+/* 전체 페이지 컨테이너 */
 .pageContainer {
   display: flex;
   flex-direction: column;
@@ -16,7 +16,8 @@
 }
 
 .pageHeader {
-  margin-bottom: 32px;
+  margin-bottom: 48px;
+  padding-top: 24px;
 }
 
 .pageTitle {
@@ -30,49 +31,119 @@
 .pageDescription {
   color: #64748b;
   font-size: 16px;
-  margin: 0 0 24px 0;
-  line-height: 1.4;
+  margin: 0 0 32px 0;
+  line-height: 1.5;
+  max-width: 600px;
 }
 
-.selectorSection {
-  margin-bottom: 32px;
+.errorSection {
+  margin-bottom: 16px;
+}
+
+/* 메인 에디터 레이아웃 */
+.editorSection {
+  flex: 1;
+  min-height: calc(100vh - 200px);
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  background: var(--color-bg-primary);
+  padding: 0 40px 40px 40px;
+  box-sizing: border-box;
+  margin: 0 40px;
+  margin-top: 16px;
 }
 
-.statusSection {
+.editorLayout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+  height: 100%;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+/* 좌측 사이드바 */
+.sidebar {
+  width: 320px;
+  min-width: 320px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 우측 메인 에디터 영역 */
+.editorMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* 에디터 헤더 */
+.editorHeader {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 16px 16px 0 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.toolbarLeft {
   display: flex;
   align-items: center;
   gap: 16px;
-  flex-wrap: wrap;
-  margin-left: auto;
 }
 
-.actionButtons {
+.toolbarRight {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
+.codebaseStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-
-.lastSaved {
-  color: #64748b;
+.statusText {
+  font-weight: 500;
+  color: #374151;
   font-size: 14px;
-  font-style: italic;
 }
 
-.lastSavedContainer {
+.unsavedIndicator {
   display: flex;
-  justify-content: flex-end;
-  padding: 8px 16px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
-  margin-bottom: 0;
+  align-items: center;
+  gap: 4px;
+  color: #f59e0b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 에디터 컨테이너 */
+.editorContainer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .emptyState {
@@ -83,6 +154,7 @@
   height: 400px;
   text-align: center;
   color: #64748b;
+  padding: 32px;
 }
 
 .emptyState h3 {
@@ -95,34 +167,24 @@
 .emptyState p {
   margin: 0;
   font-size: 14px;
-}
-
-/* 에디터 섹션 - 전체 높이 차지 */
-.editorSection {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-bg-primary);
-}
-
-.editorContainer {
-  flex: 1;
-  min-height: 600px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 0 40px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
+  line-height: 1.5;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .container,
-  .editorContainer {
+  .container {
     padding: 0 20px;
+  }
+  
+  .editorSection {
+    padding: 0 20px 40px 20px;
+    margin: 0 20px;
+    margin-top: 12px;
+  }
+  
+  .pageHeader {
+    margin-bottom: 40px;
+    padding-top: 20px;
   }
   
   .pageTitle {
@@ -131,12 +193,53 @@
   
   .pageDescription {
     font-size: 14px;
+    margin-bottom: 28px;
+  }
+  
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+  }
+  
+  .editorLayout {
+    height: 100%;
+    border-radius: 12px;
   }
 }
 
-@media (max-width: 900px) {
-  .container,
+@media (max-width: 768px) {
+  .editorSection {
+    padding: 0 16px 40px 16px;
+    margin: 0 16px;
+    margin-top: 8px;
+  }
+  
+  .pageHeader {
+    margin-bottom: 32px;
+    padding-top: 16px;
+  }
+  
+  .pageDescription {
+    margin-bottom: 24px;
+  }
+  
+  .editorLayout {
+    flex-direction: column;
+    height: 100%;
+    border-radius: 12px;
+  }
+  
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    height: 300px;
+  }
+  
+  .editorMain {
+    height: 100%;
+  }
+  
   .editorContainer {
-    padding: 0 20px;
+    padding: 16px;
   }
 }

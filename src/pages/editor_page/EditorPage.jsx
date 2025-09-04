@@ -1,31 +1,41 @@
-import React, { useState } from 'react';
-import AlgorithmSelector from '../../components/features/training/AlgorithmSelector.jsx';
+import React, { useState, useEffect } from 'react';
 import CodeEditor from '../../components/ui/editor/CodeEditor.jsx';
 import CodeEditorSkeleton from '../../components/ui/editor/CodeEditorSkeleton.jsx';
-import SnapshotModal from '../../components/ui/modals/SnapshotModal.jsx';
+import CodebaseManager from '../../components/features/editor/CodebaseManager.jsx';
+import CodebaseInfo from '../../components/features/editor/CodebaseInfo.jsx';
 import Toast from '../../components/ui/atoms/Toast.jsx';
-import { useTrainingCore } from '../../hooks/training/useTrainingCore.js';
+import { useCodebaseManager } from '../../hooks/editor/useCodebaseManager.js';
 import { useCodeEditor } from '../../hooks/editor/useCodeEditor.js';
 import Button from '../../components/ui/atoms/Button.jsx';
 import ErrorMessage from '../../components/ui/atoms/ErrorMessage.jsx';
+import { Save, RefreshCw, AlertCircle } from 'lucide-react';
 import styles from './EditorPage.module.css';
 
 const EditorPage = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
-  const [showSnapshotModal, setShowSnapshotModal] = useState(false);
   
-  // Core training state (algorithm selection)
-  const { algorithm, setAlgorithm } = useTrainingCore();
+  // 코드베이스 관리
+  const {
+    codebases,
+    selectedCodebase,
+    loading: codebaseLoading,
+    error: codebaseError,
+    handleCreateCodebase,
+    handleUpdateCodebase,
+    handleDeleteCodebase,
+    handleSelectCodebase,
+    loadCodebase
+  } = useCodebaseManager();
   
-  // Code editor state and functionality
+  // 코드 에디터 (선택된 코드베이스 기반)
   const {
     fileStructure,
     files,
     activeFile,
-    loading,
-    error,
+    loading: editorLoading,
+    error: editorError,
     hasUnsavedChanges,
     lastSavedAt,
     currentFile,
@@ -34,21 +44,25 @@ const EditorPage = () => {
     updateFileLanguage,
     changeActiveFile,
     saveChanges,
-    saveSnapshotData,
     discardChanges,
-    createNewFile
-  } = useCodeEditor(algorithm);
+    createNewFile,
+    loadCodeTemplate
+  } = useCodeEditor(selectedCodebase?.algorithm);
 
-  // Handle algorithm change
-  const handleAlgorithmChange = (newAlgorithm) => {
-    if (hasUnsavedChanges) {
-      const confirmChange = window.confirm(
-        'You have unsaved changes. Are you sure you want to switch algorithms? Your changes will be lost.'
-      );
-      if (!confirmChange) return;
+  // 코드베이스 선택 시 해당 코드베이스 로드
+  useEffect(() => {
+    if (selectedCodebase) {
+      loadCodebase(selectedCodebase.cid)
+        .then((data) => {
+          // 코드베이스 데이터를 에디터에 로드
+          loadCodeTemplate(selectedCodebase.algorithm);
+        })
+        .catch((error) => {
+          console.error('Failed to load codebase:', error);
+          showToastMessage('Failed to load codebase.', 'error');
+        });
     }
-    setAlgorithm(newAlgorithm);
-  };
+  }, [selectedCodebase, loadCodebase, loadCodeTemplate]);
 
   // Handle file content change in editor
   const handleEditorChange = (value) => {
@@ -66,42 +80,61 @@ const EditorPage = () => {
 
   // Handle save action
   const handleSave = async () => {
-    const result = await saveChanges();
-    if (result.success) {
-      setToastMessage('Changes saved successfully!');
-      setToastType('success');
-      setShowToast(true);
-    } else {
-      setToastMessage(result.message || 'Failed to save changes');
-      setToastType('error');
-      setShowToast(true);
+    if (!selectedCodebase) {
+      showToastMessage('Please select a codebase to save.', 'error');
+      return;
+    }
+
+    try {
+      const result = await saveChanges(selectedCodebase.cid);
+      if (result.success) {
+        showToastMessage('Changes saved successfully!', 'success');
+      } else {
+        showToastMessage(result.message || 'Failed to save changes.', 'error');
+      }
+    } catch (error) {
+      showToastMessage('An error occurred while saving.', 'error');
     }
   };
 
-  // Handle snapshot save action
-  const handleSnapshotSave = async (snapshotMetadata) => {
-    const result = await saveSnapshotData(snapshotMetadata);
-    if (result.success) {
-      setToastMessage(`Snapshot "${snapshotMetadata.name}" saved successfully!`);
-      setToastType('success');
-      setShowToast(true);
-      setShowSnapshotModal(false);
-    } else {
-      setToastMessage(result.message || 'Failed to save snapshot');
-      setToastType('error');
-      setShowToast(true);
+  // Handle codebase create
+  const handleCodebaseCreate = async (requestData) => {
+    try {
+      await handleCreateCodebase(requestData);
+      showToastMessage('Codebase created successfully!', 'success');
+    } catch (error) {
+      showToastMessage('Failed to create codebase.', 'error');
+      throw error;
     }
   };
 
-  // Handle snapshot button click
-  const handleSnapshotClick = () => {
-    setShowSnapshotModal(true);
+  // Handle codebase update
+  const handleCodebaseUpdate = async (cid, requestData) => {
+    try {
+      await handleUpdateCodebase(cid, requestData);
+      showToastMessage('Codebase updated successfully!', 'success');
+    } catch (error) {
+      showToastMessage('Failed to update codebase.', 'error');
+      throw error;
+    }
   };
 
-  // Handle file changes from CodeEditor
-  const handleFilesChange = (newFiles) => {
-    // This is called when files are modified in the CodeEditor
-    // We're already handling this through updateFileContent
+  // Handle codebase delete
+  const handleCodebaseDelete = async (cid) => {
+    try {
+      await handleDeleteCodebase(cid);
+      showToastMessage('Codebase deleted successfully!', 'success');
+    } catch (error) {
+      showToastMessage('Failed to delete codebase.', 'error');
+      throw error;
+    }
+  };
+
+  // Toast 메시지 표시 헬퍼
+  const showToastMessage = (message, type = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
   };
 
   return (
@@ -110,62 +143,112 @@ const EditorPage = () => {
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>Code Editor</h1>
           <p className={styles.pageDescription}>
-            A flexible code editor that lets you freely modify and run optimization, validation, and training workflows
+            A comprehensive development environment for managing and editing codebases with full CRUD operations
           </p>
         </div>
 
-        <div className={styles.selectorSection}>
-          <AlgorithmSelector
-            algorithm={algorithm}
-            onAlgorithmChange={handleAlgorithmChange}
-          />
-          
-          {/* Status and Action Buttons */}
-          <div className={styles.statusSection}>
-            {error && <ErrorMessage message={error} />}
+        {/* Error Display */}
+        {(codebaseError || editorError) && (
+          <div className={styles.errorSection}>
+            {codebaseError && <ErrorMessage message={`Codebase Error: ${codebaseError}`} />}
+            {editorError && <ErrorMessage message={`Editor Error: ${editorError}`} />}
+          </div>
+        )}
+      </div>
+
+      {/* Main Editor Section */}
+      <div className={styles.editorSection}>
+        <div className={styles.editorLayout}>
+          {/* Left: Codebase Management Panel */}
+          <div className={styles.sidebar}>
+            <CodebaseManager
+              codebases={codebases}
+              selectedCodebase={selectedCodebase}
+              onCodebaseSelect={handleSelectCodebase}
+              onCodebaseCreate={handleCodebaseCreate}
+              onCodebaseUpdate={handleCodebaseUpdate}
+              onCodebaseDelete={handleCodebaseDelete}
+              loading={codebaseLoading}
+            />
+          </div>
+
+          {/* Right: Editor Area */}
+          <div className={styles.editorMain}>
+            {/* Codebase Info Header */}
+            <div className={styles.editorHeader}>
+              <CodebaseInfo 
+                codebase={selectedCodebase} 
+                loading={codebaseLoading}
+                files={files}
+                lastSavedAt={lastSavedAt}
+              />
+              
+              {/* Toolbar */}
+              <div className={styles.toolbar}>
+                <div className={styles.toolbarLeft}>
+                  {selectedCodebase && (
+                    <div className={styles.codebaseStatus}>
+                      <span className={styles.statusText}>
+                        {selectedCodebase.name || selectedCodebase.cid}
+                      </span>
+                      {hasUnsavedChanges && (
+                        <span className={styles.unsavedIndicator}>
+                          <AlertCircle size={14} />
+                          Unsaved Changes
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className={styles.toolbarRight}>
+                  <Button
+                    onClick={handleSave}
+                    variant="primary"
+                    size="medium"
+                    disabled={!selectedCodebase || !hasUnsavedChanges}
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Code Editor */}
+            <div className={styles.editorContainer}>
+              {!selectedCodebase ? (
+                <div className={styles.emptyState}>
+                  <h3>Select a Codebase</h3>
+                  <p>Choose a codebase from the left panel or create a new one to get started.</p>
+                </div>
+              ) : editorLoading ? (
+                <CodeEditorSkeleton compact={false} />
+              ) : isEmpty ? (
+                <div className={styles.emptyState}>
+                  <h3>No Code Files</h3>
+                  <p>The selected codebase contains no files.</p>
+                </div>
+              ) : (
+                <CodeEditor
+                  fileStructure={fileStructure}
+                  files={files}
+                  activeFile={activeFile}
+                  onFileChange={changeActiveFile}
+                  onFilesChange={() => {}} // Not used
+                  onSaveSnapshot={handleSave}
+                  snapshotName={selectedCodebase.name || selectedCodebase.cid}
+                  compact={false}
+                  hideSaveButtons={true} // Handled by top toolbar
+                  currentFile={currentFile}
+                  onEditorChange={handleEditorChange}
+                  onLanguageChange={handleLanguageChange}
+                  onSnapshotSave={handleSave}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Code Editor Section - Full Height */}
-      <div className={styles.editorSection}>
-        <div className={styles.editorContainer}>
-          {loading ? (
-            <CodeEditorSkeleton compact={false} />
-          ) : isEmpty ? (
-            <div className={styles.emptyState}>
-              <h3>No Code Template Available</h3>
-              <p>Please select an algorithm to load the corresponding code template.</p>
-            </div>
-          ) : (
-            <CodeEditor
-              fileStructure={fileStructure}
-              files={files}
-              activeFile={activeFile}
-              onFileChange={changeActiveFile}
-              onFilesChange={handleFilesChange}
-              onSaveSnapshot={handleSave}
-              snapshotName={`${algorithm} Template`}
-              compact={false}
-              hideSaveButtons={false}
-              // Custom props for our enhanced functionality
-              currentFile={currentFile}
-              onEditorChange={handleEditorChange}
-              onLanguageChange={handleLanguageChange}
-              onSnapshotSave={handleSnapshotClick}
-            />
-          )}
-        </div>
-      </div>
-      
-      {/* Snapshot Modal */}
-      <SnapshotModal
-        isOpen={showSnapshotModal}
-        onClose={() => setShowSnapshotModal(false)}
-        onSave={handleSnapshotSave}
-        algorithm={algorithm}
-        defaultName={`${algorithm} Snapshot`}
-      />
 
       {/* Toast Notification */}
       <Toast

@@ -39,7 +39,16 @@ export const useProjects = () => {
                     created_at: project.created_at
                 });
             });
-            setProjects(res.data);
+
+            // 최근 생성된 프로젝트가 가장 위에 오도록 정렬
+            const sortedProjects = res.data.sort((a, b) => {
+                const dateA = new Date(a.created_at || 0);
+                const dateB = new Date(b.created_at || 0);
+                return dateB - dateA;
+            });
+            
+            console.log('Sorted projects:', sortedProjects);
+            setProjects(sortedProjects);
         } catch (err) {
             setError(err.message);
         } finally {

@@ -2,21 +2,41 @@ import { uid } from './uid.js';
 
 /**
  * IDE 코드베이스 API
- * 실제 백엔드 API와 연동
  */
 
 const API_BASE_URL = 'http://localhost:5002';
 
 /**
+ * 코드베이스 목록 조회 API
+ * @returns {Promise<Array>} 코드베이스 목록
+ */
+export const fetchCodebases = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/IDE/codebases`, {
+      headers: {
+        'uid': uid
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch codebases: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching codebases:', error);
+    throw error;
+  }
+};
+
+/**
  * 코드베이스 조회 API
- * @param {string} algorithm - 선택된 알고리즘 (yolo_v5, yolo_v8, yolo_v11)
+ * @param {string} cid - 코드베이스 ID
  * @returns {Promise<{tree: Array, files: Object}>}
  */
-export const fetchCodeTemplate = async (algorithm) => {
+export const fetchCodebase = async (cid) => {
   try {
-    // algorithm을 cid로 매핑 (yolo_v5 -> yolo, yolo_v8 -> yolo, yolo_v11 -> yolo)
-    const cid = mapAlgorithmToCid(algorithm);
-    
     const response = await fetch(
       `${API_BASE_URL}/IDE/codebase?cid=${encodeURIComponent(cid)}`,
       {
@@ -31,11 +51,122 @@ export const fetchCodeTemplate = async (algorithm) => {
     }
     
     const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching codebase:', error);
+    throw error;
+  }
+};
+
+/**
+ * 코드베이스 생성 API
+ * @param {Object} request - create request
+ * @param {Object} data - codebase data
+ * @returns {Promise<Object>} 생성 결과
+ */
+export const createCodebase = async (request, data = {}) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/IDE/codebase/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'uid': uid
+      },
+      body: JSON.stringify({
+        request,
+        data
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to create codebase: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error creating codebase:', error);
+    throw error;
+  }
+};
+
+/**
+ * 코드베이스 수정 API
+ * @param {Object} request - 수정 요청 데이터
+ * @param {Object} data - 코드베이스 데이터
+ * @returns {Promise<Object>} 수정 결과
+ */
+export const updateCodebase = async (request, data = {}) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/IDE/codebase/update`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'uid': uid
+      },
+      body: JSON.stringify({
+        request,
+        data
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to update codebase: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error updating codebase:', error);
+    throw error;
+  }
+};
+
+/**
+ * 코드베이스 삭제 API
+ * @param {string} cid - 코드베이스 ID
+ * @returns {Promise<Object>} 삭제 결과
+ */
+export const deleteCodebase = async (cid) => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/IDE/codebase?cid=${encodeURIComponent(cid)}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'uid': uid
+        }
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Failed to delete codebase: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error deleting codebase:', error);
+    throw error;
+  }
+};
+
+/**
+ * 코드베이스 조회 API (기존 호환성 유지)
+ * @param {string} algorithm - 선택된 알고리즘 (yolo_v5, yolo_v8, yolo_v11)
+ * @returns {Promise<{tree: Array, files: Object}>}
+ */
+export const fetchCodeTemplate = async (algorithm) => {
+  try {
+    // algorithm을 cid로 매핑 (yolo_v5 -> yolo, yolo_v8 -> yolo, yolo_v11 -> yolo)
+    const cid = mapAlgorithmToCid(algorithm);
+    
+    const data = await fetchCodebase(cid);
     
     // 백엔드 응답을 프론트엔드 형식으로 변환
     return transformCodebaseResponse(data, algorithm);
   } catch (error) {
-    console.error('Error fetching codebase:', error);
+    console.error('Error fetching code template:', error);
     throw error;
   }
 };
