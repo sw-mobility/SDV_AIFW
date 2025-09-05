@@ -27,18 +27,18 @@ const CodebaseManager = ({
   // 새 코드베이스 생성 폼 상태
   const [createForm, setCreateForm] = useState({
     name: '',
-    algorithm: 'yolo_v5',
+    algorithm: 'yolo',
     stage: 'training',
-    task_type: 'object_detection',
+    task_type: 'detection',
     description: ''
   });
 
   // 코드베이스 수정 폼 상태
   const [editForm, setEditForm] = useState({
     name: '',
-    algorithm: 'yolo_v5',
+    algorithm: 'yolo',
     stage: 'training',
-    task_type: 'object_detection',
+    task_type: 'detection',
     description: ''
   });
 
@@ -54,9 +54,9 @@ const CodebaseManager = ({
       setShowCreateModal(false);
       setCreateForm({
         name: '',
-        algorithm: 'yolo_v5',
+        algorithm: 'yolo',
         stage: 'training',
-        task_type: 'object_detection',
+        task_type: 'detection',
         description: ''
       });
     } catch (error) {
@@ -99,9 +99,9 @@ const CodebaseManager = ({
     setEditingCodebase(codebase);
     setEditForm({
       name: codebase.name || '',
-      algorithm: codebase.algorithm || 'yolo_v5',
+      algorithm: codebase.algorithm || 'yolo',
       stage: codebase.stage || 'training',
-      task_type: codebase.task_type || 'object_detection',
+      task_type: codebase.task_type || 'detection',
       description: codebase.description || ''
     });
     setShowEditModal(true);
@@ -161,7 +161,7 @@ const CodebaseManager = ({
             <div
               key={codebase.cid}
               className={`${styles.codebaseItem} ${
-                selectedCodebase?.cid === codebase.cid ? styles.selected : ''
+                selectedCodebase?.cid === codebase.cid
               }`}
               onClick={() => handleCodebaseSelect(codebase)}
             >
@@ -238,9 +238,7 @@ const CodebaseManager = ({
               value={createForm.algorithm}
               onChange={(e) => setCreateForm({ ...createForm, algorithm: e.target.value })}
             >
-              <option value="yolo_v5">YOLO v5</option>
-              <option value="yolo_v8">YOLO v8</option>
-              <option value="yolo_v11">YOLO v11</option>
+              <option value="yolo">YOLO</option>
             </select>
           </div>
 
@@ -263,7 +261,7 @@ const CodebaseManager = ({
               value={createForm.task_type}
               onChange={(e) => setCreateForm({ ...createForm, task_type: e.target.value })}
             >
-              <option value="object_detection">Object Detection</option>
+              <option value="detection">Detection</option>
               <option value="classification">Classification</option>
               <option value="segmentation">Segmentation</option>
             </select>
@@ -320,9 +318,7 @@ const CodebaseManager = ({
               value={editForm.algorithm}
               onChange={(e) => setEditForm({ ...editForm, algorithm: e.target.value })}
             >
-              <option value="yolo_v5">YOLO v5</option>
-              <option value="yolo_v8">YOLO v8</option>
-              <option value="yolo_v11">YOLO v11</option>
+              <option value="yolo">YOLO</option>
             </select>
           </div>
 
@@ -345,7 +341,7 @@ const CodebaseManager = ({
               value={editForm.task_type}
               onChange={(e) => setEditForm({ ...editForm, task_type: e.target.value })}
             >
-              <option value="object_detection">Object Detection</option>
+              <option value="detection">Detection</option>
               <option value="classification">Classification</option>
               <option value="segmentation">Segmentation</option>
             </select>

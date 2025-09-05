@@ -23,19 +23,26 @@ const OptimizationModelSelector = ({
       setLoading(true);
       setError(null);
       try {
-        // Training list 가져오기
-        const trainingResult = await getTrainingList({ uid });
+        // 병렬로 두 API 호출하여 로딩 시간 단축
+        const [trainingResult, optimizationResult] = await Promise.all([
+          getTrainingList({ uid }),
+          getOptimizationList({ uid })
+        ]);
+
         const completedTrainingModels = trainingResult.filter(training => 
           training.status === 'completed'
         );
         setTrainingModels(completedTrainingModels);
 
-        // Optimization list 가져오기
-        const optimizationResult = await getOptimizationList({ uid });
         const completedOptimizationModels = optimizationResult.filter(opt => 
           opt.status === 'completed'
         );
         setOptimizationModels(completedOptimizationModels);
+        
+        console.log('Models loaded successfully:', {
+          trainingCount: completedTrainingModels.length,
+          optimizationCount: completedOptimizationModels.length
+        });
       } catch (err) {
         setError(err.message);
         console.error('Failed to fetch models:', err);
@@ -125,9 +132,11 @@ const OptimizationModelSelector = ({
                 value={selectedModelId}
                 onChange={handleModelIdChange}
                 className={styles.select}
-                disabled={disabled}
+                disabled={disabled || loading}
               >
-                <option value="">Select a training model</option>
+                <option value="">
+                  {loading ? 'Loading training models...' : 'Select a training model'}
+                </option>
                 {trainingModels.map(model => (
                   <option key={model.tid} value={model.tid}>
                     {model.tid} - {model.origin_tid || model.parameters?.model || 'Unknown'} 
@@ -165,9 +174,11 @@ const OptimizationModelSelector = ({
                 value={selectedModelId}
                 onChange={handleModelIdChange}
                 className={styles.select}
-                disabled={disabled}
+                disabled={disabled || loading}
               >
-                <option value="">Select an optimization model</option>
+                <option value="">
+                  {loading ? 'Loading optimization models...' : 'Select an optimization model'}
+                </option>
                 {optimizationModels.map(model => (
                   <option key={model.oid} value={model.oid}>
                     {model.oid} - {model.kind?.replace(/_/g, ' ').toUpperCase() || 'Unknown'}

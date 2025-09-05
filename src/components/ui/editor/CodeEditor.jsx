@@ -228,7 +228,10 @@ export default function CodeEditor({
     onEditorChange,
     onLanguageChange,
     onSnapshotSave,
+    onEditorMount, // 에디터 인스턴스를 부모로 전달하는 콜백
 }) {
+    // Monaco Editor 인스턴스 참조
+    const editorRef = useRef(null);
     // Use props directly instead of internal state for fileStructure and files
     const fileStructure = propFileStructure || [
         {
@@ -264,13 +267,30 @@ export default function CodeEditor({
         if (onFileChange) onFileChange(filename);
     }, [onFileChange]);
 
+    // Monaco Editor 마운트 핸들러
+    const handleEditorDidMount = useCallback((editor, monaco) => {
+        editorRef.current = editor;
+        
+        // 강화된 이벤트 리스너 추가
+        editor.onDidChangeModelContent(() => {
+            const value = editor.getValue();
+            if (onEditorChange) {
+                onEditorChange(value);
+            }
+        });
+        
+        // 부모 컴포넌트에 에디터 인스턴스 전달
+        if (onEditorMount) {
+            onEditorMount(editor);
+        }
+    }, [onEditorMount, onEditorChange]);
+
     // 코드 변경 핸들러
-    const handleEditorChange = (value) => {
+    const handleEditorChange = useCallback((value) => {
         if (onEditorChange) {
             onEditorChange(value);
-        } else if (!activeFile) return;
-        // Fallback for backward compatibility
-        if (onFilesChange) {
+        } else if (activeFile && onFilesChange) {
+            // Fallback for backward compatibility
             const newFiles = {
                 ...files,
                 [activeFile]: {
@@ -280,7 +300,7 @@ export default function CodeEditor({
             };
             onFilesChange(newFiles);
         }
-    };
+    }, [activeFile, onEditorChange, onFilesChange, files]);
 
     // 언어 변경 핸들러
     const handleLanguageChange = (e) => {
@@ -364,6 +384,7 @@ export default function CodeEditor({
                     language={currentFileData.language}
                     value={currentFileData.code}
                     onChange={handleEditorChange}
+                    onMount={handleEditorDidMount}
                     theme="vs-light"
                     options={{
                         minimap: { enabled: !compact },

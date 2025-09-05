@@ -15,8 +15,6 @@ import styles from './TrainingPage.module.css';
 
 const TrainingPage = () => {
   const { projectName } = useParams();
-  const [modelType, setModelType] = useState('pretrained');
-  const [customModel, setCustomModel] = useState('');
   const [actualProjectId, setActualProjectId] = useState('P0001');
   const [projectLoading, setProjectLoading] = useState(true);
   
@@ -27,6 +25,12 @@ const TrainingPage = () => {
     algorithm,
     algoParams,
     paramErrors,
+
+    // Model type state
+    modelType,
+    setModelType,
+    customModel,
+    setCustomModel,
 
     // Dataset state
     datasets,

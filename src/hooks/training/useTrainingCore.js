@@ -3,13 +3,13 @@ import { TRAINING_TYPES } from '../../domain/training/trainingTypes.js';
 
 export const useTrainingCore = () => {
   const [trainingType, setTrainingType] = useState(TRAINING_TYPES.STANDARD);
-  const [algorithm, setAlgorithm] = useState('yolo_v8');
+  const [algorithm, setAlgorithm] = useState('yolo');
   const [algoParams, setAlgoParams] = useState({});
   const [paramErrors, setParamErrors] = useState({});
 
   const resetTraining = useCallback(() => {
     setTrainingType(TRAINING_TYPES.STANDARD);
-    setAlgorithm('yolo_v8');
+    setAlgorithm('yolo');
     setAlgoParams({});
     setParamErrors({});
   }, []);

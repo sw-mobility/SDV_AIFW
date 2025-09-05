@@ -35,9 +35,11 @@ export const useCodebaseManager = () => {
       });
       
       setCodebases(sortedData);
+      return sortedData; // 데이터 반환
     } catch (err) {
       setError(err.message);
       console.error('Failed to load codebases:', err);
+      return []; // 에러 시 빈 배열 반환
     } finally {
       setLoading(false);
     }
@@ -70,10 +72,67 @@ export const useCodebaseManager = () => {
     setError(null);
     
     try {
-      const result = await createCodebase(requestData);
+      console.log('🚀 Starting codebase creation with data:', requestData);
       
-      // 목록 새로고침
-      await loadCodebases();
+      // 코드베이스 생성 (cid는 백엔드에서 자동 생성)
+      // createCodebase는 (request, data) 두 개의 매개변수를 받음
+      const result = await createCodebase(requestData, {});
+      
+      console.log('✅ Codebase creation result:', result);
+      
+      // 목록 새로고침하여 생성된 코드베이스의 실제 cid 확인
+      const updatedCodebases = await loadCodebases();
+      
+      // 생성된 코드베이스 찾기 (가장 최근에 생성된 것)
+      const sortedCodebases = updatedCodebases.sort((a, b) => {
+        const dateA = new Date(a.created_at || 0);
+        const dateB = new Date(b.created_at || 0);
+        return dateB - dateA;
+      });
+      
+      const createdCodebase = sortedCodebases[0]; // 가장 최근 생성된 코드베이스
+      
+      if (createdCodebase) {
+        // 생성된 코드베이스에 새로 생성됨 플래그 추가
+        const codebaseWithFlag = {
+          ...createdCodebase,
+          _isNewlyCreated: true
+        };
+        
+        // 생성된 코드베이스 자동 선택
+        setSelectedCodebase(codebaseWithFlag);
+        
+        // 자동으로 yolo 템플릿을 저장하여 완전한 사이클 완성
+        setTimeout(async () => {
+          try {
+            // yolo 템플릿 데이터를 가져와서 자동 저장
+            const yoloTemplateData = await fetchCodebase('yolo');
+            if (yoloTemplateData && yoloTemplateData.files) {
+              const updateRequest = {
+                cid: createdCodebase.cid, // 실제 생성된 cid 사용
+                name: requestData.name,
+                algorithm: requestData.algorithm,
+                stage: requestData.stage,
+                task_type: requestData.task_type,
+                description: requestData.description
+              };
+              await updateCodebase(updateRequest, yoloTemplateData);
+              console.log('Auto-saved yolo template to new codebase with cid:', createdCodebase.cid);
+              
+              // 목록 새로고침하여 저장된 상태 반영
+              await loadCodebases();
+              
+              // 자동 저장 완료 후 플래그 제거
+              setSelectedCodebase(prev => ({
+                ...prev,
+                _isNewlyCreated: false
+              }));
+            }
+          } catch (error) {
+            console.error('Failed to auto-save yolo template:', error);
+          }
+        }, 1000); // 1초 후 자동 저장
+      }
       
       return result;
     } catch (err) {
@@ -93,7 +152,12 @@ export const useCodebaseManager = () => {
     setError(null);
     
     try {
-      const result = await updateCodebase({ cid, ...requestData });
+      console.log('🚀 Starting codebase update with cid:', cid, 'data:', requestData);
+      
+      // updateCodebase는 (request, data) 두 개의 매개변수를 받음
+      const result = await updateCodebase({ cid, ...requestData }, {});
+      
+      console.log('✅ Codebase update result:', result);
       
       // 목록 새로고침
       await loadCodebases();

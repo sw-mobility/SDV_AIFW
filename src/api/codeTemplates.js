@@ -66,6 +66,9 @@ export const fetchCodebase = async (cid) => {
  */
 export const createCodebase = async (request, data = {}) => {
   try {
+    console.log('Creating codebase with request:', request);
+    console.log('Creating codebase with data:', data);
+    
     const response = await fetch(`${API_BASE_URL}/IDE/codebase/create`, {
       method: 'POST',
       headers: {
@@ -73,8 +76,8 @@ export const createCodebase = async (request, data = {}) => {
         'uid': uid
       },
       body: JSON.stringify({
-        request,
-        data
+        request: request,  // request 객체를 request 필드에 넣기
+        data: data
       })
     });
     
@@ -98,16 +101,23 @@ export const createCodebase = async (request, data = {}) => {
  */
 export const updateCodebase = async (request, data = {}) => {
   try {
+    console.log('Updating codebase with request:', request);
+    console.log('Updating codebase with data:', data);
+    
+    // 백엔드가 기대하는 정확한 구조로 payload 구성
+    const payload = {
+      request: request,
+      data: data
+    };
+    
+    
     const response = await fetch(`${API_BASE_URL}/IDE/codebase/update`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'uid': uid
       },
-      body: JSON.stringify({
-        request,
-        data
-      })
+      body: JSON.stringify(payload)
     });
     
     if (!response.ok) {
@@ -153,12 +163,12 @@ export const deleteCodebase = async (cid) => {
 
 /**
  * 코드베이스 조회 API (기존 호환성 유지)
- * @param {string} algorithm - 선택된 알고리즘 (yolo_v5, yolo_v8, yolo_v11)
+ * @param {string} algorithm - 선택된 알고리즘 (yolo)
  * @returns {Promise<{tree: Array, files: Object}>}
  */
 export const fetchCodeTemplate = async (algorithm) => {
   try {
-    // algorithm을 cid로 매핑 (yolo_v5 -> yolo, yolo_v8 -> yolo, yolo_v11 -> yolo)
+    // algorithm을 cid로 매핑 (yolo -> yolo)
     const cid = mapAlgorithmToCid(algorithm);
     
     const data = await fetchCodebase(cid);
@@ -238,13 +248,8 @@ export const saveSnapshot = async (uid, snapshotData) => {
  * @returns {string} 백엔드 cid
  */
 const mapAlgorithmToCid = (algorithm) => {
-  const algorithmToCidMap = {
-    'yolo_v5': 'yolo',
-    'yolo_v8': 'yolo', 
-    'yolo_v11': 'yolo'
-  };
-  
-  return algorithmToCidMap[algorithm] || 'yolo';
+  // 모든 알고리즘을 yolo로 통일
+  return 'yolo';
 };
 
 /**

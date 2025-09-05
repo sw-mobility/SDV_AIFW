@@ -79,7 +79,7 @@ const DatasetEditModal = ({open, onClose, dataset, datasetType = 'raw', onUpdate
         <Modal 
             isOpen={open} 
             onClose={onClose} 
-            title={`Edit ${datasetType === 'labeled' ? 'Labeled' : ''} Dataset`}
+            title={`Edit ${datasetType === 'labeled' ? 'Labeled' : 'Raw'} Dataset`}
         >
             <form onSubmit={handleSubmit} className={styles.formGroup}>
                 <label className={styles.label}>

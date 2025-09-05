@@ -45,7 +45,7 @@ export default function DatasetUploadModal({ isOpen, onClose, datasetType = 'raw
   }, [success, onClose]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={datasetType === 'labeled' ? 'Create Labeled Dataset' : 'Create Dataset'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={datasetType === 'labeled' ? 'Create Labeled Dataset' : 'Create Raw Dataset'}>
       <form onSubmit={onSubmit} className={styles.formGroup}>
         <label className={styles.label}>
           Name

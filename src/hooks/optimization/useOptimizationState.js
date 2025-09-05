@@ -131,6 +131,7 @@ const useOptimizationState = () => {
 
     if (!optimizationType) {
       console.error('Optimization type is required');
+      setError('Optimization 타입을 선택해주세요.');
       return;
     }
 
@@ -142,6 +143,17 @@ const useOptimizationState = () => {
         modelIdTrimmed: currentModelId ? currentModelId.trim() : ''
       });
       setError('Model ID는 필수 입력 항목입니다.');
+      return;
+    }
+
+    // Model ID 형식 검증 추가
+    const trimmedModelId = currentModelId.trim();
+    if (modelType === 'training' && !trimmedModelId.startsWith('T')) {
+      setError('Training Model ID는 T로 시작해야 합니다. (예: T0001)');
+      return;
+    }
+    if (modelType === 'optimization' && !trimmedModelId.startsWith('O')) {
+      setError('Optimization Model ID는 O로 시작해야 합니다. (예: O0001)');
       return;
     }
 
@@ -199,7 +211,9 @@ const useOptimizationState = () => {
         } else if (error.message.includes('422') || error.message.includes('Validation Error')) {
           errorMessage = '입력한 파라미터 값이 올바르지 않습니다. 값을 확인해주세요.';
         } else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
-          errorMessage = '입력하신 Model ID가 올바른지 확인해주세요. 존재하지 않는 Model ID일 수 있습니다.';
+          errorMessage = '서버 오류가 발생했습니다. 모델 리스트가 완전히 로드되었는지 확인하고 다시 시도해주세요.';
+        } else if (error.message.includes('Failed to get optimization format')) {
+          errorMessage = '모델 정보를 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
         } else {
           errorMessage = error.message;
         }

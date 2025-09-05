@@ -1,14 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchCodebase, updateCodebase } from '../../api/codeTemplates.js';
-import { useParams } from 'react-router-dom';
 
 /**
  * 코드 에디터를 위한 커스텀 훅
  * 코드베이스 기반으로 파일 구조와 코드를 동적으로 로드하고 관리
  */
-export const useCodeEditor = (selectedAlgorithm) => {
-  const { projectName } = useParams();
-  
+export const useCodeEditor = (selectedCodebase) => {
   // State
   const [fileStructure, setFileStructure] = useState([]);
   const [files, setFiles] = useState({});
@@ -18,35 +15,43 @@ export const useCodeEditor = (selectedAlgorithm) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
 
+  // 최신 files 상태를 참조하기 위한 ref
+  const filesRef = useRef(files);
+  
+  // files 상태가 변경될 때마다 ref 업데이트
+  useEffect(() => {
+    filesRef.current = files;
+  }, [files]);
+
   /**
-   * 선택된 알고리즘에 따라 코드 템플릿을 로드 (기존 호환성 유지)
+   * 선택된 코드베이스에 따라 코드 템플릿을 로드
    */
-  const loadCodeTemplate = useCallback(async (algorithm) => {
-    if (!algorithm) return;
-    
+  const loadCodeTemplate = useCallback(async (codebase) => {
+    if (!codebase || !codebase.cid) return;
+
     setLoading(true);
     setError(null);
-    
+
     try {
-      // 알고리즘을 cid로 매핑하여 코드베이스 조회
-      const cid = mapAlgorithmToCid(algorithm);
-      const data = await fetchCodebase(cid);
-      
+      // 코드베이스 조회
+      const data = await fetchCodebase(codebase.cid);
+
       // 백엔드 응답을 프론트엔드 형식으로 변환
-      const transformedData = transformCodebaseResponse(data, algorithm);
-      
+      const transformedData = transformCodebaseResponse(data, codebase.algorithm || 'yolo');
+
       setFileStructure(transformedData.fileStructure || []);
-      setFiles(transformedData.files || {});
-      
+      const newFiles = transformedData.files || {};
+      setFiles(newFiles);
+
       // 첫 번째 파일을 활성 파일로 설정
       const firstFile = findFirstFile(transformedData.fileStructure);
       if (firstFile) {
         setActiveFile(firstFile);
       }
-      
+
       setHasUnsavedChanges(false);
       setLastSavedAt(transformedData.lastModified ? new Date(transformedData.lastModified) : null);
-      
+
     } catch (err) {
       setError(err.message);
       console.error('Failed to load code template:', err);
@@ -61,7 +66,7 @@ export const useCodeEditor = (selectedAlgorithm) => {
   const findFirstFile = (structure, parentPath = '') => {
     for (const item of structure) {
       const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
-      
+
       if (item.type === 'file') {
         return currentPath;
       } else if ((item.type === 'folder' || item.type === 'directory') && item.children) {
@@ -73,16 +78,20 @@ export const useCodeEditor = (selectedAlgorithm) => {
   };
 
   /**
-   * 파일 내용 업데이트
+   * 파일 내용 업데이트 (수정된 버전)
    */
   const updateFileContent = useCallback((filename, content) => {
-    setFiles(prev => ({
-      ...prev,
-      [filename]: {
-        ...prev[filename],
-        code: content
-      }
-    }));
+    setFiles(prevFiles => {
+      const newFiles = {
+        ...prevFiles,
+        [filename]: {
+          ...prevFiles[filename],
+          code: content
+        }
+      };
+      return newFiles;
+    });
+
     setHasUnsavedChanges(true);
   }, []);
 
@@ -108,39 +117,49 @@ export const useCodeEditor = (selectedAlgorithm) => {
   }, []);
 
   /**
-   * 변경사항 저장
+   * 변경사항 저장 (수정된 버전)
    */
   const saveChanges = useCallback(async (codebaseCid = null) => {
-    if (!selectedAlgorithm || !hasUnsavedChanges) {
+    if (!selectedCodebase || !hasUnsavedChanges) {
       return { success: true, message: 'No changes to save' };
     }
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       // 코드베이스 업데이트 API 호출 - API 명세에 맞게 cid 포함
-      const cid = codebaseCid || mapAlgorithmToCid(selectedAlgorithm);
+      const cid = codebaseCid || selectedCodebase.cid;
       const requestData = {
         cid: cid,
-        name: `${selectedAlgorithm} Template`,
-        algorithm: selectedAlgorithm,
-        stage: 'training',
-        task_type: 'object_detection',
-        description: `Updated ${selectedAlgorithm} codebase`
+        name: selectedCodebase.name || `${selectedCodebase.algorithm || 'yolo'} Template`,
+        algorithm: selectedCodebase.algorithm || 'yolo',
+        stage: selectedCodebase.stage || 'training',
+        task_type: selectedCodebase.task_type || 'detection',
+        description: selectedCodebase.description || `Updated ${selectedCodebase.algorithm || 'yolo'} codebase`
       };
-      
-      const result = await updateCodebase(requestData, { files });
-      
+
+      // 현재 수정된 파일 내용을 백엔드 형식으로 변환
+      // filesRef를 사용하여 최신 상태 보장
+      const backendFiles = {};
+      const currentFiles = filesRef.current; // ref를 통해 최신 상태 참조
+
+             Object.entries(currentFiles).forEach(([filePath, fileData]) => {
+         backendFiles[filePath] = fileData.code || '';
+       });
+
+      const result = await updateCodebase(requestData, { files: backendFiles });
+
+
       setHasUnsavedChanges(false);
       setLastSavedAt(new Date());
-      
+
       return {
         success: true,
         message: 'Changes saved successfully',
         data: result
       };
-      
+
     } catch (err) {
       setError(err.message);
       return {
@@ -150,14 +169,14 @@ export const useCodeEditor = (selectedAlgorithm) => {
     } finally {
       setLoading(false);
     }
-  }, [selectedAlgorithm, files, hasUnsavedChanges]);
+  }, [selectedCodebase, hasUnsavedChanges]); // files dependency 제거, ref 사용
 
   /**
    * 변경사항 폐기
    */
   const discardChanges = useCallback(() => {
-    loadCodeTemplate(selectedAlgorithm);
-  }, [loadCodeTemplate, selectedAlgorithm]);
+    loadCodeTemplate(selectedCodebase);
+  }, [loadCodeTemplate, selectedCodebase]);
 
   /**
    * 새 파일 생성
@@ -165,7 +184,7 @@ export const useCodeEditor = (selectedAlgorithm) => {
   const createNewFile = useCallback((fileName, fileType = 'python') => {
     const language = getLanguageFromExtension(fileName);
     const defaultContent = getDefaultFileContent(fileName, language);
-    
+
     setFiles(prev => ({
       ...prev,
       [fileName]: {
@@ -173,7 +192,7 @@ export const useCodeEditor = (selectedAlgorithm) => {
         language: language
       }
     }));
-    
+
     setActiveFile(fileName);
     setHasUnsavedChanges(true);
   }, []);
@@ -228,12 +247,12 @@ print("Hello from ${fileName}")
     return `# ${fileName}\n# TODO: Add content\n`;
   };
 
-  // 알고리즘이 변경될 때마다 코드 템플릿 로드
+  // 코드베이스가 변경될 때마다 코드 템플릿 로드
   useEffect(() => {
-    if (selectedAlgorithm) {
-      loadCodeTemplate(selectedAlgorithm);
+    if (selectedCodebase) {
+      loadCodeTemplate(selectedCodebase);
     }
-  }, [selectedAlgorithm, loadCodeTemplate]);
+  }, [selectedCodebase, loadCodeTemplate]);
 
   return {
     // State
@@ -244,7 +263,7 @@ print("Hello from ${fileName}")
     error,
     hasUnsavedChanges,
     lastSavedAt,
-    
+
     // Actions
     updateFileContent,
     updateFileLanguage,
@@ -253,7 +272,7 @@ print("Hello from ${fileName}")
     discardChanges,
     createNewFile,
     loadCodeTemplate,
-    
+
     // Computed
     currentFile: files[activeFile] || { code: '', language: 'python' },
     isEmpty: Object.keys(files).length === 0
@@ -268,10 +287,10 @@ print("Hello from ${fileName}")
 const mapAlgorithmToCid = (algorithm) => {
   const algorithmToCidMap = {
     'yolo_v5': 'yolo',
-    'yolo_v8': 'yolo', 
+    'yolo_v8': 'yolo',
     'yolo_v11': 'yolo'
   };
-  
+
   return algorithmToCidMap[algorithm] || 'yolo';
 };
 
@@ -284,20 +303,20 @@ const mapAlgorithmToCid = (algorithm) => {
 const transformCodebaseResponse = (backendData, algorithm) => {
   // 백엔드 응답: { tree: [...], files: { "path": "content" } }
   // 프론트엔드 기대: { fileStructure: [...], files: { "filename": { code: "...", language: "..." } } }
-  
+
   const fileStructure = backendData.tree || [];
   const transformedFiles = {};
-  
+
   // files 객체를 프론트엔드 형식으로 변환
   if (backendData.files) {
     Object.entries(backendData.files).forEach(([filePath, content]) => {
       // 파일 경로에서 파일명만 추출 (중복 방지를 위해 전체 경로를 키로 사용)
       const fileName = getFileNameFromPath(filePath);
       const language = getLanguageFromFileName(fileName);
-      
+
       // 모든 파일에 대해 전체 경로를 키로 사용하여 중복 방지
       const fileKey = filePath;
-      
+
       transformedFiles[fileKey] = {
         code: content,
         language: language,
@@ -306,7 +325,7 @@ const transformCodebaseResponse = (backendData, algorithm) => {
       };
     });
   }
-  
+
   return {
     algorithm,
     fileStructure,
@@ -347,6 +366,6 @@ const getLanguageFromFileName = (fileName) => {
     'c': 'c',
     'java': 'java'
   };
-  
+
   return extensionMap[ext] || 'plaintext';
 };
