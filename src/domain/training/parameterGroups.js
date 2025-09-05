@@ -144,7 +144,7 @@ export const getParameterGroupsByAlgorithm = (algorithm) => {
     );
     
     baseGroups[2].params.push(
-      { key: 'model', label: 'Model', type: 'select', options: ['yolov8n', 'yolov8s', 'yolov8m', 'yolov8l', 'yolov8x'], default: 'yolov8n', desc: 'YOLO model variant' },
+      { key: 'model', label: 'Model', type: 'select', options: ['yolov5n', 'yolov5s', 'yolov5m', 'yolov5l', 'yolov8n', 'yolov8s', 'yolov8m', 'yolov8l', 'yolov11n', 'yolov11s', 'yolov11m', 'yolov11l'], default: 'yolov8n', desc: 'YOLO model variant' },
       { key: 'save_period', label: 'Save Period', type: 'number', min: 1, max: 50, default: 5, step: 1, desc: 'Save checkpoint every x epochs' },
       { key: 'workers', label: 'Workers', type: 'number', min: 0, max: 16, default: 4, step: 1, desc: 'Number of worker threads' },
       { key: 'pretrained', label: 'Use Pretrained', type: 'checkbox', default: true, desc: 'Use pretrained weights' },

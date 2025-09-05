@@ -169,6 +169,7 @@ const TrainingResultList = ({ onRefresh }) => {
                 <th>Training ID</th>
                 <th>Algorithm</th>
                 <th>Dataset</th>
+                <th>Codebase</th>
                 <th>Status</th>
                 <th>Started At</th>
                 <th>Epochs</th>
@@ -197,6 +198,13 @@ const TrainingResultList = ({ onRefresh }) => {
                       <span className={styles.classesCount}>
                         {training.classes.length} classes
                       </span>
+                    )}
+                  </td>
+                  <td className={styles.codebaseCell}>
+                    {training.cid ? (
+                      <span className={styles.codebaseId}>{training.cid}</span>
+                    ) : (
+                      <span className={styles.noCodebase}>-</span>
                     )}
                   </td>
                   <td>{getStatusBadge(training.status)}</td>
@@ -353,6 +361,12 @@ const TrainingDetailModal = ({ training, isOpen, onClose }) => {
                 <label>Learning Rate:</label>
                 <span>{training.parameters?.lr0 || '-'}</span>
               </div>
+              {training.cid && (
+                <div className={styles.detailItem}>
+                  <label>Codebase ID:</label>
+                  <span>{training.cid}</span>
+                </div>
+              )}
             </div>
           </div>
 

@@ -46,6 +46,16 @@ const TrainingPage = () => {
     editorFileStructure,
     editorFiles,
 
+    // Codebase state
+    codebases,
+    selectedCodebase,
+    setSelectedCodebase,
+    codebaseLoading,
+    codebaseError,
+    codebaseFileStructure,
+    codebaseFiles,
+    codebaseFilesLoading,
+
     // Training execution state
     isTraining,
     progress,
@@ -177,6 +187,14 @@ const TrainingPage = () => {
           setSelectedSnapshot={setSelectedSnapshot}
           editorFileStructure={editorFileStructure}
           editorFiles={editorFiles}
+          codebases={codebases}
+          selectedCodebase={selectedCodebase}
+          setSelectedCodebase={setSelectedCodebase}
+          codebaseLoading={codebaseLoading}
+          codebaseError={codebaseError}
+          codebaseFileStructure={codebaseFileStructure}
+          codebaseFiles={codebaseFiles}
+          codebaseFilesLoading={codebaseFilesLoading}
           algoParams={algoParams}
           onParamChange={handleAlgoParamChange}
           paramErrors={paramErrors}
@@ -219,7 +237,7 @@ const TrainingPage = () => {
         {selectedDataset && ((modelType === 'pretrained' && algorithm) || (modelType === 'custom' && customModel)) && (
           <>
             {/* expert mode 삼단구조 부분 */}
-            <div className={styles.container}>
+            <div className={showCodeEditor ? '' : styles.container}>
               {renderParameterSection()}
             </div>
 

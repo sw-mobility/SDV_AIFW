@@ -416,6 +416,32 @@
   word-break: break-word;
 }
 
+/* Codebase 관련 스타일 */
+.codebaseCell {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.codebaseId {
+  display: inline-block;
+  background: #f0f9ff;
+  color: #0369a1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  border: 1px solid #bae6fd;
+}
+
+.noCodebase {
+  color: #9ca3af;
+  font-size: 12px;
+  font-style: italic;
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .container {

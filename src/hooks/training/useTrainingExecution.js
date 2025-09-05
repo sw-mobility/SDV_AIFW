@@ -141,7 +141,7 @@ export const useTrainingExecution = (trainingConfig) => {
         const yoloParameters = {
           model: trainingConfig.algoParams.model || 'yolov8n',
           split_ratio: splitRatio,
-          epochs: trainingConfig.algoParams.epochs || 5,
+          epochs: trainingConfig.algoParams.epochs || 50,
           batch: trainingConfig.algoParams.batch_size || 16,
           imgsz: trainingConfig.algoParams.input_size || 640,
           device: convertDeviceForAPI(trainingConfig.algoParams.device || '0'),
@@ -224,6 +224,12 @@ export const useTrainingExecution = (trainingConfig) => {
           did: datasetId, // API에서 did 필드 요구
           user_classes: finalUserClasses
         };
+
+        // codebase가 선택된 경우 cid 필드 추가
+        if (trainingConfig.selectedCodebase?.cid) {
+          requestBody.cid = trainingConfig.selectedCodebase.cid;
+          console.log('Adding cid to request:', trainingConfig.selectedCodebase.cid);
+        }
         
         console.log('=== Request Body Before Model Type Check ===');
         console.log('requestBody:', requestBody);
@@ -251,6 +257,9 @@ export const useTrainingExecution = (trainingConfig) => {
         console.log('requestBody.pid:', requestBody.pid);
         console.log('requestBody.user_classes:', requestBody.user_classes);
         console.log('requestBody.parameters:', requestBody.parameters);
+        console.log('=== Epoch Debug ===');
+        console.log('trainingConfig.algoParams.epochs:', trainingConfig.algoParams.epochs);
+        console.log('yoloParameters.epochs:', yoloParameters.epochs);
 
         const apiRequestData = { uid, ...requestBody };
         console.log('=== API Request Data ===');

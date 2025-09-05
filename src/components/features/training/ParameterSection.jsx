@@ -1,5 +1,6 @@
 import React from 'react';
 import CodeEditor from '../../ui/editor/CodeEditor.jsx';
+import CodeEditorSkeleton from '../../ui/editor/CodeEditorSkeleton.jsx';
 import ParameterEditor from './ParameterEditor.jsx';
 import ExpertModeToggle from './ExpertModeToggle.jsx';
 import ParameterSelector from './ParameterSelector.jsx';
@@ -56,6 +57,16 @@ const ParameterSection = ({
   editorFileStructure,
   editorFiles,
   
+  // Codebase state
+  codebases,
+  selectedCodebase,
+  setSelectedCodebase,
+  codebaseLoading,
+  codebaseError,
+  codebaseFileStructure,
+  codebaseFiles,
+  codebaseFilesLoading,
+  
   // Parameter values
   algoParams,
   onParamChange,
@@ -99,29 +110,77 @@ const ParameterSection = ({
     );
   };
 
+  const renderCodebaseSelector = () => {
+    return (
+      <div className={styles.expertModeSection}>
+        <label className={styles.paramLabel}>Select Codebase (Optional)</label>
+        <select
+          className={styles.select}
+          value={selectedCodebase?.cid || ''}
+          onChange={(e) => {
+            const codebase = codebases.find(c => c.cid === e.target.value);
+            setSelectedCodebase(codebase);
+            if (codebase) { // If a codebase is selected (not "코드베이스 사용 안함")
+              setShowCodeEditor(true);
+            } else { // If "코드베이스 사용 안함" is selected
+              setShowCodeEditor(false);
+            }
+          }}
+          disabled={isTraining || codebaseLoading}
+        >
+          <option value="">코드베이스 사용 안함</option>
+          {codebases.map(codebase => (
+            <option key={codebase.cid} value={codebase.cid}>
+              {codebase.name || codebase.cid}
+            </option>
+          ))}
+        </select>
+        {codebaseError && (
+          <div className={styles.errorMessage}>
+            {codebaseError}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderCodeEditor = () => {
     if (!showCodeEditor) return null;
 
     return (
       <div className={styles.rightSection}>
         <div className={styles.codeEditorCard}>
-          {selectedSnapshot ? (
-            <CodeEditor
-              snapshotName={selectedSnapshot.name}
-              fileStructure={editorFileStructure}
-              files={editorFiles}
-              onSaveSnapshot={name => {
-                alert(`Saved as snapshot: ${name}`);
-              }}
-              onCloseDrawer={() => setShowCodeEditor(false)}
-            />
+          {selectedCodebase ? (
+            codebaseFilesLoading ? (
+              <CodeEditorSkeleton compact={false} />
+            ) : (
+              <>
+                {/* Debug logs */}
+                {console.log('=== CodeEditor Debug ===')}
+                {console.log('selectedCodebase:', selectedCodebase)}
+                {console.log('codebaseFileStructure:', codebaseFileStructure)}
+                {console.log('codebaseFiles:', codebaseFiles)}
+                {console.log('codebaseFiles keys:', Object.keys(codebaseFiles))}
+                {console.log('first file:', Object.keys(codebaseFiles)[0])}
+                
+                <CodeEditor
+                  snapshotName={selectedCodebase.name || selectedCodebase.cid}
+                  fileStructure={codebaseFileStructure}
+                  files={codebaseFiles}
+                  activeFile={Object.keys(codebaseFiles)[0] || ''}
+                  onFileChange={(filename) => { console.log('File changed to:', filename); }}
+                  onFilesChange={() => {}} // Read-only
+                  onSaveSnapshot={name => { alert(`Codebase preview: ${name}`); }}
+                  onCloseDrawer={() => setShowCodeEditor(false)}
+                  compact={false} // Display file tree
+                  hideSaveButtons={true}
+                />
+              </>
+            )
           ) : (
             <div className={styles.paramCard + ' ' + styles.paramCardEmpty}>
               <span className={styles.emptyMessage}>
-                {trainingType === TRAINING_TYPES.CONTINUAL 
-                  ? '왼쪽에서 기본 스냅샷을 선택하세요.'
-                  : '왼쪽에서 스냅샷을 선택하세요.'
-                }
+                왼쪽에서 코드베이스를 선택하세요.
               </span>
             </div>
           )}
@@ -189,14 +248,8 @@ const ParameterSection = ({
           trainingType={trainingType}
         />
         
-        {/* Expert Mode Toggle - UI에서 숨김 */}
-        {/* <ExpertModeToggle
-          isActive={showCodeEditor}
-          onToggle={() => setShowCodeEditor(!showCodeEditor)}
-        /> */}
-        
-        {/* Snapshot Selector - UI에서 숨김 */}
-        {/* {renderSnapshotSelector()} */}
+        {/* Codebase Selector */}
+        {renderCodebaseSelector()}
       </div>
       
       {/* Center: Parameter Input Fields */}

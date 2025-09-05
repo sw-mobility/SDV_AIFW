@@ -104,6 +104,12 @@ const TrainingExecution = ({
                 </div>
               )}
               
+              {trainingResponse.data?.cid && (
+                <div className={styles.responseItem}>
+                  <span className={styles.label}>Codebase ID:</span>
+                  <span className={styles.value}>{trainingResponse.data.cid}</span>
+                </div>
+              )}
 
             </div>
           </div>
