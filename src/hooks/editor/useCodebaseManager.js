@@ -16,6 +16,7 @@ export const useCodebaseManager = () => {
   const [selectedCodebase, setSelectedCodebase] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   /**
    * 코드베이스 목록 조회
@@ -69,6 +70,7 @@ export const useCodebaseManager = () => {
    */
   const handleCreateCodebase = useCallback(async (requestData) => {
     setLoading(true);
+    setIsCreating(true);
     setError(null);
     
     try {
@@ -130,6 +132,9 @@ export const useCodebaseManager = () => {
             }
           } catch (error) {
             console.error('Failed to auto-save yolo template:', error);
+          } finally {
+            // 생성 과정 완료
+            setIsCreating(false);
           }
         }, 1000); // 1초 후 자동 저장
       }
@@ -138,6 +143,7 @@ export const useCodebaseManager = () => {
     } catch (err) {
       setError(err.message);
       console.error('Failed to create codebase:', err);
+      setIsCreating(false);
       throw err;
     } finally {
       setLoading(false);
@@ -233,6 +239,7 @@ export const useCodebaseManager = () => {
     selectedCodebase,
     loading,
     error,
+    isCreating,
     
     // Actions
     loadCodebases,

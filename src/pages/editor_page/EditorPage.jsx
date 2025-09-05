@@ -25,6 +25,7 @@ const EditorPage = () => {
     selectedCodebase,
     loading: codebaseLoading,
     error: codebaseError,
+    isCreating,
     handleCreateCodebase,
     handleUpdateCodebase,
     handleDeleteCodebase,
@@ -230,7 +231,7 @@ const EditorPage = () => {
                       <h3>Select a Codebase</h3>
                       <p>Choose a codebase from the left panel or create a new one to get started.</p>
                     </div>
-                ) : editorLoading ? (
+                ) : (editorLoading || codebaseLoading || isCreating) ? (
                     <CodeEditorSkeleton compact={false} />
                 ) : isEmpty ? (
                     <div className={styles.emptyState}>

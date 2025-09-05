@@ -144,11 +144,17 @@ export const useCodeEditor = (selectedCodebase) => {
       const backendFiles = {};
       const currentFiles = filesRef.current; // ref를 통해 최신 상태 참조
 
-             Object.entries(currentFiles).forEach(([filePath, fileData]) => {
-         backendFiles[filePath] = fileData.code || '';
-       });
+      Object.entries(currentFiles).forEach(([filePath, fileData]) => {
+        backendFiles[filePath] = fileData.code || '';
+      });
 
-      const result = await updateCodebase(requestData, { files: backendFiles });
+      // 백엔드가 기대하는 구조: { tree: [...], files: {...} }
+      const backendData = {
+        tree: fileStructure, // 파일 구조 정보 포함
+        files: backendFiles
+      };
+
+      const result = await updateCodebase(requestData, backendData);
 
 
       setHasUnsavedChanges(false);
@@ -169,7 +175,7 @@ export const useCodeEditor = (selectedCodebase) => {
     } finally {
       setLoading(false);
     }
-  }, [selectedCodebase, hasUnsavedChanges]); // files dependency 제거, ref 사용
+  }, [selectedCodebase, hasUnsavedChanges, fileStructure]); // fileStructure dependency 추가
 
   /**
    * 변경사항 폐기

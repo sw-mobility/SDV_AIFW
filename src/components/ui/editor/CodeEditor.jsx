@@ -371,6 +371,7 @@ export default function CodeEditor({
                         </div>
                         <select value={currentFileData.language} onChange={handleLanguageChange} className={styles['language-select']}>
                             <option value="json">JSON</option>
+                            <option value="yaml">YAML</option>
                             <option value="python">Python</option>
                             <option value="java">Java</option>
                             <option value="c">C</option>
