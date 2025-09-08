@@ -3,7 +3,7 @@ import { getTrainingList } from '../../../api/training.js';
 import { uid } from '../../../api/uid.js';
 import styles from './TrainingResultList.module.css';
 
-const TrainingResultList = ({ onRefresh }) => {
+const TrainingResultList = ({ onRefresh, projectId }) => {
   const [trainings, setTrainings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,14 +18,19 @@ const TrainingResultList = ({ onRefresh }) => {
       console.log('Raw training list:', result);
       
       if (result && Array.isArray(result)) {
+        // 현재 프로젝트로 필터링
+        const filteredTrainings = projectId 
+          ? result.filter(training => training.pid === projectId)
+          : result;
+        
         // 최근 생성된 training이 가장 위에 오도록 정렬
-        const sortedTrainings = result.sort((a, b) => {
+        const sortedTrainings = filteredTrainings.sort((a, b) => {
           const dateA = new Date(a.started_at || a.created_at || 0);
           const dateB = new Date(b.started_at || b.created_at || 0);
           return dateB - dateA; // 내림차순 (최신순)
         });
         
-        console.log('Sorted trainings:', sortedTrainings);
+        console.log('Filtered and sorted trainings:', sortedTrainings);
         setTrainings(sortedTrainings);
       } else {
         console.warn('Training list is not an array:', result);
@@ -37,7 +42,7 @@ const TrainingResultList = ({ onRefresh }) => {
     } finally {
       setLoading(false);
     }
-  }, [uid]);
+  }, [uid, projectId]);
 
   useEffect(() => {
     fetchTrainings();
@@ -184,7 +189,6 @@ const TrainingResultList = ({ onRefresh }) => {
                 >
                   <td className={styles.tidCell}>
                     <span className={styles.tidValue}>{training.tid}</span>
-                    {training.pid && <span className={styles.projectId}>P: {training.pid}</span>}
                   </td>
                   <td className={styles.algorithmCell}>
                     <span className={styles.algorithmName}>{getAlgorithmDisplay(training)}</span>

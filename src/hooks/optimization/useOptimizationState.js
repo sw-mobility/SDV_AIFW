@@ -6,7 +6,7 @@ import { uid } from '../../api/uid.js';
  * Optimization 페이지의 상태 관리 훅
  * API 명세서에 따라 구현
  */
-const useOptimizationState = () => {
+const useOptimizationState = (projectId = 'P0001') => {
   const [optimizationType, setOptimizationType] = useState('');
   const [modelType, setModelType] = useState('training'); // 'training' 또는 'optimization'
   const [modelId, setModelId] = useState(''); // TID 또는 OID
@@ -100,10 +100,19 @@ const useOptimizationState = () => {
   }, []);
 
   const handleParamChange = useCallback((key, value) => {
-    setOptimizationParams(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setOptimizationParams(prev => {
+      const newParams = {
+        ...prev,
+        [key]: value
+      };
+      
+      // precision이 fp32로 변경되면 device를 gpu로 자동 설정
+      if (key === 'precision' && value === 'fp32' && prev.device && prev.device !== 'gpu') {
+        newParams.device = 'gpu';
+      }
+      
+      return newParams;
+    });
   }, []);
 
   // Model type 변경 (training 또는 optimization)
@@ -173,8 +182,8 @@ const useOptimizationState = () => {
     setProgress(0);
 
     try {
-      // PID는 기본값으로 P0001 사용 (다른 페이지들과 동일)
-      const pid = 'P0001';
+      // 현재 프로젝트의 PID 사용
+      const pid = projectId;
       const currentUid = uid; // uid.js에서 가져온 값 사용
 
       console.log('Optimization request params:', {
@@ -199,16 +208,28 @@ const useOptimizationState = () => {
       const response = await runOptimization(optimizationType, { ...optimizationParams, model_id: currentModelId }, pid, currentUid);
       
       setProgress(50);
-      setProgress(80);
-
-      setProgress(100);
-      setStatus('success');
       
-      // Optimization 완료 시 history와 model list 자동 새로고침
-      setTimeout(() => {
-        refreshOptimizationHistory();
-        refreshModelList();
-      }, 1000);
+      // API가 성공적으로 호출되면 완료
+      if (response && response.oid) {
+        setProgress(100);
+        setStatus('success');
+        console.log('Optimization started successfully. OID:', response.oid);
+        
+        // 1회 history와 model list 새로고침
+        setTimeout(() => {
+          refreshOptimizationHistory();
+          refreshModelList();
+        }, 1000);
+      } else {
+        setProgress(100);
+        setStatus('success');
+        
+        // 즉시 완료된 경우 history와 model list 새로고침
+        setTimeout(() => {
+          refreshOptimizationHistory();
+          refreshModelList();
+        }, 1000);
+      }
 
     } catch (error) {
       console.error('Optimization failed:', error);
@@ -237,18 +258,6 @@ const useOptimizationState = () => {
     }
   }, [optimizationType, modelType, optimizationParams, runOptimization]);
 
-  const resetOptimization = useCallback(() => {
-    setOptimizationType('');
-    setModelType('training');
-    setModelId('');
-    setOptimizationParams({});
-    setIsRunning(false);
-    setProgress(0);
-    setStatus('idle');
-    // results 초기화 제거 - Optimization History로 통일
-    setError(null); // 에러 초기화
-  }, []);
-
   // Optimization History 새로고침 함수
   const refreshOptimizationHistory = useCallback(async () => {
     try {
@@ -269,6 +278,19 @@ const useOptimizationState = () => {
     if (refreshModelListRef.current) {
       refreshModelListRef.current();
     }
+  }, []);
+
+
+  const resetOptimization = useCallback(() => {
+    setOptimizationType('');
+    setModelType('training');
+    setModelId('');
+    setOptimizationParams({});
+    setIsRunning(false);
+    setProgress(0);
+    setStatus('idle');
+    // results 초기화 제거 - Optimization History로 통일
+    setError(null); // 에러 초기화
   }, []);
 
   // Model list 새로고침 콜백 설정 함수

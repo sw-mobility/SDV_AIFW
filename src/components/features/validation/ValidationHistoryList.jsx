@@ -4,7 +4,7 @@ import { getTrainingList } from '../../../api/training.js';
 import { uid } from '../../../api/uid.js';
 import styles from './ValidationHistoryList.module.css';
 
-const ValidationHistoryList = ({ onRefresh }) => {
+const ValidationHistoryList = ({ onRefresh, projectId }) => {
   const [validations, setValidations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,14 +21,19 @@ const ValidationHistoryList = ({ onRefresh }) => {
       console.log('Raw validation list:', result);
       
       if (result && Array.isArray(result)) {
+        // 현재 프로젝트로 필터링
+        const filteredValidations = projectId 
+          ? result.filter(validation => validation.pid === projectId)
+          : result;
+        
         // 최근 생성된 validation이 가장 위에 오도록 정렬
-        const sortedValidations = result.sort((a, b) => {
+        const sortedValidations = filteredValidations.sort((a, b) => {
           const dateA = new Date(a.created_at || 0);
           const dateB = new Date(b.created_at || 0);
           return dateB - dateA; // 내림차순 (최신순)
         });
         
-        console.log('Sorted validations:', sortedValidations);
+        console.log('Filtered and sorted validations:', sortedValidations);
         setValidations(sortedValidations);
       } else {
         console.warn('Validation list is not an array:', result);
@@ -40,7 +45,7 @@ const ValidationHistoryList = ({ onRefresh }) => {
     } finally {
       setLoading(false);
     }
-  }, [uid]);
+  }, [uid, projectId]);
 
   const fetchTrainings = useCallback(async () => {
     setTrainingLoading(true);
@@ -277,7 +282,6 @@ const ValidationHistoryList = ({ onRefresh }) => {
                 >
                   <td className={styles.vidCell}>
                     <span className={styles.vidValue}>{validation.vid}</span>
-                    {validation.pid && <span className={styles.projectId}>P: {validation.pid}</span>}
                   </td>
                   <td className={styles.modelCell}>
                     <span className={styles.modelName}>{getModelDisplay(validation)}</span>

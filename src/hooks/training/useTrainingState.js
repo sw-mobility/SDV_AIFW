@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import { getParameterGroupsByAlgorithm } from '../../domain/training/parameterGroups.js';
 import { validateParameter } from '../../domain/training/trainingValidation.js';
 import { useTrainingCore } from './useTrainingCore.js';
@@ -6,6 +6,7 @@ import { useTrainingDatasets } from './useTrainingDatasets.js';
 import { useTrainingSnapshots } from './useTrainingSnapshots.js';
 import { useTrainingExecution } from './useTrainingExecution.js';
 import { useTrainingUI } from './useTrainingUI.js';
+import { fetchCodebases, fetchCodebase } from '../../api/codeTemplates.js';
 
 export const useTrainingState = (projectId = 'P0001') => {
   const core = useTrainingCore();
@@ -17,16 +18,78 @@ export const useTrainingState = (projectId = 'P0001') => {
   const [modelType, setModelType] = useState('pretrained');
   const [customModel, setCustomModel] = useState('');
 
+  // Codebase 관련 상태 (validation과 동일하게 직접 관리)
+  const [codebases, setCodebases] = useState([]);
+  const [selectedCodebase, setSelectedCodebase] = useState(null);
+  const [codebaseLoading, setCodebaseLoading] = useState(false);
+  const [codebaseError, setCodebaseError] = useState(null);
+  const [codebaseFileStructure, setCodebaseFileStructure] = useState([]);
+  const [codebaseFiles, setCodebaseFiles] = useState({});
+  const [codebaseFilesLoading, setCodebaseFilesLoading] = useState(false);
+
+
+  // Codebase 관련 함수들 (validation과 동일)
+  const fetchCodebasesList = useCallback(async () => {
+    setCodebaseLoading(true);
+    setCodebaseError(null);
+    try {
+      const data = await fetchCodebases();
+      const sortedData = data.sort((a, b) => {
+        const dateA = new Date(a.updated_at || a.created_at || 0);
+        const dateB = new Date(b.updated_at || b.created_at || 0);
+        return dateB - dateA;
+      });
+      setCodebases(sortedData);
+    } catch (err) {
+      setCodebaseError(err.message);
+      console.error('Failed to load codebases:', err);
+    } finally {
+      setCodebaseLoading(false);
+    }
+  }, []);
+
+  const fetchCodebaseFiles = useCallback(async (codebaseId) => {
+    setCodebaseFilesLoading(true);
+    try {
+      const codebaseData = await fetchCodebase(codebaseId);
+      
+      setCodebaseFileStructure(codebaseData.tree || []);
+      setCodebaseFiles(codebaseData.files || {});
+    } catch (err) {
+      console.error('Failed to load codebase files:', err);
+      setCodebaseFileStructure([]);
+      setCodebaseFiles({});
+    } finally {
+      setCodebaseFilesLoading(false);
+    }
+  }, []);
+
+  // selectedCodebase가 변경될 때 파일 정보 로드
+  useEffect(() => {
+    if (selectedCodebase?.cid) {
+      fetchCodebaseFiles(selectedCodebase.cid);
+    } else {
+      setCodebaseFileStructure([]);
+      setCodebaseFiles({});
+    }
+  }, [selectedCodebase, fetchCodebaseFiles]);
+
+  // 초기 codebase 목록 로드
+  useEffect(() => {
+    fetchCodebasesList();
+  }, [fetchCodebasesList]);
+
   const trainingConfig = useMemo(() => ({
     trainingType: core.trainingType,
     selectedDataset: datasets.selectedDataset,
     selectedSnapshot: snapshots.selectedSnapshot,
+    selectedCodebase: selectedCodebase, // codebase 추가
     algorithm: core.algorithm,
     algoParams: core.algoParams,
     modelType: modelType,
     customModel: customModel,
     projectId: projectId // projectId 추가
-  }), [core.trainingType, datasets.selectedDataset, snapshots.selectedSnapshot, core.algorithm, core.algoParams, modelType, customModel, projectId]);
+  }), [core.trainingType, datasets.selectedDataset, snapshots.selectedSnapshot, selectedCodebase, core.algorithm, core.algoParams, modelType, customModel, projectId]);
 
   const execution = useTrainingExecution(trainingConfig);
 
@@ -108,6 +171,16 @@ export const useTrainingState = (projectId = 'P0001') => {
     setSelectedSnapshot: snapshots.setSelectedSnapshot,
     editorFileStructure: snapshots.editorFileStructure,
     editorFiles: snapshots.editorFiles,
+
+    // Codebase state (validation과 동일)
+    codebases,
+    selectedCodebase,
+    setSelectedCodebase,
+    codebaseLoading,
+    codebaseError,
+    codebaseFileStructure,
+    codebaseFiles,
+    codebaseFilesLoading,
 
     // Training execution state
     isTraining: execution.isRunning,

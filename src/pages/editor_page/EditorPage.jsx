@@ -240,7 +240,7 @@ const EditorPage = () => {
                     </div>
                 ) : (
                     <CodeEditor
-                        key={`${selectedCodebase?.cid}-${activeFile}`} // 강제 리렌더링을 위한 키
+                        key={selectedCodebase?.cid} // 코드베이스가 변경될 때만 리렌더링
                         fileStructure={fileStructure}
                         files={files}
                         activeFile={activeFile}

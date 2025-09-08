@@ -1,6 +1,7 @@
 import React from 'react';
 import CodeEditor from '../../ui/editor/CodeEditor.jsx';
 import CodeEditorSkeleton from '../../ui/editor/CodeEditorSkeleton.jsx';
+import { useCodeEditor } from '../../../hooks/editor/useCodeEditor.js';
 import ParameterEditor from './ParameterEditor.jsx';
 import ExpertModeToggle from './ExpertModeToggle.jsx';
 import ParameterSelector from './ParameterSelector.jsx';
@@ -144,38 +145,43 @@ const ParameterSection = ({
     );
   };
 
+  // useCodeEditor hook 사용 (Code Editor 페이지와 동일)
+  const {
+    fileStructure,
+    files,
+    activeFile,
+    loading: editorLoading,
+    error: editorError,
+    changeActiveFile,
+    currentFile
+  } = useCodeEditor(selectedCodebase);
+
   const renderCodeEditor = () => {
     if (!showCodeEditor) return null;
-
+    
     return (
       <div className={styles.rightSection}>
         <div className={styles.codeEditorCard}>
           {selectedCodebase ? (
-            codebaseFilesLoading ? (
+            (editorLoading || codebaseFilesLoading) ? (
               <CodeEditorSkeleton compact={false} />
             ) : (
-              <>
-                {/* Debug logs */}
-                {console.log('=== CodeEditor Debug ===')}
-                {console.log('selectedCodebase:', selectedCodebase)}
-                {console.log('codebaseFileStructure:', codebaseFileStructure)}
-                {console.log('codebaseFiles:', codebaseFiles)}
-                {console.log('codebaseFiles keys:', Object.keys(codebaseFiles))}
-                {console.log('first file:', Object.keys(codebaseFiles)[0])}
-                
-                <CodeEditor
-                  snapshotName={selectedCodebase.name || selectedCodebase.cid}
-                  fileStructure={codebaseFileStructure}
-                  files={codebaseFiles}
-                  activeFile={Object.keys(codebaseFiles)[0] || ''}
-                  onFileChange={(filename) => { console.log('File changed to:', filename); }}
-                  onFilesChange={() => {}} // Read-only
-                  onSaveSnapshot={name => { alert(`Codebase preview: ${name}`); }}
-                  onCloseDrawer={() => setShowCodeEditor(false)}
-                  compact={false} // Display file tree
-                  hideSaveButtons={true}
-                />
-              </>
+              <CodeEditor
+                key={selectedCodebase?.cid} // 코드베이스가 변경될 때만 리렌더링
+                snapshotName={selectedCodebase.name || selectedCodebase.cid}
+                fileStructure={fileStructure}
+                files={files}
+                activeFile={activeFile}
+                onFileChange={changeActiveFile}
+                onFilesChange={() => {}} // Read-only
+                onSaveSnapshot={name => { alert(`Codebase preview: ${name}`); }}
+                onCloseDrawer={() => setShowCodeEditor(false)}
+                compact={false} // Display file tree
+                hideSaveButtons={true}
+                currentFile={currentFile} // 최신 currentFile 전달
+                readOnly={true} // 수정 불가
+                onEditorChange={() => {}} // 수정 이벤트 무시
+              />
             )
           ) : (
             <div className={styles.paramCard + ' ' + styles.paramCardEmpty}>
@@ -234,7 +240,7 @@ const ParameterSection = ({
   };
 
   return (
-    <div className={`${styles.paramSectionWrap} ${showCodeEditor ? styles.expertMode : ''}`}>
+    <div className={showCodeEditor ? styles.paramSectionWrapExtended : styles.paramSectionWrap}>
       {/* Left: Parameter Selector + Expert Mode */}
       <div className={styles.paramSummaryBox}>
         <ParameterSelector

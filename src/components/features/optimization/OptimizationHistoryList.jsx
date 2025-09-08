@@ -3,7 +3,7 @@ import { getOptimizationList } from '../../../api/optimization.js';
 import { uid } from '../../../api/uid.js';
 import styles from './OptimizationHistoryList.module.css';
 
-const OptimizationHistoryList = ({ onRefresh }) => {
+const OptimizationHistoryList = ({ onRefresh, projectId }) => {
   const [optimizations, setOptimizations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,14 +18,19 @@ const OptimizationHistoryList = ({ onRefresh }) => {
       console.log('Raw optimization list:', result);
       
       if (result && Array.isArray(result)) {
+        // 현재 프로젝트로 필터링
+        const filteredOptimizations = projectId 
+          ? result.filter(optimization => optimization.pid === projectId)
+          : result;
+        
         // 최근 생성된 optimization이 가장 위에 오도록 정렬
-        const sortedOptimizations = result.sort((a, b) => {
+        const sortedOptimizations = filteredOptimizations.sort((a, b) => {
           const dateA = new Date(a.started_at || 0);
           const dateB = new Date(b.started_at || 0);
           return dateB - dateA; // 내림차순 (최신순)
         });
         
-        console.log('Sorted optimizations:', sortedOptimizations);
+        console.log('Filtered and sorted optimizations:', sortedOptimizations);
         setOptimizations(sortedOptimizations);
       } else {
         console.warn('Optimization list is not an array:', result);
@@ -37,7 +42,7 @@ const OptimizationHistoryList = ({ onRefresh }) => {
     } finally {
       setLoading(false);
     }
-  }, [uid]);
+  }, [uid, projectId]);
 
   useEffect(() => {
     fetchOptimizations();
@@ -209,7 +214,6 @@ const OptimizationHistoryList = ({ onRefresh }) => {
                 >
                   <td className={styles.oidCell}>
                     <span className={styles.oidValue}>{optimization.oid}</span>
-                    {optimization.pid && <span className={styles.projectId}>P: {optimization.pid}</span>}
                   </td>
                   <td className={styles.typeCell}>
                     <span className={styles.typeName}>{getOptimizationTypeDisplay(optimization)}</span>

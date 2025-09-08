@@ -15,7 +15,8 @@ const OptimizationParameterEditor = ({
   currentParam, 
   optimizationParams, 
   onParamChange,
-  isRunning = false
+  isRunning = false,
+  projectId = 'P0001'
 }) => {
   if (!currentParam) {
     return null;
@@ -141,17 +142,27 @@ const OptimizationParameterEditor = ({
           />
         </div>
       ) : currentParam.type === 'select' ? (
-        <select
-          className={styles.paramInput}
-          value={getCurrentValue()}
-          onChange={e => handleParamChange(currentParam.key, e.target.value, currentParam)}
-          style={{ width: 180 }}
-          disabled={isRunning}
-        >
-          {currentParam.options.map(opt => (
-            <option key={opt} value={opt}>{opt}</option>
-          ))}
-        </select>
+        (() => {
+          // Device 파라미터이고 precision이 fp32인 경우 DLA 옵션 제외
+          let availableOptions = currentParam.options;
+          if (currentParam.key === 'device' && optimizationParams.precision === 'fp32') {
+            availableOptions = currentParam.options.filter(opt => opt === 'gpu');
+          }
+          
+          return (
+            <select
+              className={styles.paramInput}
+              value={getCurrentValue()}
+              onChange={e => handleParamChange(currentParam.key, e.target.value, currentParam)}
+              style={{ width: 180 }}
+              disabled={isRunning}
+            >
+              {availableOptions.map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          );
+        })()
       ) : currentParam.type === 'checkbox' ? (
         <div className={styles.switchContainer}>
                   <Switch
@@ -176,7 +187,7 @@ const OptimizationParameterEditor = ({
         <TrainingIdSelector
           selectedTid={getCurrentValue()}
           onTidChange={(value) => handleParamChange(currentParam.key, value, currentParam)}
-          projectId="P0001"
+          projectId={projectId}
           showCompletedOnly={true}
           placeholder="Select Training ID"
           disabled={isRunning}
@@ -194,7 +205,13 @@ const OptimizationParameterEditor = ({
         />
       )}
       
-      {currentParam.desc && <div className={styles.paramDesc}>{currentParam.desc}</div>}
+      {currentParam.desc && (
+        <div className={styles.paramDesc}>
+          {currentParam.key === 'device' && optimizationParams.precision === 'fp32' 
+            ? 'Target device (FP32 precision supports GPU only - DLA requires FP16 or INT8)'
+            : currentParam.desc}
+        </div>
+      )}
     </div>
   );
 };

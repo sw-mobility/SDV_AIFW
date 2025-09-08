@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import styles from './OptimizationPage.module.css';
 import OptimizationTypeSelector from '../../components/features/optimization/OptimizationTypeSelector.jsx';
 import OptimizationModelSelector from '../../components/features/optimization/OptimizationModelSelector.jsx';
@@ -6,8 +7,13 @@ import OptimizationParameterSection from '../../components/features/optimization
 import OptimizationExecution from '../../components/features/optimization/OptimizationExecution.jsx';
 import OptimizationHistoryList from '../../components/features/optimization/OptimizationHistoryList.jsx';
 import { useOptimizationState } from '../../hooks';
+import { uid } from '../../api/uid.js';
 
 const OptimizationPage = () => {
+  const { projectName } = useParams();
+  const [actualProjectId, setActualProjectId] = useState('P0001');
+  const [projectLoading, setProjectLoading] = useState(true);
+
   const {
     // Core state
     optimizationType,
@@ -31,7 +37,53 @@ const OptimizationPage = () => {
     refreshOptimizationHistory,
     refreshModelList,
     setRefreshModelListCallback
-  } = useOptimizationState();
+  } = useOptimizationState(actualProjectId);
+
+  // Project 정보를 가져와서 실제 pid를 찾기
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      if (!projectName) {
+        setActualProjectId('P0001');
+        setProjectLoading(false);
+        return;
+      }
+      
+      try {
+        setProjectLoading(true);
+        const response = await fetch(`http://localhost:5002/projects/projects/`, {
+          headers: {
+            'uid': uid
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Projects API response:', data);
+          
+          // projectName으로 프로젝트 찾기
+          const project = data.find(p => p.name === projectName);
+          if (project) {
+            const projectId = project.pid || 'P0001';
+            setActualProjectId(projectId);
+            console.log('Project found:', project.name, 'ID:', projectId);
+          } else {
+            console.warn('Project not found, using default P0001');
+            setActualProjectId('P0001');
+          }
+        } else {
+          console.warn('Failed to fetch projects, using default P0001');
+          setActualProjectId('P0001');
+        }
+      } catch (error) {
+        console.error('Error fetching project data:', error);
+        setActualProjectId('P0001');
+      } finally {
+        setProjectLoading(false);
+      }
+    };
+    
+    fetchProjectData();
+  }, [projectName]);
 
   return (
     <div className={styles.pageContainer}>
@@ -70,6 +122,7 @@ const OptimizationPage = () => {
           optimizationType={optimizationType}
           disabled={isRunning}
           setRefreshCallback={setRefreshModelListCallback}
+          projectId={actualProjectId}
         />
 
         {/* Parameter Configuration - Optimization Type 선택 후에만 표시 (CHECK MODEL STATS 제외) */}
@@ -80,6 +133,7 @@ const OptimizationPage = () => {
             onParamChange={handleParamChange}
             onReset={resetOptimization}
             isRunning={isRunning}
+            projectId={actualProjectId}
           />
         )}
         
@@ -98,7 +152,7 @@ const OptimizationPage = () => {
 
       {/* Optimization History List - 항상 표시 */}
       <div className={`${styles.container} ${styles.historyContainer}`}>
-        <OptimizationHistoryList onRefresh={refreshOptimizationHistory} />
+        <OptimizationHistoryList onRefresh={refreshOptimizationHistory} projectId={actualProjectId} />
       </div>
     </div>
   );

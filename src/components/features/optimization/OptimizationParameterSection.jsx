@@ -13,7 +13,8 @@ const OptimizationParameterSection = ({
   optimizationParams,
   onParamChange,
   onReset,
-  isRunning = false
+  isRunning = false,
+  projectId = 'P0001'
 }) => {
   const [selectedParamKeys, setSelectedParamKeys] = React.useState([]);
   const [openParamGroup, setOpenParamGroup] = React.useState(null);
@@ -67,6 +68,7 @@ const OptimizationParameterSection = ({
             optimizationParams={optimizationParams}
             onParamChange={onParamChange}
             isRunning={isRunning}
+            projectId={projectId}
           />
         );
       }

@@ -79,7 +79,7 @@ const OptimizationExecution = ({
           disabled={!canRun}
           className={styles.runButton}
         >
-          {isRunning ? 'Running...' : 'Run Optimization'}
+          {status === 'running' ? 'Processing...' : 'Run Optimization'}
         </Button>
       </div>
       

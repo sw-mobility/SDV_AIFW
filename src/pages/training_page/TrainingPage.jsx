@@ -259,7 +259,7 @@ const TrainingPage = () => {
 
         {/* Training Results List - 항상 표시 */}
         <div className={styles.container}>
-          <TrainingResultList onRefresh={handleRefreshTrainingResults} />
+          <TrainingResultList onRefresh={handleRefreshTrainingResults} projectId={actualProjectId} />
         </div>
       </div>
   );

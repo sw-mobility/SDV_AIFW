@@ -2,6 +2,9 @@ import React from 'react';
 import ValidationParameterSelector from './ValidationParameterSelector.jsx';
 import ValidationParameterEditor from './ValidationParameterEditor.jsx';
 import { VALIDATION_PARAM_GROUPS } from '../../../domain/validation/validationParameters.js';
+import CodeEditor from '../../ui/editor/CodeEditor.jsx';
+import CodeEditorSkeleton from '../../ui/editor/CodeEditorSkeleton.jsx';
+import { useCodeEditor } from '../../../hooks/editor/useCodeEditor.js';
 import styles from './ValidationParameterSection.module.css';
 
 /**
@@ -14,7 +17,20 @@ const ValidationParameterSection = ({
   validationParams,
   onParamChange,
   onReset,
-  disabled = false
+  disabled = false,
+  projectId = 'P0001',
+  // Codebase 관련 props 추가 (training과 동일)
+  codebases = [],
+  selectedCodebase,
+  setSelectedCodebase,
+  codebaseLoading = false,
+  codebaseError = null,
+  codebaseFileStructure = {},
+  codebaseFiles = {},
+  codebaseFilesLoading = false,
+  showCodeEditor = false,
+  setShowCodeEditor,
+  isValidating = false
 }) => {
   const [selectedParamKeys, setSelectedParamKeys] = React.useState([]);
   const [openParamGroup, setOpenParamGroup] = React.useState(null);
@@ -40,6 +56,92 @@ const ValidationParameterSection = ({
     setOpenParamGroup(openParamGroup === groupIndex ? null : groupIndex);
   };
 
+  // Codebase selector 렌더링 (training과 동일)
+  const renderCodebaseSelector = () => {
+    return (
+      <div className={styles.expertModeSection}>
+        <label className={styles.paramLabel}>Select Codebase (Optional)</label>
+        <select
+          className={styles.select}
+          value={selectedCodebase?.cid || ''}
+          onChange={(e) => {
+            const codebase = codebases.find(c => c.cid === e.target.value);
+            setSelectedCodebase(codebase);
+            if (codebase) { // If a codebase is selected (not "코드베이스 사용 안함")
+              setShowCodeEditor(true);
+            } else { // If "코드베이스 사용 안함" is selected
+              setShowCodeEditor(false);
+            }
+          }}
+          disabled={isValidating || codebaseLoading}
+        >
+          <option value="">코드베이스 사용 안함</option>
+          {codebases && Array.isArray(codebases) && codebases.map(codebase => (
+            <option key={codebase.cid} value={codebase.cid}>
+              {codebase.name || codebase.cid}
+            </option>
+          ))}
+        </select>
+        {codebaseError && (
+          <div className={styles.errorMessage}>
+            {codebaseError}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // useCodeEditor hook 사용 (Code Editor 페이지와 동일)
+  const {
+    fileStructure,
+    files,
+    activeFile,
+    loading: editorLoading,
+    error: editorError,
+    changeActiveFile,
+    currentFile
+  } = useCodeEditor(selectedCodebase);
+
+  // Code editor 렌더링 (training과 동일)
+  const renderCodeEditor = () => {
+    if (!showCodeEditor) return null;
+
+    return (
+      <div className={styles.rightSection}>
+        <div className={styles.codeEditorCard}>
+          {selectedCodebase ? (
+            (editorLoading || codebaseFilesLoading) ? (
+              <CodeEditorSkeleton compact={false} />
+            ) : (
+              <CodeEditor
+                key={selectedCodebase?.cid} // 코드베이스가 변경될 때만 리렌더링
+                snapshotName={selectedCodebase.name || selectedCodebase.cid}
+                fileStructure={fileStructure}
+                files={files}
+                activeFile={activeFile}
+                onFileChange={changeActiveFile}
+                onFilesChange={() => {}} // Read-only
+                onSaveSnapshot={name => { alert(`Codebase preview: ${name}`); }}
+                onCloseDrawer={() => setShowCodeEditor(false)}
+                compact={false} // Display file tree
+                hideSaveButtons={true}
+                currentFile={currentFile} // 최신 currentFile 전달
+                readOnly={true} // 수정 불가
+                onEditorChange={() => {}} // 수정 이벤트 무시
+              />
+            )
+          ) : (
+            <div className={styles.paramCard + ' ' + styles.paramCardEmpty}>
+              <span className={styles.emptyMessage}>
+                왼쪽에서 코드베이스를 선택하세요.
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // TID 파라미터 (항상 표시)
   const tidParam = {
     key: 'tid',
@@ -62,6 +164,7 @@ const ValidationParameterSection = ({
         validationParams={validationParams}
         onParamChange={onParamChange}
         disabled={disabled}
+        projectId={projectId}
       />
     );
     
@@ -88,6 +191,7 @@ const ValidationParameterSection = ({
           validationParams={validationParams}
           onParamChange={onParamChange}
           disabled={disabled}
+          projectId={projectId}
         />
       );
     });
@@ -105,7 +209,7 @@ const ValidationParameterSection = ({
   };
 
   return (
-    <div className={styles.paramSectionWrap}>
+    <div className={showCodeEditor ? styles.paramSectionWrapExtended : styles.paramSectionWrap}>
       {/* Left: Parameter Selector */}
       <div className={styles.paramSummaryBox}>
         <ValidationParameterSelector
@@ -118,12 +222,18 @@ const ValidationParameterSection = ({
           onReset={onReset}
           disabled={disabled}
         />
+        
+        {/* Codebase Selector 추가 (training과 동일한 위치) */}
+        {renderCodebaseSelector()}
       </div>
       
       {/* Center: Parameter Input Fields */}
       <div className={styles.paramCardWrap}>
         {renderParameterEditors()}
       </div>
+      
+      {/* Right: Code Editor (when codebase is selected) */}
+      {renderCodeEditor()}
     </div>
   );
 };

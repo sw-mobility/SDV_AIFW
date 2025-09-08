@@ -22,7 +22,8 @@ const ValidationParameterEditor = ({
   currentParam, 
   validationParams, 
   onParamChange,
-  disabled = false
+  disabled = false,
+  projectId = 'P0001'
 }) => {
   if (!currentParam) {
     return null; // 빈 상태는 ValidationParameterSection에서 처리
@@ -134,7 +135,7 @@ const ValidationParameterEditor = ({
         <TrainingIdSelector
           selectedTid={getCurrentValue()}
           onTidChange={(value) => handleParamChange(currentParam.key, value, currentParam)}
-          projectId={validationParams.pid || 'P0001'}
+          projectId={projectId}
           showCompletedOnly={true}
           placeholder="Select Training ID"
           disabled={disabled || currentParam.disabled}

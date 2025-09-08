@@ -90,7 +90,24 @@
   color: #aaa;
 }
 
-/* Expert Mode Styles */
+/* 코드 에디터가 표시될 때의 확장된 layout */
+.paramSectionWrapExtended {
+  display: grid;
+  grid-template-columns: 320px 1fr 1.5fr;
+  gap: 28px;
+  align-items: start;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  max-width: none !important;
+  margin: 0 !important;
+  width: 100% !important;
+  padding: 0 24px 40px 24px;
+  box-sizing: border-box;
+  min-height: 0;
+  flex: 1;
+}
+
+/* Expert Mode Styles (Legacy - 호환성 유지) */
 .expertMode {
   grid-template-columns: 320px 1fr 700px;
   max-width: none !important;
@@ -176,8 +193,24 @@
     grid-template-columns: 1fr;
   }
 
+  .paramSectionWrapExtended {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto !important;
+    padding: 0 24px 40px 24px;
+  }
+
   .rightSection {
     order: 3;
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .paramSectionWrapExtended {
+    grid-template-columns: 300px 1fr 1.4fr;
+    gap: 20px;
   }
 }
 

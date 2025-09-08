@@ -22,7 +22,8 @@ const OptimizationModelSelector = ({
   onModelIdChange,
   optimizationType,
   disabled = false,
-  setRefreshCallback
+  setRefreshCallback,
+  projectId = 'P0001'
 }) => {
   const [trainingModels, setTrainingModels] = useState([]);
   const [optimizationModels, setOptimizationModels] = useState([]);
@@ -100,12 +101,12 @@ const OptimizationModelSelector = ({
       ]);
 
       const completedTrainingModels = trainingResult.filter(training => 
-        training.status === 'completed'
+        training.status === 'completed' && training.pid === projectId
       );
       setTrainingModels(completedTrainingModels);
 
       const completedOptimizationModels = optimizationResult.filter(opt => 
-        opt.status === 'completed'
+        opt.status === 'completed' && opt.pid === projectId
       );
       setOptimizationModels(completedOptimizationModels);
       
@@ -124,7 +125,7 @@ const OptimizationModelSelector = ({
   // Training list와 Optimization list 가져오기
   useEffect(() => {
     fetchModels();
-  }, []);
+  }, [projectId]);
 
   // Optimization type 변경 시 모델 리스트 새로고침
   useEffect(() => {
@@ -132,7 +133,7 @@ const OptimizationModelSelector = ({
       console.log('Optimization type changed, refreshing model list:', optimizationType);
       fetchModels();
     }
-  }, [optimizationType]);
+  }, [optimizationType, projectId]);
 
   // 새로고침 콜백 설정
   useEffect(() => {

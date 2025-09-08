@@ -11,8 +11,8 @@ import { getFileIcon, getFolderIcon, getOpenFolderIcon } from '../../../utils/fi
  * 가상화된 파일 트리 컴포넌트
  * 대용량 파일 구조도 부드럽게 렌더링
  */
-const VirtualizedFileTree = ({ fileStructure, onFileClick, activeFile, height = 400 }) => {
-    const [expandedFolders, setExpandedFolders] = useState(new Set(['src']));
+const VirtualizedFileTree = ({ fileStructure, onFileClick, activeFile, height = 400, expandedFolders, setExpandedFolders }) => {
+    // expandedFolders는 이제 props로 받아옴
     const listRef = useRef(null);
     const [scrollOffset, setScrollOffset] = useState(0);
 
@@ -200,7 +200,15 @@ const VirtualizedFileTree = ({ fileStructure, onFileClick, activeFile, height = 
 };
 
 // Avoid unnecessary re-renders when unrelated props change
-const MemoizedVirtualizedFileTree = React.memo(VirtualizedFileTree);
+const MemoizedVirtualizedFileTree = React.memo(VirtualizedFileTree, (prevProps, nextProps) => {
+    return (
+        prevProps.fileStructure === nextProps.fileStructure &&
+        prevProps.activeFile === nextProps.activeFile &&
+        prevProps.height === nextProps.height &&
+        prevProps.expandedFolders === nextProps.expandedFolders &&
+        prevProps.onFileClick === nextProps.onFileClick
+    );
+});
 
 /**
  CodeEditor component
@@ -232,6 +240,8 @@ export default function CodeEditor({
 }) {
     // Monaco Editor 인스턴스 참조
     const editorRef = useRef(null);
+    // 폴더 확장 상태 관리 (파일 선택 시에도 유지됨)
+    const [expandedFolders, setExpandedFolders] = useState(new Set(['src']));
     // Use props directly instead of internal state for fileStructure and files
     const fileStructure = propFileStructure || [
         {
@@ -338,6 +348,8 @@ export default function CodeEditor({
                             onFileClick={handleFileClick}
                             activeFile={activeFile}
                             height={fileTreeHeight}
+                            expandedFolders={expandedFolders}
+                            setExpandedFolders={setExpandedFolders}
                         />
                     </div>
                 </div>

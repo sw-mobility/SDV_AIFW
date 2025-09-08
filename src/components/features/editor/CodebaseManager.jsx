@@ -250,8 +250,7 @@ const CodebaseManager = ({
             >
               <option value="training">Training</option>
               <option value="validation">Validation</option>
-              <option value="optimization">Optimization</option>
-              <option value="inference">Inference</option>
+              <option value="optimization" disabled>Optimization (Coming Soon)</option>
             </select>
           </div>
 
@@ -330,8 +329,7 @@ const CodebaseManager = ({
             >
               <option value="training">Training</option>
               <option value="validation">Validation</option>
-              <option value="optimization">Optimization</option>
-              <option value="inference">Inference</option>
+              <option value="optimization" disabled>Optimization (Coming Soon)</option>
             </select>
           </div>
 
