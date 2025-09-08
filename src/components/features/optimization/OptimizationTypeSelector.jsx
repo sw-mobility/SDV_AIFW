@@ -2,13 +2,55 @@ import React from 'react';
 import dsStyles from '../training/DatasetSelector.module.css';
 
 const OPTIMIZATION_TYPES = [
-  { value: 'pt_to_onnx_fp32', label: 'PT → ONNX FP32' },
-  { value: 'pt_to_onnx_fp16', label: 'PT → ONNX FP16' },
-  { value: 'onnx_to_trt', label: 'ONNX → TensorRT (FP32/FP16)' },
-  { value: 'onnx_to_trt_int8', label: 'ONNX → TensorRT INT8' },
-  { value: 'prune_unstructured', label: 'Unstructured Pruning' },
-  { value: 'prune_structured', label: 'Structured Pruning (Ln)' },
-  { value: 'check_model_stats', label: 'Check Model Stats' }
+  { 
+    value: 'pt_to_onnx_fp32', 
+    label: 'PT → ONNX FP32',
+    supportedFormats: ['.pt'],
+    description: 'PyTorch 모델을 ONNX FP32 형식으로 변환',
+    inputRequirement: 'PyTorch .pt 파일만 지원'
+  },
+  { 
+    value: 'pt_to_onnx_fp16', 
+    label: 'PT → ONNX FP16',
+    supportedFormats: ['.pt'],
+    description: 'PyTorch 모델을 ONNX FP16 형식으로 변환',
+    inputRequirement: 'PyTorch .pt 파일만 지원'
+  },
+  { 
+    value: 'onnx_to_trt', 
+    label: 'ONNX → TensorRT (FP32/FP16)',
+    supportedFormats: ['.onnx'],
+    description: 'ONNX 모델을 TensorRT FP32/FP16 형식으로 변환',
+    inputRequirement: 'ONNX .onnx 파일만 지원'
+  },
+  { 
+    value: 'onnx_to_trt_int8', 
+    label: 'ONNX → TensorRT INT8',
+    supportedFormats: ['.onnx'],
+    description: 'ONNX 모델을 TensorRT INT8 형식으로 변환',
+    inputRequirement: 'ONNX .onnx 파일만 지원'
+  },
+  { 
+    value: 'prune_unstructured', 
+    label: 'Unstructured Pruning',
+    supportedFormats: ['.pt'],
+    description: 'PyTorch 모델의 비구조적 가지치기',
+    inputRequirement: 'PyTorch .pt 파일만 지원'
+  },
+  { 
+    value: 'prune_structured', 
+    label: 'Structured Pruning (Ln)',
+    supportedFormats: ['.pt'],
+    description: 'PyTorch 모델의 구조적 가지치기',
+    inputRequirement: 'PyTorch .pt 파일만 지원'
+  },
+  { 
+    value: 'check_model_stats', 
+    label: 'Check Model Stats',
+    supportedFormats: ['.pt', '.onnx', '.engine'],
+    description: '모델 통계 정보 확인 (범용)',
+    inputRequirement: 'PT/ONNX/TRT 모든 형식 지원'
+  }
 ];
 
 export default function OptimizationTypeSelector({ 
@@ -16,6 +58,8 @@ export default function OptimizationTypeSelector({
   onOptimizationTypeChange, 
   disabled
 }) {
+  const selectedOptimization = OPTIMIZATION_TYPES.find(opt => opt.value === optimizationType);
+
   return (
     <div className={dsStyles.selectorBox}>
       <label className={dsStyles.paramLabel} style={{marginBottom: 4}}>Optimization Type</label>
@@ -31,20 +75,6 @@ export default function OptimizationTypeSelector({
         ))}
       </select>
       
-      {!optimizationType && (
-        <div style={{
-          marginTop: '12px',
-          padding: '12px',
-          backgroundColor: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: '6px',
-          fontSize: '14px',
-          color: '#64748b',
-          textAlign: 'center'
-        }}>
-          최적화 타입을 선택하면 파라미터 설정과 실행 옵션이 표시됩니다.
-        </div>
-      )}
     </div>
   );
 }

@@ -129,7 +129,7 @@ const ParameterSection = ({
           disabled={isTraining || codebaseLoading}
         >
           <option value="">코드베이스 사용 안함</option>
-          {codebases.map(codebase => (
+          {codebases && Array.isArray(codebases) && codebases.map(codebase => (
             <option key={codebase.cid} value={codebase.cid}>
               {codebase.name || codebase.cid}
             </option>

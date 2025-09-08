@@ -221,6 +221,7 @@ export const useProjects = () => {
         closeCreateModal,
         openEditModal,
         closeEditModal,
+        setIsDeleteConfirmOpen,
         
         // 유틸리티
         fetchProjectsList

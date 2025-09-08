@@ -29,6 +29,17 @@ const useOptimizationState = () => {
     setOptimizationType(type);
     setError(null); // 에러 초기화
     
+    // 최적화 타입에 따라 가장 적합한 모델 타입 자동 선택
+    let defaultModelType = 'training'; // 기본값
+    
+    // ONNX 관련 최적화는 optimization 모델을 기본으로 설정
+    if (type === 'onnx_to_trt' || type === 'onnx_to_trt_int8') {
+      defaultModelType = 'optimization';
+    }
+    
+    setModelType(defaultModelType);
+    setModelId(''); // 모델 ID 초기화
+    
     const baseParams = {
       model_name: 'best.pt' // Default model filename
     };
@@ -193,9 +204,10 @@ const useOptimizationState = () => {
       setProgress(100);
       setStatus('success');
       
-      // Optimization 완료 시 history 자동 새로고침
+      // Optimization 완료 시 history와 model list 자동 새로고침
       setTimeout(() => {
         refreshOptimizationHistory();
+        refreshModelList();
       }, 1000);
 
     } catch (error) {
@@ -249,6 +261,21 @@ const useOptimizationState = () => {
     }
   }, []);
 
+  // Model list 새로고침을 위한 ref
+  const refreshModelListRef = useRef(null);
+
+  // Model list 새로고침 함수
+  const refreshModelList = useCallback(() => {
+    if (refreshModelListRef.current) {
+      refreshModelListRef.current();
+    }
+  }, []);
+
+  // Model list 새로고침 콜백 설정 함수
+  const setRefreshModelListCallback = useCallback((callback) => {
+    refreshModelListRef.current = callback;
+  }, []);
+
   return {
     optimizationType,
     setOptimizationType,
@@ -267,7 +294,9 @@ const useOptimizationState = () => {
     handleModelIdChange,
     handleParamChange,
     resetOptimization,
-    refreshOptimizationHistory
+    refreshOptimizationHistory,
+    refreshModelList,
+    setRefreshModelListCallback
   };
 };
 

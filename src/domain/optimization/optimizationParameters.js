@@ -106,9 +106,9 @@ export const getOptimizationParameterGroups = (optimizationType) => {
           key: 'device',
           label: 'Device',
           type: 'select',
-          options: ['gpu', 'dla'],
+          options: ['gpu', 'dla', 'dla0', 'dla1'],
           default: 'gpu',
-          desc: 'Target device (GPU or DLA for INT8)',
+          desc: 'Target device (GPU or DLA cores for Jetson Orin)',
           required: false
         },
         {

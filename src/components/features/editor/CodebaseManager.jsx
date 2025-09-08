@@ -161,7 +161,7 @@ const CodebaseManager = ({
             <div
               key={codebase.cid}
               className={`${styles.codebaseItem} ${
-                selectedCodebase?.cid === codebase.cid
+                selectedCodebase?.cid === codebase.cid ? styles.selected : ''
               }`}
               onClick={() => handleCodebaseSelect(codebase)}
             >

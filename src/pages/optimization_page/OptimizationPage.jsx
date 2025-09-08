@@ -28,7 +28,9 @@ const OptimizationPage = () => {
     handleModelIdChange,
     handleParamChange,
     resetOptimization,
-    refreshOptimizationHistory
+    refreshOptimizationHistory,
+    refreshModelList,
+    setRefreshModelListCallback
   } = useOptimizationState();
 
   return (
@@ -65,7 +67,9 @@ const OptimizationPage = () => {
           selectedModelId={modelId}
           onModelTypeChange={handleModelTypeChange}
           onModelIdChange={handleModelIdChange}
+          optimizationType={optimizationType}
           disabled={isRunning}
+          setRefreshCallback={setRefreshModelListCallback}
         />
 
         {/* Parameter Configuration - Optimization Type 선택 후에만 표시 (CHECK MODEL STATS 제외) */}

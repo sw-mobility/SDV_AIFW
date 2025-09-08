@@ -55,14 +55,14 @@ const DatasetCard = ({dataset, onDownload, onDelete, onEdit, onUpload, onClick})
                 <IconButton size="small" title="Edit" onClick={(e) => { e.stopPropagation(); onEdit(dataset); }}>
                     <Edit2 size={16}/>
                 </IconButton>
+                <IconButton size="small" title="Upload" onClick={(e) => { e.stopPropagation(); onUpload(dataset); }}>
+                    <Upload size={16}/>
+                </IconButton>
                 <IconButton size="small" title="Download" onClick={(e) => { e.stopPropagation(); onDownload(dataset); }}>
                     <Download size={16}/>
                 </IconButton>
                 <IconButton size="small" title="Delete" onClick={(e) => { e.stopPropagation(); onDelete(dataset); }}>
-                    <Trash2 size={16}/>
-                </IconButton>
-                <IconButton size="small" title="Upload" onClick={(e) => { e.stopPropagation(); onUpload(dataset); }}>
-                    <Upload size={16}/>
+                    <Trash2 size={16} style={{color: '#dc3545'}}/>
                 </IconButton>
             </div>
         </div>
@@ -116,7 +116,8 @@ const DatasetDrawer = ({open, onClose}) => {
         closeUploadModal,
         closeDataPanel,
         getCurrentDatasets,
-        handleCreated
+        handleCreated,
+        setIsDeleteConfirmOpen
     } = useDatasets();
 
     return (
@@ -216,6 +217,7 @@ const DatasetDrawer = ({open, onClose}) => {
             />
             <DeleteConfirmModal
                 isOpen={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
                 onConfirm={confirmDelete}
                 title="Delete Dataset"
                 message="Are you sure you want to delete this dataset?"

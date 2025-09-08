@@ -6,6 +6,8 @@ export const useLabeling = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedDataset, setSelectedDataset] = useState(null);
+  const [labelingFormat, setLabelingFormat] = useState('yolo'); // 기본값을 yolo로 설정
+  const [modelType, setModelType] = useState('detection'); // 기본값을 detection으로 설정
 
   // 데이터셋 목록 조회
   const fetchDatasets = useCallback(async () => {
@@ -38,8 +40,12 @@ export const useLabeling = () => {
     selectedDataset,
     datasetLoading: loading,
     datasetError: error,
+    labelingFormat,
+    modelType,
 
     setSelectedDataset,
+    setLabelingFormat,
+    setModelType,
     fetchDatasets
   };
 }; 

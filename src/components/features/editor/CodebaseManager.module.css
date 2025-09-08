@@ -113,8 +113,9 @@
 
 .codebaseItem.selected {
   border-color: #3b82f6;
-  background: #eff6ff;
-  box-shadow: 0 0 0 1px #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  box-shadow: 0 0 0 1px #3b82f6, 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateY(-1px);
 }
 
 .codebaseInfo {
@@ -129,6 +130,11 @@
   font-weight: 500;
   color: #374151;
   margin-bottom: 4px;
+}
+
+.codebaseItem.selected .codebaseName {
+  color: #1e40af;
+  font-weight: 600;
 }
 
 .codebaseName svg {

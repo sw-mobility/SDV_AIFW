@@ -111,7 +111,7 @@ const DatasetsTab = () => {
                         {downloadingId === dataset._id ? <span>...</span> : <Download size={14} />}
                     </button>
                     <button className={styles.actionButton} title="Delete" onClick={e => { e.stopPropagation(); openDeleteConfirm(dataset); }} disabled={deletingId === dataset._id}>
-                        <Trash2 size={14} />
+                        <Trash2 size={14} style={{color: '#dc3545'}} />
                     </button>
                 </div>
             </div>

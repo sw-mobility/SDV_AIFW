@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react';
 import styles from './LabelingPage.module.css';
 import DatasetSelector from '../../components/features/training/DatasetSelector';
+import LabelingFormatSelector from '../../components/features/labeling/LabelingFormatSelector';
+import LabelingModelTypeSelector from '../../components/features/labeling/LabelingModelTypeSelector';
 import LabelingParameterSection from '../../components/features/labeling/LabelingParameterSection';
 import Button from '../../components/ui/atoms/Button';
 import ProgressBar from '../../components/ui/atoms/ProgressBar';
@@ -16,7 +18,11 @@ const LabelingPage = () => {
     selectedDataset,
     setSelectedDataset,
     datasetLoading,
-    datasetError
+    datasetError,
+    labelingFormat,
+    setLabelingFormat,
+    modelType,
+    setModelType
   } = useLabeling();
 
   const {
@@ -40,6 +46,21 @@ const LabelingPage = () => {
     console.log('Refreshing labeled datasets...');
     fetchLabeledDatasetsList();
   }, [fetchLabeledDatasetsList]);
+
+  const renderFormatAndModelTypeSection = () => (
+    <div className={styles.selectorGroup} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <LabelingFormatSelector
+        labelingFormat={labelingFormat}
+        onLabelingFormatChange={setLabelingFormat}
+        disabled={status === 'running'}
+      />
+      <LabelingModelTypeSelector
+        modelType={modelType}
+        onModelTypeChange={setModelType}
+        disabled={status === 'running'}
+      />
+    </div>
+  );
 
   const renderDatasetSection = () => (
     <div className={styles.selectorGroup}>
@@ -70,7 +91,7 @@ const LabelingPage = () => {
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>Labeling</h1>
           <p className={styles.pageDescription}>
-            Select a dataset and configure YOLO labeling parameters to start automatic labeling.
+            Select format, model type, dataset and configure parameters to start automatic labeling.
           </p>
         </div>
         
@@ -79,6 +100,9 @@ const LabelingPage = () => {
             <span>Error loading datasets: {error}</span>
           </div>
         )}
+        
+        {/* Format & Model Type 선택기 */}
+        {renderFormatAndModelTypeSection()}
         
         {/* Dataset 선택기 */}
         {renderDatasetSection()}
@@ -113,7 +137,7 @@ const LabelingPage = () => {
               disabled={!selectedDataset || status === 'running' || isPolling}
               className={styles.runButton}
             >
-              {status === 'running' || isPolling ? 'Processing...' : 'Run YOLO Labeling'}
+              {status === 'running' || isPolling ? 'Processing...' : `Run ${labelingFormat.toUpperCase()} ${modelType.toUpperCase()} Labeling`}
             </Button>
           </div>
           
@@ -122,7 +146,7 @@ const LabelingPage = () => {
               <ProgressBar
                 percentage={progress}
                 status={status === 'success' ? 'success' : status === 'error' ? 'error' : 'running'}
-                runningText={isPolling ? "Waiting for labeling completion..." : "YOLO labeling in progress..."}
+                runningText={isPolling ? "Waiting for labeling completion..." : `${labelingFormat.toUpperCase()} ${modelType.toUpperCase()} labeling in progress...`}
                 completeText="Labeling completed! New labeled dataset created."
                 errorText="Labeling failed."
               />
