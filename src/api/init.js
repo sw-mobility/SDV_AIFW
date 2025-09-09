@@ -14,7 +14,16 @@ export const initializeApp = async () => {
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.log('Initialization response error:', errorText);
+      
+      // Collection already exists 에러는 정상적인 상황으로 처리
+      if (errorText.includes('collection') && errorText.includes('already exists')) {
+        console.log('Collections already exist - this is normal for subsequent app starts');
+        return { message: 'DB already initialized' };
+      }
+      
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
     const data = await response.json();
     console.log('App initialized successfully:', data);

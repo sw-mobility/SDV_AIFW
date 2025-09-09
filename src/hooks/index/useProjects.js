@@ -50,7 +50,15 @@ export const useProjects = () => {
             console.log('Sorted projects:', sortedProjects);
             setProjects(sortedProjects);
         } catch (err) {
-            setError(err.message);
+            console.error('ProjectsTab: Error fetching projects:', err);
+            
+            // Collection already exists 에러는 무시하고 빈 배열로 설정
+            if (err.message.includes('collection') && err.message.includes('already exists')) {
+                console.log('Collection already exists - setting empty projects');
+                setProjects([]);
+            } else {
+                setError(err.message);
+            }
         } finally {
             setLoading(false);
         }

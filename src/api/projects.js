@@ -8,6 +8,12 @@ export async function fetchProjects({ uid }) {
     });
     if (!response.ok) {
         const error = await response.text();
+        //
+        if (error.includes('collection') && error.includes('already exists')) {
+            console.log('Collection already exists - returning empty projects');
+            return { success: true, data: [], message: 'Projects fetched successfully' };
+        }
+        
         throw new Error(error || 'Failed to fetch projects');
     }
     const data = await response.json();

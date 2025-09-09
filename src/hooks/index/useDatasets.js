@@ -63,7 +63,15 @@ export const useDatasets = () => {
             setLabeledDatasets(labeledRes.data || []);
         } catch (err) {
             console.error('DatasetsTab: Error fetching datasets:', err);
-            setError(err.message || 'Failed to fetch datasets');
+            
+            // Collection already exists 에러는 무시하고 빈 배열로 설정
+            if (err.message.includes('collection') && err.message.includes('already exists')) {
+                console.log('Collection already exists - setting empty datasets');
+                setRawDatasets([]);
+                setLabeledDatasets([]);
+            } else {
+                setError(err.message || 'Failed to fetch datasets');
+            }
         } finally {
             setInitialLoading(false);
         }

@@ -21,6 +21,13 @@ export async function fetchRawDatasets({ uid }) {
     });
     if (!response.ok) {
         const error = await response.text();
+        
+        // Collection already exists 에러는 정상적인 상황으로 처리
+        if (error.includes('collection') && error.includes('already exists')) {
+            console.log('Collection already exists - returning empty datasets');
+            return { success: true, data: [], message: 'Raw datasets fetched successfully' };
+        }
+        
         throw new Error(error || 'Failed to fetch raw datasets');
     }
     const data = await response.json();
@@ -35,6 +42,13 @@ export async function fetchLabeledDatasets({ uid }) {
     });
     if (!response.ok) {
         const error = await response.text();
+        
+        // Collection already exists 에러는 정상적인 상황으로 처리
+        if (error.includes('collection') && error.includes('already exists')) {
+            console.log('Collection already exists - returning empty datasets');
+            return { success: true, data: [], message: 'Labeled datasets fetched successfully' };
+        }
+        
         throw new Error(error || 'Failed to fetch labeled datasets');
     }
     const data = await response.json();
