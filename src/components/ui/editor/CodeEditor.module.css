@@ -235,6 +235,45 @@
     min-height: 0;
 }
 
+/* 읽기 전용 모드 스타일 */
+.code-editor-container.read-only {
+    position: relative;
+}
+
+.code-editor-container.read-only .editor-main {
+    position: relative;
+}
+
+.code-editor-container.read-only .editor-main::after {
+    content: 'Preview Mode - Read Only';
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 11;
+    pointer-events: none;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.code-editor-container.read-only:hover .editor-main::after {
+    opacity: 1;
+}
+
+/* 읽기 전용 모드에서 커서 스타일 변경 */
+.code-editor-container.read-only .monaco-editor .view-lines {
+    cursor: default !important;
+}
+
+.code-editor-container.read-only .monaco-editor .view-line {
+    cursor: default !important;
+}
+
 .sidebar::-webkit-scrollbar {
     width: 6px;
 }

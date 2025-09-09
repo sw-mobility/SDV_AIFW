@@ -237,6 +237,8 @@ export default function CodeEditor({
     onLanguageChange,
     onSnapshotSave,
     onEditorMount, // 에디터 인스턴스를 부모로 전달하는 콜백
+    readOnly = false, // 읽기 전용 모드
+    showPreviewMode = false, // Preview 모드 표시
 }) {
     // Monaco Editor 인스턴스 참조
     const editorRef = useRef(null);
@@ -334,7 +336,7 @@ export default function CodeEditor({
     const currentFileData = currentFile || files[activeFile] || { code: '', language: 'python' };
 
     return (
-        <div className={`${styles['code-editor-container']} ${compact ? styles.compact : ''}`}>
+        <div className={`${styles['code-editor-container']} ${compact ? styles.compact : ''} ${readOnly ? styles['read-only'] : ''}`}>
             {!compact && (
             <div className={styles.sidebar}>
                 <div className={styles['file-explorer']}>
@@ -397,10 +399,11 @@ export default function CodeEditor({
                     height="100%"
                     language={currentFileData.language}
                     value={currentFileData.code}
-                    onChange={handleEditorChange}
+                    onChange={readOnly ? undefined : handleEditorChange}
                     onMount={handleEditorDidMount}
                     theme="vs-light"
                     options={{
+                        readOnly: readOnly, // 읽기 전용 모드 설정
                         minimap: { enabled: !compact },
                         fontSize: compact ? 14 : 14,
                         wordWrap: 'on',
@@ -409,26 +412,40 @@ export default function CodeEditor({
                         folding: true,
                         lineNumbers: 'on',
                         bracketPairColorization: { enabled: true },
-                        formatOnPaste: true,
-                        formatOnType: true,
-                        suggestOnTriggerCharacters: true,
-                        quickSuggestions: true,
-                        parameterHints: { enabled: true },
-                        autoIndent: 'full',
+                        formatOnPaste: !readOnly, // 읽기 전용일 때는 포맷팅 비활성화
+                        formatOnType: !readOnly, // 읽기 전용일 때는 포맷팅 비활성화
+                        suggestOnTriggerCharacters: !readOnly, // 읽기 전용일 때는 자동완성 비활성화
+                        quickSuggestions: !readOnly, // 읽기 전용일 때는 자동완성 비활성화
+                        parameterHints: { enabled: !readOnly }, // 읽기 전용일 때는 힌트 비활성화
+                        autoIndent: readOnly ? 'none' : 'full', // 읽기 전용일 때는 자동 들여쓰기 비활성화
                         tabSize: 2,
                         insertSpaces: true,
-                        detectIndentation: true,
+                        detectIndentation: !readOnly, // 읽기 전용일 때는 들여쓰기 감지 비활성화
                         largeFileOptimizations: true,
-                        contextmenu: true,
+                        contextmenu: !readOnly, // 읽기 전용일 때는 컨텍스트 메뉴 비활성화
                         mouseWheelZoom: true,
                         smoothScrolling: true,
-                        cursorBlinking: 'smooth',
-                        cursorSmoothCaretAnimation: 'on',
+                        cursorBlinking: readOnly ? 'blink' : 'smooth', // 읽기 전용일 때는 커서 깜빡임
+                        cursorSmoothCaretAnimation: readOnly ? 'off' : 'on', // 읽기 전용일 때는 부드러운 커서 애니메이션 비활성화
                         renderWhitespace: 'selection',
                         guides: {
                             indentation: true,
                             bracketPairs: true
-                        }
+                        },
+                        // 읽기 전용 모드에서 추가 설정
+                        ...(readOnly && {
+                            domReadOnly: true, // DOM 레벨에서도 읽기 전용
+                            readOnlyMessage: { value: 'Preview Mode - Read Only' }, // 읽기 전용 메시지
+                            selectOnLineNumbers: false, // 라인 번호 클릭으로 선택 비활성화
+                            glyphMargin: false, // 글리프 마진 비활성화
+                            folding: false, // 폴딩 비활성화
+                            scrollbar: {
+                                vertical: 'auto',
+                                horizontal: 'auto',
+                                verticalScrollbarSize: 8,
+                                horizontalScrollbarSize: 8
+                            }
+                        })
                     }}
                 />
             </div>
