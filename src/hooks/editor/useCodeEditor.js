@@ -112,9 +112,17 @@ export const useCodeEditor = (selectedCodebase) => {
   /**
    * 활성 파일 변경
    */
-  const changeActiveFile = useCallback((filename) => {
+  const changeActiveFile = useCallback((filename, onFileChangeStart, onFileChangeEnd) => {
+    // 파일 변경 시작 신호
+    if (onFileChangeStart) onFileChangeStart();
+    
     setActiveFile(filename);
-  }, []);
+    
+    // 파일 변경 완료 신호 (약간의 지연 후)
+    setTimeout(() => {
+      if (onFileChangeEnd) onFileChangeEnd();
+    }, 50);
+  }, [files]);
 
   /**
    * 변경사항 저장 (수정된 버전)
@@ -144,8 +152,10 @@ export const useCodeEditor = (selectedCodebase) => {
       const backendFiles = {};
       const currentFiles = filesRef.current; // ref를 통해 최신 상태 참조
 
-      Object.entries(currentFiles).forEach(([filePath, fileData]) => {
-        backendFiles[filePath] = fileData.code || '';
+      Object.entries(currentFiles).forEach(([treeFilePath, fileData]) => {
+        // 백엔드에서 기대하는 원본 경로 사용 (fileData.path가 있으면 사용, 없으면 treeFilePath 사용)
+        const backendPath = fileData.path || treeFilePath;
+        backendFiles[backendPath] = fileData.code || '';
       });
 
       // 백엔드가 기대하는 구조: { tree: [...], files: {...} }
@@ -280,7 +290,44 @@ print("Hello from ${fileName}")
     loadCodeTemplate,
 
     // Computed
-    currentFile: files[activeFile] || { code: '', language: 'python' },
+    currentFile: (() => {
+      let result = files[activeFile];
+      
+      // 정확한 키로 파일을 찾지 못한 경우 대체 키 검색
+      if (!result && activeFile) {
+        // 파일명 기반 검색
+        const fileName = activeFile.split('/').pop();
+        const alternativeKeys = Object.keys(files).filter(key => {
+          const keyFileName = key.split('/').pop();
+          return keyFileName === fileName;
+        });
+        
+        if (alternativeKeys.length === 1) {
+          result = files[alternativeKeys[0]];
+        } else if (alternativeKeys.length > 1) {
+          // 여러 후보가 있으면 가장 유사한 것 선택
+          let bestKey = alternativeKeys[0];
+          let bestScore = -1;
+          
+          for (const key of alternativeKeys) {
+            const score = calculatePathSimilarity(activeFile, key);
+            if (score > bestScore) {
+              bestScore = score;
+              bestKey = key;
+            }
+          }
+          
+          result = files[bestKey];
+        }
+      }
+      
+      // 최종 fallback
+      if (!result) {
+        result = { code: '', language: 'python' };
+      }
+      
+      return result;
+    })(),
     isEmpty: Object.keys(files).length === 0
   };
 };
@@ -313,24 +360,94 @@ const transformCodebaseResponse = (backendData, algorithm) => {
   const fileStructure = backendData.tree || [];
   const transformedFiles = {};
 
+  // 파일 트리에서 모든 파일 경로를 수집
+  const allFilePaths = new Set();
+  const collectFilePaths = (items, parentPath = '') => {
+    items.forEach(item => {
+      const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
+      
+      if (item.type === 'file') {
+        allFilePaths.add(currentPath);
+      } else if ((item.type === 'folder' || item.type === 'directory') && item.children) {
+        collectFilePaths(item.children, currentPath);
+      }
+    });
+  };
+  collectFilePaths(fileStructure);
+
   // files 객체를 프론트엔드 형식으로 변환
   if (backendData.files) {
     Object.entries(backendData.files).forEach(([filePath, content]) => {
-      // 파일 경로에서 파일명만 추출 (중복 방지를 위해 전체 경로를 키로 사용)
       const fileName = getFileNameFromPath(filePath);
       const language = getLanguageFromFileName(fileName);
 
-      // 모든 파일에 대해 전체 경로를 키로 사용하여 중복 방지
-      const fileKey = filePath;
+      // 파일 트리의 경로와 매칭되는 키를 찾기
+      let matchingKey = filePath;
+      
+      // 1. 백엔드 파일 경로가 파일 트리 경로와 정확히 일치하는지 확인
+      if (allFilePaths.has(filePath)) {
+        matchingKey = filePath;
+        // console.log(`✅ Exact match: "${filePath}"`);
+      } else {
+        // console.log(`❌ No exact match for: "${filePath}", searching alternatives...`);
+        
+        // 2. 파일명 기반 매칭 (같은 파일명을 가진 모든 경로 찾기)
+        const possibleMatches = Array.from(allFilePaths).filter(treePath => {
+          const treeFileName = treePath.split('/').pop();
+          return treeFileName === fileName;
+        });
+        
+        // console.log(`🔍 Possible matches for "${fileName}":`, possibleMatches);
+        
+        if (possibleMatches.length === 1) {
+          // 유일한 매칭이 있으면 사용
+          matchingKey = possibleMatches[0];
+          // console.log(`✅ Unique match found: "${matchingKey}"`);
+        } else if (possibleMatches.length > 1) {
+          // 여러 매칭이 있으면 백엔드 경로와 가장 유사한 것 선택
+          let bestMatch = possibleMatches[0];
+          let bestScore = -1;
+          
+          for (const treePath of possibleMatches) {
+            // 경로가 정확히 일치하거나 백엔드 경로가 트리 경로의 일부인 경우 우선순위
+            if (treePath === filePath) {
+              bestMatch = treePath;
+              bestScore = 1000; // 최고 점수
+              break;
+            } else if (filePath.endsWith(treePath) || treePath.endsWith(filePath)) {
+              const score = Math.max(filePath.length, treePath.length);
+              if (score > bestScore) {
+                bestScore = score;
+                bestMatch = treePath;
+              }
+            } else {
+              const score = calculatePathSimilarity(filePath, treePath);
+              if (score > bestScore) {
+                bestScore = score;
+                bestMatch = treePath;
+              }
+            }
+          }
+          matchingKey = bestMatch;
+          // console.log(`🎯 Best match selected: "${matchingKey}" (score: ${bestScore})`);
+        } else {
+          // 매칭이 없으면 경고하고 원본 사용
+          // console.warn(`⚠️ No matches found for "${fileName}", using original path: "${filePath}"`);
+          matchingKey = filePath;
+        }
+      }
 
-      transformedFiles[fileKey] = {
+      transformedFiles[matchingKey] = {
         code: content,
         language: language,
-        path: filePath, // 원본 경로 정보 보존
+        path: filePath, // 원본 백엔드 경로 정보 보존
         name: fileName  // 파일명 정보 보존
       };
     });
   }
+
+  // 간단한 로깅 (필요시 주석 해제)
+  // console.log('🔍 File mapping completed:', Object.keys(transformedFiles).length, 'files');
 
   return {
     algorithm,
@@ -339,6 +456,29 @@ const transformCodebaseResponse = (backendData, algorithm) => {
     lastModified: new Date().toISOString(),
     version: '1.0.0'
   };
+};
+
+/**
+ * 두 경로의 유사도를 계산
+ * @param {string} path1 - 첫 번째 경로
+ * @param {string} path2 - 두 번째 경로
+ * @returns {number} 유사도 점수
+ */
+const calculatePathSimilarity = (path1, path2) => {
+  const parts1 = path1.split('/');
+  const parts2 = path2.split('/');
+  let commonParts = 0;
+  
+  const minLength = Math.min(parts1.length, parts2.length);
+  for (let i = 0; i < minLength; i++) {
+    if (parts1[i] === parts2[i]) {
+      commonParts++;
+    } else {
+      break;
+    }
+  }
+  
+  return commonParts;
 };
 
 /**

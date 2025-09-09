@@ -393,6 +393,7 @@ export default function CodeEditor({
                 </div>
                 )}
                 <Editor
+                    key={activeFile} // 파일이 변경될 때마다 에디터 리마운트
                     height="100%"
                     language={currentFileData.language}
                     value={currentFileData.code}

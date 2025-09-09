@@ -53,12 +53,20 @@ const EditorPage = () => {
     loadCodeTemplate
   } = useCodeEditor(selectedCodebase);
 
+  // 파일 변경 중 플래그
+  const [isChangingFile, setIsChangingFile] = useState(false);
+
   // Handle file content change in editor
   const handleEditorChange = useCallback((value) => {
+    // 파일 변경 중에는 onChange 이벤트 무시
+    if (isChangingFile) {
+      return;
+    }
+    
     if (activeFile && value !== undefined) {
       updateFileContent(activeFile, value);
     }
-  }, [activeFile, updateFileContent]);
+  }, [activeFile, updateFileContent, isChangingFile]);
 
   // Toast 메시지 표시 헬퍼
   const showToastMessage = useCallback((message, type = 'success') => {
@@ -244,7 +252,14 @@ const EditorPage = () => {
                         fileStructure={fileStructure}
                         files={files}
                         activeFile={activeFile}
-                        onFileChange={changeActiveFile}
+                        onFileChange={(filename) => {
+                          // 파일 변경 시작/종료 콜백 추가
+                          changeActiveFile(
+                            filename,
+                            () => setIsChangingFile(true),  // 변경 시작
+                            () => setIsChangingFile(false)  // 변경 종료
+                          );
+                        }}
                         onFilesChange={() => {}} // 사용하지 않음
                         onSaveSnapshot={handleSave}
                         snapshotName={selectedCodebase.name || selectedCodebase.cid}
