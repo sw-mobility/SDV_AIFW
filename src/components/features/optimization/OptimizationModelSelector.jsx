@@ -78,7 +78,8 @@ const OptimizationModelSelector = ({
       const isTrainingCompatible = currentConstraints && currentConstraints.supportedFormats.includes('.pt');
       const isOptimizationCompatible = currentConstraints && (
         currentConstraints.supportedFormats.includes('.onnx') || 
-        currentConstraints.supportedFormats.includes('.engine')
+        currentConstraints.supportedFormats.includes('.engine') ||
+        currentConstraints.supportedFormats.includes('.pt') // PT 모델도 optimization 모델에서 지원
       );
       
       // 현재 선택된 모델 타입이 호환되지 않으면 모델 ID 리셋
@@ -181,7 +182,17 @@ const OptimizationModelSelector = ({
 
   return (
     <div className={styles.selectorBox}>
-      <label className={styles.paramLabel}>Model</label>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <label className={styles.paramLabel}>Model</label>
+        <button
+          type="button"
+          onClick={fetchModels}
+          disabled={loading}
+          className={styles.refreshBtn}
+        >
+          {loading ? 'REFRESHING...' : 'REFRESH'}
+        </button>
+      </div>
       
       
       {/* Model Type Selection */}
@@ -198,7 +209,7 @@ const OptimizationModelSelector = ({
           type="button"
           className={`${styles.typeOption} ${selectedModelType === 'optimization' ? styles.selected : ''}`}
           onClick={() => handleModelTypeChange('optimization')}
-          disabled={disabled || (currentConstraints && !currentConstraints.supportedFormats.includes('.onnx') && !currentConstraints.supportedFormats.includes('.engine'))}
+          disabled={disabled || (currentConstraints && !currentConstraints.supportedFormats.includes('.onnx') && !currentConstraints.supportedFormats.includes('.engine') && !currentConstraints.supportedFormats.includes('.pt'))}
         >
           Optimization Model
         </button>

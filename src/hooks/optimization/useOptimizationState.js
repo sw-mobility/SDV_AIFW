@@ -220,6 +220,12 @@ const useOptimizationState = (projectId = 'P0001') => {
           refreshOptimizationHistory();
           refreshModelList();
         }, 1000);
+        
+        // 추가로 3초 후에도 한 번 더 새로고침 (optimization이 완료될 때까지 기다림)
+        setTimeout(() => {
+          refreshOptimizationHistory();
+          refreshModelList();
+        }, 3000);
       } else {
         setProgress(100);
         setStatus('success');
@@ -229,6 +235,12 @@ const useOptimizationState = (projectId = 'P0001') => {
           refreshOptimizationHistory();
           refreshModelList();
         }, 1000);
+        
+        // 추가로 3초 후에도 한 번 더 새로고침 (optimization이 완료될 때까지 기다림)
+        setTimeout(() => {
+          refreshOptimizationHistory();
+          refreshModelList();
+        }, 3000);
       }
 
     } catch (error) {

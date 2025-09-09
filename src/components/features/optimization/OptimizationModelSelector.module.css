@@ -124,6 +124,29 @@
   margin-top: 12px;
 }
 
+.refreshBtn {
+  padding: 8px 16px;
+  background: #f8fafc;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.refreshBtn:hover {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background: #fef3c7;
+}
+
+.refreshBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
