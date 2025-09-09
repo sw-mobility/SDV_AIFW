@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import AlgorithmSelector from '../../components/features/training/AlgorithmSelector.jsx';
 import DatasetSelector from '../../components/features/training/DatasetSelector.jsx';
+import TrainingFormatSelector from '../../components/features/training/TrainingFormatSelector.jsx';
 import TrainingExecution from '../../components/features/training/TrainingExecution.jsx';
 import ContinualLearningInfo from '../../components/features/training/ContinualLearningInfo.jsx';
 import TrainingTypeSelector from '../../components/features/training/TrainingTypeSelector.jsx';
@@ -31,6 +32,10 @@ const TrainingPage = () => {
     setModelType,
     customModel,
     setCustomModel,
+    
+    // Training format state
+    trainingFormat,
+    setTrainingFormat,
 
     // Dataset state
     datasets,
@@ -101,7 +106,6 @@ const TrainingPage = () => {
         
         if (response.ok) {
           const data = await response.json();
-          console.log('Projects API response:', data);
           
           // projectName으로 프로젝트 찾기 (예: "mynew" -> name이 "mynew"인 프로젝트)
           const project = data.find(p => p.name === projectName);
@@ -109,14 +113,10 @@ const TrainingPage = () => {
             // Projects API 응답에서 pid 필드를 사용 (Training API의 pid와 매칭)
             const projectId = project.pid || 'P0001';
             setActualProjectId(projectId);
-            console.log('Project found:', project.name, 'ID:', projectId);
-            console.log('Full project data:', project);
           } else {
-            console.warn('Project not found, using default P0001');
             setActualProjectId('P0001');
           }
         } else {
-          console.warn('Failed to fetch projects, using default P0001');
           setActualProjectId('P0001');
         }
       } catch (error) {
@@ -129,22 +129,22 @@ const TrainingPage = () => {
     
     fetchProjectData();
   }, [projectName]);
-  
-  // 디버깅을 위한 로그
-  console.log('TrainingPage - projectName:', projectName);
-  console.log('TrainingPage - actualProjectId:', actualProjectId);
-  console.log('TrainingPage - projectLoading:', projectLoading);
 
-  const renderDatasetSection = () => (
-      <div className={styles.selectorGroup}>
-        <DatasetSelector
-            datasets={datasets}
-            selectedDataset={selectedDataset}
-            onDatasetChange={setSelectedDataset}
-            datasetLoading={datasetLoading}
-            datasetError={datasetError}
-        />
-      </div>
+  const renderDatasetAndFormatSection = () => (
+    <div className={styles.selectorGroup} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <DatasetSelector
+        datasets={datasets}
+        selectedDataset={selectedDataset}
+        onDatasetChange={setSelectedDataset}
+        datasetLoading={datasetLoading}
+        datasetError={datasetError}
+      />
+      <TrainingFormatSelector
+        trainingFormat={trainingFormat}
+        onTrainingFormatChange={setTrainingFormat}
+        disabled={isTraining}
+      />
+    </div>
   );
 
   const renderModelSection = () => (
@@ -165,7 +165,6 @@ const TrainingPage = () => {
   );
 
   const handleRefreshTrainingResults = useCallback(() => {
-    console.log('Refreshing training results...');
     // TrainingResultList 컴포넌트에서 직접 API 호출하므로
     // 여기서는 단순히 콜백만 제공
     // 실제 refresh는 TrainingResultList 컴포넌트 내부에서 처리됨
@@ -221,13 +220,13 @@ const TrainingPage = () => {
 
           {trainingType === TRAINING_TYPES.STANDARD ? (
               <>
-                {renderDatasetSection()}
+                {renderDatasetAndFormatSection()}
                 {renderModelSection()}
               </>
           ) : (
               <>
                 <ContinualLearningInfo />
-                {renderDatasetSection()}
+                {renderDatasetAndFormatSection()}
                 {renderModelSection()}
               </>
           )}

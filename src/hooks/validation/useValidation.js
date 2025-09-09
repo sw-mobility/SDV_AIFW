@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import { startYoloValidation, getValidationStatus, getValidationList } from '../../api/validation.js';
-import { uid } from '../../api/uid.js';
 import { fetchCodebases, fetchCodebase } from '../../api/codeTemplates.js';
+import { uid } from '../../api/uid.js';
 
-export const useValidation = (projectId = 'P0001') => {
+export const useValidation = () => {
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | running | success | error
   const [progress, setProgress] = useState(0);
@@ -14,18 +14,6 @@ export const useValidation = (projectId = 'P0001') => {
   const [datasetError, setDatasetError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
-  // Codebase 관련 상태 직접 관리
-  const [codebases, setCodebases] = useState([]);
-  const [selectedCodebase, setSelectedCodebase] = useState(null);
-  const [codebaseLoading, setCodebaseLoading] = useState(false);
-  const [codebaseError, setCodebaseError] = useState(null);
-  const [codebaseFileStructure, setCodebaseFileStructure] = useState([]);
-  const [codebaseFiles, setCodebaseFiles] = useState({});
-  const [codebaseFilesLoading, setCodebaseFilesLoading] = useState(false);
-  
-  // Code editor UI 상태
-  const [showCodeEditor, setShowCodeEditor] = useState(false);
   
   // YOLO validation parameters (API 스펙에 맞게 구성)
   const [validationParams, setValidationParams] = useState({
@@ -55,8 +43,17 @@ export const useValidation = (projectId = 'P0001') => {
   const [currentVid, setCurrentVid] = useState(null);
   const [pollingInterval, setPollingInterval] = useState(null);
 
+  // Codebase 관련 상태 (training과 동일하게 직접 관리)
+  const [codebases, setCodebases] = useState([]);
+  const [selectedCodebase, setSelectedCodebase] = useState(null);
+  const [codebaseLoading, setCodebaseLoading] = useState(false);
+  const [codebaseError, setCodebaseError] = useState(null);
+  const [codebaseFileStructure, setCodebaseFileStructure] = useState([]);
+  const [codebaseFiles, setCodebaseFiles] = useState({});
+  const [codebaseFilesLoading, setCodebaseFilesLoading] = useState(false);
+  const [showCodeEditor, setShowCodeEditor] = useState(false);
 
-  // Codebase 관련 함수들
+  // Codebase 관련 함수들 (training과 동일)
   const fetchCodebasesList = useCallback(async () => {
     setCodebaseLoading(true);
     setCodebaseError(null);
@@ -139,12 +136,12 @@ export const useValidation = (projectId = 'P0001') => {
     if (selectedDataset) {
       // Dataset에서 추출할 수 있는 정보로 validation 파라미터 업데이트
       const modelPath = selectedDataset.tid ? `${selectedDataset.tid}/best.pt` : 'best.pt';
-      const datasetProjectId = selectedDataset.pid || selectedDataset.projectId || projectId;
+      const projectId = selectedDataset.pid || selectedDataset.projectId || 'P0001';
       
       setValidationParams(prev => ({
         ...prev,
         model: modelPath,
-        pid: datasetProjectId
+        pid: projectId
       }));
     }
   }, [selectedDataset]);
@@ -275,25 +272,24 @@ export const useValidation = (projectId = 'P0001') => {
         finalTrainingId: trainingId
       });
       
-      const requestData = {
-        pid: selectedDataset.pid || projectId,
-        tid: trainingId, // 데이터셋과 연결된 training ID 우선 사용
-        did: datasetId,
-        task_type: validationParams.task_type,
-        parameters: validationParams
+      // device 파라미터를 변환 (gpu: 0, cpu: 'cpu' 그대로)
+      const convertedParams = {
+        ...validationParams,
+        device: validationParams.device === 'gpu' ? 0 : validationParams.device
       };
 
-      // codebase가 선택된 경우에만 cid 필드 추가 (training과 동일한 방식)
-      if (selectedCodebase?.cid) {
-        requestData.cid = selectedCodebase.cid;
-        console.log('Adding cid to validation request:', selectedCodebase.cid);
-      } else {
-        // codebase를 사용하지 않는 경우 기존 방식 유지 (cid: 'yolo' 사용하지 않음)
-        console.log('No codebase selected, using default validation without cid');
-      }
+      const requestData = {
+        pid: selectedDataset.pid || 'P0001',
+        tid: trainingId, // 데이터셋과 연결된 training ID 우선 사용
+        cid: 'yolo',
+        did: datasetId,
+        task_type: validationParams.task_type,
+        parameters: convertedParams
+      };
 
       console.log('Starting validation with:', requestData);
-      console.log('Validation parameters:', validationParams);
+      console.log('Original validation parameters:', validationParams);
+      console.log('Converted parameters (device as number):', convertedParams);
       
       // Validation 시작
       const result = await startYoloValidation({
@@ -380,7 +376,7 @@ export const useValidation = (projectId = 'P0001') => {
     datasetError,
     validationParams,
     
-    // Codebase 관련 상태 (training과 동일)
+    // Codebase 상태 (training과 동일)
     codebases,
     selectedCodebase,
     setSelectedCodebase,

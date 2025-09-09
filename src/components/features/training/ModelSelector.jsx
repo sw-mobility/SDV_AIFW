@@ -123,11 +123,18 @@ const ModelSelector = ({
             disabled={disabled}
           >
             <option value="">Select algorithm</option>
+            <option value="yolov5n">YOLOv5n</option>
+            <option value="yolov5s">YOLOv5s</option>
+            <option value="yolov5m">YOLOv5m</option>
+            <option value="yolov5l">YOLOv5l</option>
             <option value="yolov8n">YOLOv8n</option>
             <option value="yolov8s">YOLOv8s</option>
             <option value="yolov8m">YOLOv8m</option>
             <option value="yolov8l">YOLOv8l</option>
-            <option value="yolov8x">YOLOv8x</option>
+            <option value="yolov11n">YOLOv11n</option>
+            <option value="yolov11s">YOLOv11s</option>
+            <option value="yolov11m">YOLOv11m</option>
+            <option value="yolov11l">YOLOv11l</option>
           </select>
         </div>
       ) : (

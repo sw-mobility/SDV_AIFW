@@ -17,6 +17,9 @@ export const useTrainingState = (projectId = 'P0001') => {
   // Model type state 추가
   const [modelType, setModelType] = useState('pretrained');
   const [customModel, setCustomModel] = useState('');
+  
+  // Training format state 추가
+  const [trainingFormat, setTrainingFormat] = useState('yolo');
 
   // Codebase 관련 상태 (validation과 동일하게 직접 관리)
   const [codebases, setCodebases] = useState([]);
@@ -157,6 +160,10 @@ export const useTrainingState = (projectId = 'P0001') => {
     setModelType: handleModelTypeChange,
     customModel,
     setCustomModel: handleCustomModelChange,
+    
+    // Training format state
+    trainingFormat,
+    setTrainingFormat,
 
     // Dataset state
     datasets: datasets.datasets,

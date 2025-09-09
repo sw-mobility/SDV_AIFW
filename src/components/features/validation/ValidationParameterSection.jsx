@@ -115,19 +115,20 @@ const ValidationParameterSection = ({
             ) : (
               <CodeEditor
                 key={selectedCodebase?.cid} // 코드베이스가 변경될 때만 리렌더링
-                snapshotName={selectedCodebase.name || selectedCodebase.cid}
+                snapshotName={`${selectedCodebase.name || selectedCodebase.cid} (Preview)`}
                 fileStructure={fileStructure}
                 files={files}
                 activeFile={activeFile}
                 onFileChange={changeActiveFile}
                 onFilesChange={() => {}} // Read-only
-                onSaveSnapshot={name => { alert(`Codebase preview: ${name}`); }}
+                onSaveSnapshot={() => {}} // 저장 기능 완전 비활성화
                 onCloseDrawer={() => setShowCodeEditor(false)}
                 compact={false} // Display file tree
                 hideSaveButtons={true}
                 currentFile={currentFile} // 최신 currentFile 전달
                 readOnly={true} // 수정 불가
                 onEditorChange={() => {}} // 수정 이벤트 무시
+                showPreviewMode={true} // Preview 모드 표시
               />
             )
           ) : (

@@ -165,12 +165,12 @@ const OptimizationParameterEditor = ({
         })()
       ) : currentParam.type === 'checkbox' ? (
         <div className={styles.switchContainer}>
-                  <Switch
-          checked={getCurrentValue()}
-          onChange={e => handleParamChange(currentParam.key, e.target.checked, currentParam)}
-          size="medium"
-          disabled={isRunning}
-        />
+          <Switch
+            checked={getCurrentValue()}
+            onChange={e => handleParamChange(currentParam.key, e.target.checked, currentParam)}
+            size="medium"
+            disabled={isRunning}
+          />
           <span style={{ marginLeft: 8, fontSize: '14px', color: '#666' }}>
             {getCurrentValue() ? 'Enabled' : 'Disabled'}
           </span>
@@ -217,7 +217,3 @@ const OptimizationParameterEditor = ({
 };
 
 export default OptimizationParameterEditor;
-
-
-
-
