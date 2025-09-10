@@ -272,10 +272,10 @@ export const useValidation = () => {
         finalTrainingId: trainingId
       });
       
-      // device 파라미터를 변환 (gpu: 0, cpu: 'cpu' 그대로)
+      // device 파라미터를 변환 (gpu: cuda, cpu: cpu 그대로)
       const convertedParams = {
         ...validationParams,
-        device: validationParams.device === 'gpu' ? 0 : validationParams.device
+        device: validationParams.device === 'gpu' ? 'cuda' : validationParams.device
       };
 
       const requestData = {
