@@ -1,0 +1,13 @@
+import Footer from '../components/layout/Footer.jsx';
+
+export default {
+  title: 'Layout/Footer',
+  component: Footer,
+  parameters: {
+    layout: 'fullscreen',
+  },
+};
+
+export const Default = {
+  render: () => <Footer />,
+}; 

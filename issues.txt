@@ -1,0 +1,79 @@
+0831: labeler로 제작한 labeled dataset을 사용한 training 문제없음
+	외부에서 다운받은 labeled dataset을 사용한 training 문제없음
+
+psutil 문제가 발생하지 않음. 문제가 발생했던 조건을 정확히 재현할 필요가 있음
+
+resume 파라미터 pydantic 모델이 str로 설정돼 있는 것을 확인, bool로 수정함
+
+다만 클래스 매칭이 정확히 이루어지는지 조사가 필요함
+대소문자 차이로 인한 문제가 발생했다는 직관이 듦, user_classes 파라미터를 Car로 설했을 시와 car로 설정했을 시의 결과가 다른듯함 
+정확히 수행됐을 시 다음과 같은 로그는 보이지 않아야 함:
+training-1    | val: Fast image access ✅ (ping: 0.0±0.0 ms, read: 1673.9±505.1 MB/s, size: 28.7 KB)                                     
+val: Scanning /app/workspace/training/0001/P0001/labels... 25 images, 0 backgrounds, 25 corrupt: 100%|██████████| 25/25 [00:00<00:00, 992.31it/s]                                                                                                                                 
+training-1    | val: /app/workspace/training/0001/P0001/images/00dea1edf14f09ab_jpg.rf.3f17c8790a68659d03b1939a59ccda80.jpg: ignoring corrupt image/label: Label class 7 exceeds dataset class count 1. Possible class labels are 0-0                                             
+training-1    | val: /app/workspace/training/0001/P0001/images/00e481ea1a520175_jpg.rf.6e6a8b3b45c9a11d106958f88ff714ea.jpg: ignoring corrupt image/label: Label class 5 exceeds dataset class count 1. Possible class labels are 0-0                                             
+training-1    | val: /app/workspace/training/0001/P0001/images/00e481ea1a520175_jpg.rf.MV6sZ8QCFwFeMYaI2tHm.jpg: ignoring corrupt image/label: Label class 5 exceeds dataset class count 1. Possible class labels are 0-0                                                         
+training-1    | val: /app/workspace/training/0001/P0001/images/08c8b73e0c2e296e_jpg.rf.effa65856584463c08848031cab357b9.jpg: ignoring corrupt image/label: Label class 5 exceeds dataset class count 1. Possible class labels are 0-0                                             
+training-1    | val: /app/workspace/training/0001/P0001/images/2eaf88e3156629c6_jpg.rf.73ce41f3e4820d02eecbb00c405e6e6e.jpg: ignoring corrupt image/label: Label class 7 exceeds dataset class count 1. Possible class labels are 0-0                                             
+training-1    | val: /app/workspace/training/0001/P0001/images/479012386aa308fb_jpg.rf.VLWysXm9Sry0kGyATZBb.jpg: ignoring corrupt image/label: Label class 5 exceeds dataset class count 1. Possible class labels are 0-0                                                         
+training-1    | val: /app/workspace/training/0001/P0001/images/4ecafc9a0bae8003_jpg.rf.2UbsFgyK4QxCrSNix6wM.jpg: ignoring corrupt image/label: Label class 7 exceeds dataset class count 1. Possible class labels are 0-0                                                         
+training-1    | val: /app/workspace/training/0001/P0001/images/567af04eef831f07_jpg.rf.b4410b0bb9811109a262c377ec82c6bf.jpg: ignoring corrupt image/label: Label class 7 exceeds dataset class count 1. Possible class labels are 0-0 
+
+
+training 성공 시의 request body (YOLO11 파라미터 기본값):
+
+{
+  "pid": "P0001",
+  "did": "L0006",
+  "origin_tid": "T0003",
+  "user_classes": [
+    "Car"
+  ],
+  "parameters": {
+    "model": "yolo11n",
+    "epochs": 5,
+  "img_size": 416,
+  "batch_size": 16,
+  "learning_rate": 0.01,
+  "momentum": 0.937,
+  "weight_decay": 0.0005,
+  "optimizer": "SGD",
+  "workers": 8,
+  "project": "runs/train",
+  "name": "exp",
+  "exist_ok": false,
+  "patience": 100,
+  "seed": 42,
+  "rect": false,
+  "resume": false,
+  "nosave": false,
+  "noval": false,
+  "noautoanchor": false,
+  "noplots": false,
+  "cache": false,
+  "image_weights": false,
+  "multi_scale": false,
+  "single_cls": false,
+  "adam": false,
+  "sync_bn": false,
+  "half": false,
+  "label_smoothing": 0.0,
+  "box": 7.5,
+  "cls": 0.5,
+  "dfl": 1.5,
+  "fl_gamma": 0.0,
+  "hsv_h": 0.015,
+  "hsv_s": 0.7,
+  "hsv_v": 0.4,
+  "degrees": 0.0,
+  "translate": 0.1,
+  "scale": 0.5,
+  "shear": 0.0,
+  "perspective": 0.0,
+  "flipud": 0.0,
+  "fliplr": 0.5,
+  "mosaic": 1.0,
+  "mixup": 0.0,
+  "copy_paste": 0.0
+  }
+}
