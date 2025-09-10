@@ -69,7 +69,7 @@
 .file-tree {
     font-size: 13px;
     overflow: hidden; /* 가상화 리스트가 스크롤 처리 */
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 150px); /* 높이 제한 완화 */
 }
 
 /* 가상화된 파일 트리 스타일 */
@@ -233,6 +233,7 @@
     flex: 1;
     height: 100% !important;
     min-height: 0;
+    max-height: none !important; /* 최대 높이 제한 제거 */
 }
 
 /* 읽기 전용 모드 스타일 */

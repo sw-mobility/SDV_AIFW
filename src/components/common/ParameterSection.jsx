@@ -28,6 +28,17 @@ const ParameterSection = ({ type, ...props }) => {
   const [selectedParamKeys, setSelectedParamKeys] = React.useState([]);
   const [openParamGroup, setOpenParamGroup] = React.useState(null);
 
+  // useCodeEditor 훅을 항상 호출 (조건부 호출 방지)
+  const {
+    fileStructure,
+    files,
+    activeFile,
+    loading: editorLoading,
+    error: editorError,
+    changeActiveFile,
+    currentFile
+  } = useCodeEditor(props.selectedCodebase);
+
   // 공통 핸들러들
   const handleToggleParamKey = (paramKey) => {
     setSelectedParamKeys(prev => {
@@ -251,17 +262,6 @@ const ParameterSection = ({ type, ...props }) => {
   // Code editor 렌더링 (Training과 Validation만)
   const renderCodeEditor = () => {
     if (type === 'optimization' || !props.showCodeEditor) return null;
-    
-    // useCodeEditor hook 사용
-    const {
-      fileStructure,
-      files,
-      activeFile,
-      loading: editorLoading,
-      error: editorError,
-      changeActiveFile,
-      currentFile
-    } = useCodeEditor(props.selectedCodebase);
 
     return (
       <div className={styles.rightSection}>

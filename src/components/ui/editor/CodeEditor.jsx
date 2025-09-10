@@ -264,11 +264,11 @@ export default function CodeEditor({
 
     // 동적 사이드바 파일 트리 높이 계산 (윈도우 리사이즈 대응)
     const [fileTreeHeight, setFileTreeHeight] = useState(
-        typeof window !== 'undefined' ? Math.max(300, window.innerHeight - 400) : 400
+        typeof window !== 'undefined' ? Math.max(400, window.innerHeight - 300) : 500
     );
     useEffect(() => {
         const handleResize = () => {
-            setFileTreeHeight(Math.max(300, window.innerHeight - 400));
+            setFileTreeHeight(Math.max(400, window.innerHeight - 300));
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -396,7 +396,7 @@ export default function CodeEditor({
                 )}
                 <Editor
                     key={activeFile} // 파일이 변경될 때마다 에디터 리마운트
-                    height="100%"
+                    height={compact ? "300px" : "100%"}
                     language={currentFileData.language}
                     value={currentFileData.code}
                     onChange={readOnly ? undefined : handleEditorChange}

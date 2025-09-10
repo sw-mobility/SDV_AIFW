@@ -163,6 +163,7 @@
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 0;
   flex: 1;
+  height: 100%; /* 전체 높이 사용 */
 }
 
 .codeEditorCard {
@@ -174,7 +175,8 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateZ(0);
   height: 100%;
-  min-height: 600px;
+  min-height: 800px; /* 최소 높이 증가 */
+  max-height: calc(100vh - 200px); /* 최대 높이 설정 */
   overflow: hidden;
 }
 

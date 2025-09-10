@@ -4,7 +4,7 @@ import { startYoloValidation, getValidationStatus, getValidationList } from '../
 import { fetchCodebases, fetchCodebase } from '../../api/codeTemplates.js';
 import { uid } from '../../api/uid.js';
 
-export const useValidation = () => {
+export const useValidation = (projectId) => {
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | running | success | error
   const [progress, setProgress] = useState(0);
@@ -113,7 +113,14 @@ export const useValidation = () => {
       console.log('Fetched labeled datasets:', response);
       
       if (response && response.data && Array.isArray(response.data)) {
-        setDatasets(response.data);
+        // 모든 labeled dataset을 표시 (training과 동일하게)
+        const formattedDatasets = response.data.map(ds => ({
+          ...ds, // Keep all original fields including did, _id, etc.
+          id: ds.did || ds._id, // Add id field for backward compatibility
+          size: ds.total,
+          labelCount: ds.total,
+        }));
+        setDatasets(formattedDatasets);
       } else {
         console.warn('Invalid datasets response:', response);
         setDatasets([]);
@@ -124,7 +131,7 @@ export const useValidation = () => {
     } finally {
       setDatasetLoading(false);
     }
-  }, []);
+  }, [uid]);
 
   // 컴포넌트 마운트 시 데이터셋 목록 가져오기
   useEffect(() => {
@@ -275,7 +282,9 @@ export const useValidation = () => {
         type: selectedDataset.type,
         datasetType: selectedDataset.datasetType,
         pid: selectedDataset.pid,
-        tid: selectedDataset.tid
+        projectId: selectedDataset.projectId,
+        tid: selectedDataset.tid,
+        allFields: Object.keys(selectedDataset) // 모든 필드 확인
       });
       
       // API 스펙에 맞는 요청 구조
@@ -295,8 +304,19 @@ export const useValidation = () => {
         device: validationParams.device === 'gpu' ? 'cuda' : validationParams.device
       };
 
+      // pid 결정: 데이터셋의 pid > projectId > 현재 페이지의 projectId > 기본값
+      const datasetPid = selectedDataset.pid || selectedDataset.projectId;
+      const finalPid = datasetPid || projectId || 'P0001';
+      
+      console.log('PID selection:', {
+        datasetPid: selectedDataset.pid,
+        datasetProjectId: selectedDataset.projectId,
+        currentProjectId: projectId,
+        finalPid: finalPid
+      });
+      
       const requestData = {
-        pid: selectedDataset.pid || 'P0001',
+        pid: finalPid,
         tid: trainingId, // 데이터셋과 연결된 training ID 우선 사용
         cid: 'yolo',
         did: datasetId,
