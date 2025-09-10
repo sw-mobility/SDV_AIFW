@@ -41,6 +41,48 @@ export async function postYoloTraining(trainingData) {
 }
 
 /**
+ * Get training status and results (proxy to training service)
+ * GET /training/yolo/{tid}
+ * 
+ * @param {string} tid - Training ID
+ * @returns {Promise<Object>} Training status and results
+ */
+export async function getTrainingStatus({ tid }) {
+    const response = await fetch(`${BASE_URL}/training/yolo/${tid}`, {
+        method: 'GET',
+        headers: { 
+            'accept': 'application/json'
+        }
+    });
+    
+    if (!response.ok) {
+        let errorMessage = 'Failed to get training status';
+        try {
+            const errorData = await response.json();
+            if (errorData.detail) {
+                errorMessage = Array.isArray(errorData.detail) 
+                    ? errorData.detail.map(d => d.msg).join(', ')
+                    : errorData.detail;
+            }
+        } catch (e) {
+            // If error response is not JSON, try to get text
+            try {
+                const errorText = await response.text();
+                if (errorText) {
+                    errorMessage = errorText;
+                }
+            } catch (textError) {
+                // Use default error message
+            }
+        }
+        throw new Error(errorMessage);
+    }
+    
+    const result = await response.json();
+    return result;
+}
+
+/**
  * Get list of training histories
  * @param {string} uid - User ID
  * @returns {Promise<Array>} List of training histories

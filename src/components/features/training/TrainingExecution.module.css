@@ -1,4 +1,5 @@
-.sectionCard {
+/* Validation과 동일한 execution section 스타일 */
+.executionSection {
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -7,20 +8,25 @@
   transition: box-shadow 0.2s ease;
 }
 
-.runCard {
-  margin-top: 24px;
-  margin-bottom: 12px;
-  padding: 0;
-  background: none;
-  box-shadow: none;
+.executionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.runRow {
+.executionTitle {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+}
+
+.runButton {
+  min-width: 150px;
+}
+
+.progressSection {
+  margin-top: 24px;
 }
 
 .modelInfo {

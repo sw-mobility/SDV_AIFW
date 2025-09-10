@@ -1,4 +1,4 @@
-/* Parameter Section Layout - optimization 페이지와 정확히 동일 */
+/* Common Parameter Section Layout */
 .paramSectionWrap {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -9,6 +9,23 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
+  min-height: 0;
+  flex: 1;
+}
+
+/* 코드 에디터가 표시될 때의 확장된 layout */
+.paramSectionWrapExtended {
+  display: grid;
+  grid-template-columns: 320px 1fr 1.5fr;
+  gap: 28px;
+  align-items: start;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  max-width: none !important;
+  margin: 0 !important;
+  width: 100% !important;
+  padding: 0 24px 40px 24px;
   box-sizing: border-box;
   min-height: 0;
   flex: 1;
@@ -90,142 +107,78 @@
   color: #aaa;
 }
 
-/* 코드 에디터가 표시될 때의 확장된 layout */
-.paramSectionWrapExtended {
-  display: grid;
-  grid-template-columns: 320px 1fr 1.5fr;
-  gap: 28px;
-  align-items: start;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 100%;
-  max-width: none !important;
-  margin: 0 !important;
-  width: 100% !important;
-  padding: 0 24px 40px 24px;
-  box-sizing: border-box;
-  min-height: 0;
-  flex: 1;
-}
-
-/* Expert Mode Styles (Legacy - 호환성 유지) */
-.expertMode {
-  grid-template-columns: 320px 1fr 700px;
-  max-width: none !important;
-  margin: 0 !important;
-  width: 100% !important;
-  padding: 0 24px 40px 24px;
-  align-items: start;
-}
-
-.rightSection {
-  width: 100%;
-  flex-shrink: 0;
-  height: auto;
-  max-height: 900px;
-}
-
-.codeEditorCard {
-  background: transparent;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-  padding: 0;
-  height: 900px;
-  overflow: hidden;
-}
-
+/* Expert Mode Section */
 .expertModeSection {
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #e5e7eb;
 }
 
-.expertModeSection label {
-  display: block;
+.paramLabel {
   font-size: 14px;
-  font-weight: 600;
   color: #374151;
-  margin-bottom: 8px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  display: block;
 }
 
 .select {
   width: 100%;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border: 1.5px solid #d1d5db;
   border-radius: 8px;
-  font-size: 14px;
-  background: #ffffff;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-sizing: border-box;
+  background: #f8fafc;
+  font-size: 15px;
   font-weight: 500;
-}
-
-.select:hover {
-  border-color: #94a3b8;
-  background: #fafafa;
+  outline: none;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
 }
 
 .select:focus {
   border-color: #4f8cff;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
   background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+.select:disabled {
+  background: #f1f5f9;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
 }
 
 .errorMessage {
-  color: #ef4444;
+  color: #dc2626;
   font-size: 12px;
-  margin-top: 4px;
-  font-weight: 500;
+  margin: 0;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .paramSectionWrap {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .paramSummaryBox {
-    margin-bottom: 16px;
-  }
-
-  .expertMode {
-    grid-template-columns: 1fr;
-  }
-
-  .paramSectionWrapExtended {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    max-width: 1200px;
-    margin: 0 auto !important;
-    padding: 0 24px 40px 24px;
-  }
-
-  .rightSection {
-    order: 3;
-    min-height: 500px;
-  }
+/* Code Editor Section */
+.rightSection {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 0;
+  flex: 1;
 }
 
-@media (max-width: 1400px) {
-  .paramSectionWrapExtended {
-    grid-template-columns: 300px 1fr 1.4fr;
-    gap: 20px;
-  }
+.codeEditorCard {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+  padding: 0;
+  margin-bottom: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+  height: 100%;
+  min-height: 600px;
+  overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .paramSummaryBox {
-    padding: 20px;
-  }
-
-  .paramCardWrap {
-    gap: 8px;
-  }
-
-  .paramCard {
-    padding: 16px 20px;
-  }
+.codeEditorCard:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
 }
-
- 

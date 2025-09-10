@@ -3,7 +3,7 @@ import Button from '../../ui/atoms/Button.jsx';
 import ProgressBar from '../../ui/atoms/ProgressBar.jsx';
 import StatusBadge from './StatusBadge.jsx';
 import ResultsTable from './ResultsTable.jsx';
-import ValidationParameterSection from './ValidationParameterSection.jsx';
+import ParameterSection from '../../common/ParameterSection.jsx';
 import styles from './Validation.module.css';
 
 /**
@@ -43,10 +43,12 @@ const ValidationWorkspace = ({
       
       {/* 파라미터 설정 섹션 */}
       <div className={styles.parametersSection}>
-        <ValidationParameterSection
+        <ParameterSection
+          type="validation"
           validationParams={validationParams}
           onParamChange={onParametersChange}
           disabled={isRunning}
+          projectId="P0001"
         />
       </div>
       

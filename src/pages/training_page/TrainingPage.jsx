@@ -7,7 +7,7 @@ import TrainingExecution from '../../components/features/training/TrainingExecut
 import ContinualLearningInfo from '../../components/features/training/ContinualLearningInfo.jsx';
 import TrainingTypeSelector from '../../components/features/training/TrainingTypeSelector.jsx';
 import ModelSelector from '../../components/features/training/ModelSelector.jsx';
-import ParameterSection from '../../components/features/training/ParameterSection.jsx';
+import ParameterSection from '../../components/common/ParameterSection.jsx';
 import TrainingResultList from '../../components/features/training/TrainingResultList.jsx';
 import { useTrainingState } from '../../hooks';
 import { TRAINING_TYPES } from '../../domain/training/trainingTypes.js';
@@ -44,12 +44,6 @@ const TrainingPage = () => {
     datasetLoading,
     datasetError,
 
-    // Snapshot state
-    snapshots,
-    selectedSnapshot,
-    setSelectedSnapshot,
-    editorFileStructure,
-    editorFiles,
 
     // Codebase state
     codebases,
@@ -66,7 +60,9 @@ const TrainingPage = () => {
     progress,
     status,
     logs,
+    error,
     trainingResponse,
+    refreshTrainingHistory,
 
     // UI state
     openParamGroup,
@@ -168,10 +164,14 @@ const TrainingPage = () => {
     // TrainingResultList 컴포넌트에서 직접 API 호출하므로
     // 여기서는 단순히 콜백만 제공
     // 실제 refresh는 TrainingResultList 컴포넌트 내부에서 처리됨
-  }, []);
+    if (refreshTrainingHistory) {
+      refreshTrainingHistory();
+    }
+  }, [refreshTrainingHistory]);
 
   const renderParameterSection = () => (
       <ParameterSection
+          type="training"
           showCodeEditor={showCodeEditor}
           setShowCodeEditor={setShowCodeEditor}
           paramGroups={paramGroups}
@@ -181,11 +181,6 @@ const TrainingPage = () => {
           onRemoveParamKey={handleRemoveParamKey}
           onToggleGroup={setOpenParamGroup}
           onReset={handleReset}
-          snapshots={snapshots}
-          selectedSnapshot={selectedSnapshot}
-          setSelectedSnapshot={setSelectedSnapshot}
-          editorFileStructure={editorFileStructure}
-          editorFiles={editorFiles}
           codebases={codebases}
           selectedCodebase={selectedCodebase}
           setSelectedCodebase={setSelectedCodebase}

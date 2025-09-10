@@ -3,7 +3,6 @@ import { getParameterGroupsByAlgorithm } from '../../domain/training/parameterGr
 import { validateParameter } from '../../domain/training/trainingValidation.js';
 import { useTrainingCore } from './useTrainingCore.js';
 import { useTrainingDatasets } from './useTrainingDatasets.js';
-import { useTrainingSnapshots } from './useTrainingSnapshots.js';
 import { useTrainingExecution } from './useTrainingExecution.js';
 import { useTrainingUI } from './useTrainingUI.js';
 import { fetchCodebases, fetchCodebase } from '../../api/codeTemplates.js';
@@ -11,7 +10,6 @@ import { fetchCodebases, fetchCodebase } from '../../api/codeTemplates.js';
 export const useTrainingState = (projectId = 'P0001') => {
   const core = useTrainingCore();
   const datasets = useTrainingDatasets();
-  const snapshots = useTrainingSnapshots();
   const ui = useTrainingUI();
 
   // Model type state 추가
@@ -85,14 +83,13 @@ export const useTrainingState = (projectId = 'P0001') => {
   const trainingConfig = useMemo(() => ({
     trainingType: core.trainingType,
     selectedDataset: datasets.selectedDataset,
-    selectedSnapshot: snapshots.selectedSnapshot,
     selectedCodebase: selectedCodebase, // codebase 추가
     algorithm: core.algorithm,
     algoParams: core.algoParams,
     modelType: modelType,
     customModel: customModel,
     projectId: projectId // projectId 추가
-  }), [core.trainingType, datasets.selectedDataset, snapshots.selectedSnapshot, selectedCodebase, core.algorithm, core.algoParams, modelType, customModel, projectId]);
+  }), [core.trainingType, datasets.selectedDataset, selectedCodebase, core.algorithm, core.algoParams, modelType, customModel, projectId]);
 
   const execution = useTrainingExecution(trainingConfig);
 
@@ -172,12 +169,6 @@ export const useTrainingState = (projectId = 'P0001') => {
     datasetLoading: datasets.datasetLoading,
     datasetError: datasets.datasetError,
 
-    // Snapshot state
-    snapshots: snapshots.snapshots,
-    selectedSnapshot: snapshots.selectedSnapshot,
-    setSelectedSnapshot: snapshots.setSelectedSnapshot,
-    editorFileStructure: snapshots.editorFileStructure,
-    editorFiles: snapshots.editorFiles,
 
     // Codebase state (validation과 동일)
     codebases,
@@ -189,12 +180,14 @@ export const useTrainingState = (projectId = 'P0001') => {
     codebaseFiles,
     codebaseFilesLoading,
 
-    // Training execution state
+    // Training execution state (validation과 동일한 구조)
     isTraining: execution.isRunning,
     progress: execution.progress,
     status: execution.status,
     logs: execution.logs,
+    error: execution.error,
     trainingResponse: execution.trainingResponse,
+    refreshTrainingHistory: execution.refreshTrainingHistory,
 
     // UI state
     openParamGroup: ui.openParamGroup,

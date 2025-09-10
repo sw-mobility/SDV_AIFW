@@ -175,6 +175,16 @@ export const useValidation = () => {
     }
   }, [uid]);
 
+  // Validation 완료 시 자동 refresh 함수 (ValidationHistoryList의 REFRESH 버튼 클릭과 동일)
+  const triggerResultsRefresh = useCallback(() => {
+    console.log('Validation completed! Triggering results refresh...');
+    // ValidationHistoryList의 handleRefresh와 동일한 동작
+    // onRefresh prop이 있으면 호출하고, 없으면 자체 fetchValidations 실행
+    if (refreshValidationHistory) {
+      refreshValidationHistory();
+    }
+  }, [refreshValidationHistory]);
+
   // Validation 상태 폴링
   const pollValidationStatus = useCallback(async (vid) => {
     try {
@@ -190,11 +200,9 @@ export const useValidation = () => {
         clearInterval(pollingInterval);
         setPollingInterval(null);
         
-        // Validation이 완료되면 ValidationHistoryList를 자동으로 refresh
-        console.log('Validation completed! Triggering automatic refresh of ValidationHistoryList...');
-        
-        // Validation이 완료되면 refreshValidationHistory를 호출하여 ValidationHistoryList도 자동으로 refresh
-        await refreshValidationHistory();
+        // Validation이 완료되면 RESULTS의 REFRESH 버튼 클릭과 동일한 동작
+        console.log('Validation completed! Triggering results refresh...');
+        triggerResultsRefresh();
       } else if (result.status === 'failed' || result.status === 'error') {
         setStatus('error');
         setError(result.error || result.message || 'Validation failed');
@@ -202,9 +210,9 @@ export const useValidation = () => {
         clearInterval(pollingInterval);
         setPollingInterval(null);
         
-        // Validation이 실패해도 ValidationHistoryList를 자동으로 refresh
-        console.log('Validation failed! Triggering automatic refresh of ValidationHistoryList...');
-        await refreshValidationHistory();
+        // Validation이 실패해도 RESULTS의 REFRESH 버튼 클릭과 동일한 동작
+        console.log('Validation failed! Triggering results refresh...');
+        triggerResultsRefresh();
       } else if (result.status === 'running') {
         // 진행률 업데이트 (실제 API에서 제공하는 경우)
         if (result.progress !== undefined) {
@@ -214,14 +222,23 @@ export const useValidation = () => {
         }
       }
     } catch (err) {
-      console.error('Polling error:', err);
+      console.error('Polling error for vid:', vid, err);
+      
+      // 500 에러나 서버 오류의 경우 polling을 계속하되, 로그만 추가
+      if (err.message.includes('500') || err.message.includes('Internal Server Error')) {
+        console.warn('Server error during polling, continuing to poll...');
+        // polling을 중단하지 않고 계속 시도
+        return;
+      }
+      
+      // 다른 오류의 경우에만 polling 중단
       setStatus('error');
-      setError(err.message);
+      setError(`Status check failed: ${err.message}`);
       setLoading(false);
       clearInterval(pollingInterval);
       setPollingInterval(null);
     }
-  }, [selectedDataset, pollingInterval, validationParams.model, refreshValidationHistory]);
+  }, [selectedDataset, pollingInterval, validationParams.model, triggerResultsRefresh]);
 
   // Validation 실행
   const handleRunValidation = useCallback(async () => {
@@ -307,12 +324,17 @@ export const useValidation = () => {
       
       setCurrentVid(vid);
       
-      // 폴링 시작 (5초마다)
-      const interval = setInterval(() => {
+      // 첫 번째 폴링은 3초 후에 시작 (서버 초기화 시간 확보)
+      setTimeout(() => {
         pollValidationStatus(vid);
-      }, 5000);
-      
-      setPollingInterval(interval);
+        
+        // 그 다음부터는 5초마다 폴링
+        const interval = setInterval(() => {
+          pollValidationStatus(vid);
+        }, 5000);
+        
+        setPollingInterval(interval);
+      }, 3000);
       
     } catch (err) {
       console.error('Validation start error:', err);

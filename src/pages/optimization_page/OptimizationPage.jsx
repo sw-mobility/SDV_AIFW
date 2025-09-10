@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import styles from './OptimizationPage.module.css';
 import OptimizationTypeSelector from '../../components/features/optimization/OptimizationTypeSelector.jsx';
 import OptimizationModelSelector from '../../components/features/optimization/OptimizationModelSelector.jsx';
-import OptimizationParameterSection from '../../components/features/optimization/OptimizationParameterSection.jsx';
+import ParameterSection from '../../components/common/ParameterSection.jsx';
 import OptimizationExecution from '../../components/features/optimization/OptimizationExecution.jsx';
 import OptimizationHistoryList from '../../components/features/optimization/OptimizationHistoryList.jsx';
 import { useOptimizationState } from '../../hooks';
@@ -127,7 +127,8 @@ const OptimizationPage = () => {
 
         {/* Parameter Configuration - Optimization Type 선택 후에만 표시 (CHECK MODEL STATS 제외) */}
         {optimizationType && optimizationType !== 'check_model_stats' && (
-          <OptimizationParameterSection
+          <ParameterSection
+            type="optimization"
             optimizationType={optimizationType}
             optimizationParams={optimizationParams}
             onParamChange={handleParamChange}

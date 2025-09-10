@@ -1,12 +1,96 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { validateTrainingExecution } from '../../domain/training/trainingValidation.js';
-import { useProgress } from '../common/useProgress.js';
-import { postYoloTraining} from '../../api/training.js';
+import { postYoloTraining, getTrainingStatus, getTrainingList } from '../../api/training.js';
 import { uid } from '../../api/uid.js';
 
 export const useTrainingExecution = (trainingConfig) => {
-  const progress = useProgress();
   const [trainingResponse, setTrainingResponse] = useState(null);
+  
+  // Training polling state (validation과 완전히 동일)
+  const [currentTid, setCurrentTid] = useState(null);
+  const [pollingInterval, setPollingInterval] = useState(null);
+  const [status, setStatus] = useState('idle'); // idle | running | success | error
+  const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [logs, setLogs] = useState([]);
+
+  // Training History 새로고침 함수 (validation과 동일)
+  const refreshTrainingHistory = useCallback(async () => {
+    try {
+      console.log('Refreshing training history...');
+      const trainingList = await getTrainingList({ uid });
+      console.log('Refreshed training list:', trainingList);
+    } catch (error) {
+      console.error('Failed to refresh training history:', error);
+    }
+  }, [uid]);
+
+  // Training 완료 시 자동 refresh 함수 (TrainingResultList의 REFRESH 버튼 클릭과 동일)
+  const triggerResultsRefresh = useCallback(() => {
+    console.log('Training completed! Triggering results refresh...');
+    // TrainingResultList의 handleRefresh와 동일한 동작
+    // onRefresh prop이 있으면 호출하고, 없으면 자체 fetchTrainings 실행
+    if (refreshTrainingHistory) {
+      refreshTrainingHistory();
+    }
+  }, [refreshTrainingHistory]);
+
+  // Training 상태 폴링 (validation과 완전히 동일한 구조)
+  const pollTrainingStatus = useCallback(async (tid) => {
+    try {
+      const result = await getTrainingStatus({ tid });
+      
+      console.log('Polling training status:', result);
+      
+      // API 응답에 따라 상태 업데이트 (validation과 동일)
+      if (result.status === 'completed') {
+        setStatus('success');
+        setProgress(100);
+        setLoading(false);
+        clearInterval(pollingInterval);
+        setPollingInterval(null);
+        
+        // Training이 완료되면 RESULTS의 REFRESH 버튼 클릭과 동일한 동작
+        console.log('Training completed! Triggering results refresh...');
+        triggerResultsRefresh();
+      } else if (result.status === 'failed' || result.status === 'error') {
+        setStatus('error');
+        setError(result.error || result.message || 'Training failed');
+        setLoading(false);
+        clearInterval(pollingInterval);
+        setPollingInterval(null);
+        
+        // Training이 실패해도 RESULTS의 REFRESH 버튼 클릭과 동일한 동작
+        console.log('Training failed! Triggering results refresh...');
+        triggerResultsRefresh();
+      } else if (result.status === 'running') {
+        // 진행률 업데이트 (실제 API에서 제공하는 경우)
+        if (result.progress !== undefined) {
+          setProgress(result.progress);
+        } else {
+          setProgress(prev => Math.min(prev + 10, 90));
+        }
+      }
+    } catch (err) {
+      console.error('Polling error for tid:', tid, err);
+      
+      // 500 에러나 서버 오류의 경우 polling을 계속하되, 로그만 추가
+      if (err.message.includes('500') || err.message.includes('Internal Server Error')) {
+        console.warn('Server error during polling, continuing to poll...');
+        setLogs(prev => [...prev, `Server error during status check: ${err.message}`]);
+        // polling을 중단하지 않고 계속 시도
+        return;
+      }
+      
+      // 다른 오류의 경우에만 polling 중단
+      setStatus('error');
+      setError(`Status check failed: ${err.message}`);
+      setLoading(false);
+      clearInterval(pollingInterval);
+      setPollingInterval(null);
+    }
+  }, [pollingInterval, triggerResultsRefresh]);
 
   const runTraining = useCallback(async () => {
     console.log('=== Training Execution Start ===');
@@ -23,12 +107,15 @@ export const useTrainingExecution = (trainingConfig) => {
     }
 
     if (!trainingConfig.selectedDataset) {
-      progress.addLog('Error: No dataset selected');
+      setError('Error: No dataset selected');
       return;
     }
 
-    progress.start();
-    progress.addLog('Training started...');
+    setStatus('running');
+    setProgress(0);
+    setError(null);
+    setLoading(true);
+    setLogs(['Training started...']);
 
     try {
       // Algorithm 체크를 더 유연하게 수정
@@ -37,7 +124,7 @@ export const useTrainingExecution = (trainingConfig) => {
          trainingConfig.algorithm.toLowerCase().includes('yolo_v'));
       
       if (isYoloAlgorithm) {
-        progress.addLog(`Starting ${trainingConfig.algorithm} training...`);
+        setLogs(prev => [...prev, `Starting ${trainingConfig.algorithm} training...`]);
         
         // Parse split_ratio from string to array if needed
         let splitRatio = [0.8, 0.2];
@@ -269,9 +356,9 @@ export const useTrainingExecution = (trainingConfig) => {
         
         // Log training start and response details
         if (response?.message) {
-          progress.addLog(response.message);
+          setLogs(prev => [...prev, response.message]);
         } else {
-          progress.addLog('Training started successfully.');
+          setLogs(prev => [...prev, 'Training started successfully.']);
         }
         
         // Log response classes for debugging
@@ -281,30 +368,72 @@ export const useTrainingExecution = (trainingConfig) => {
         console.log('Response dataset_classes:', response?.data?.dataset_classes);
         
         setTrainingResponse(response);
-        progress.complete();
+        
+        // tid 추출하여 polling 시작 (validation과 동일한 패턴)
+        const tid = response?.tid || response?.data?.tid;
+        if (tid) {
+          setCurrentTid(tid);
+          setLogs(prev => [...prev, `Training ID: ${tid} - Starting status monitoring...`]);
+          
+          // 첫 번째 폴링은 3초 후에 시작 (서버 초기화 시간 확보)
+          setTimeout(() => {
+            pollTrainingStatus(tid);
+            
+            // 그 다음부터는 5초마다 폴링
+            const interval = setInterval(() => {
+              pollTrainingStatus(tid);
+            }, 5000);
+            
+            setPollingInterval(interval);
+          }, 3000);
+        } else {
+          // tid가 없으면 기존 방식대로 complete
+          console.warn('No training ID received, falling back to complete');
+          setStatus('success');
+          setProgress(100);
+          setLoading(false);
+        }
       } else {
         // fallback: mock progress for other algorithms
         let pct = 0;
         const interval = setInterval(() => {
           pct += 10;
-          progress.updateProgress(pct);
-          progress.addLog(`Progress: ${pct}%`);
+          setProgress(pct);
+          setLogs(prev => [...prev, `Progress: ${pct}%`]);
           if (pct >= 100) {
             clearInterval(interval);
-            progress.complete();
-            progress.addLog('Training completed!');
+            setStatus('success');
+            setProgress(100);
+            setLoading(false);
+            setLogs(prev => [...prev, 'Training completed!']);
           }
         }, 400);
       }
     } catch (err) {
-      progress.addLog('Training failed: ' + err.message);
-      progress.complete();
+      setStatus('error');
+      setError('Training failed: ' + err.message);
+      setLoading(false);
     }
-  }, [trainingConfig, progress]);
+  }, [trainingConfig, pollTrainingStatus]);
+
+  // 컴포넌트 언마운트 시 폴링 정리 (validation과 동일)
+  useEffect(() => {
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
+  }, [pollingInterval]);
 
   return {
-    ...progress,
+    // Validation과 완전히 동일한 구조
+    isRunning: loading,
+    progress,
+    status,
+    logs,
+    error,
     runTraining,
-    trainingResponse
+    trainingResponse,
+    refreshTrainingHistory
   };
 }; 

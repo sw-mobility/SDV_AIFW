@@ -2,7 +2,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import styles from './ValidationPage.module.css';
 import DatasetSelector from '../../components/features/training/DatasetSelector.jsx';
-import ValidationParameterSection from '../../components/features/validation/ValidationParameterSection.jsx';
+import ParameterSection from '../../components/common/ParameterSection.jsx';
 import Button from '../../components/ui/atoms/Button.jsx';
 import ProgressBar from '../../components/ui/atoms/ProgressBar.jsx';
 import StatusBadge from '../../components/features/validation/StatusBadge.jsx';
@@ -104,7 +104,8 @@ const ValidationPage = () => {
   );
 
   const renderParameterSection = () => (
-    <ValidationParameterSection
+    <ParameterSection
+      type="validation"
       validationParams={validationParams}
       onParamChange={updateValidationParams}
       onReset={resetValidationParams}
