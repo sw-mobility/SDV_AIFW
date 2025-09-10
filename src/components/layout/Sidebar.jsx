@@ -12,15 +12,31 @@ import { getProjectById } from "../../api/projects.js";
 import { uid } from "../../api/uid.js";
 import { SkeletonTitle } from "../ui/atoms/Skeleton.jsx";
 
-const menuItems = [
-    {label: "Home", icon: Home, path: ""},
-    {label: "labeling", icon: Tag, path: "labeling"},
-    {label: "Code Editor", icon: Code, path: "editor"},
-    {label: "Training", icon: Cpu, path: "training"},
-    {label: "Optimization", icon: Zap, path: "optimization"},
-    {label: "Validation", icon: CheckSquare, path: "validation"},
-    {label: "Deployment", icon: Rocket, path: "deployment"},
-    {label: "Service Process", icon: Settings, path: "service-process"},
+const menuGroups = [
+    {
+        title: "Overview",
+        items: [
+            {label: "Home", icon: Home, path: ""},
+        ]
+    },
+    {
+        title: "Development",
+        items: [
+            {label: "labeling", icon: Tag, path: "labeling"},
+            {label: "Code Editor", icon: Code, path: "editor"},
+        ],
+        hasSeparator: true
+    },
+    {
+        title: "ML Pipeline",
+        items: [
+            {label: "Training", icon: Cpu, path: "training"},
+            {label: "Optimization", icon: Zap, path: "optimization"},
+            {label: "Validation", icon: CheckSquare, path: "validation"},
+            {label: "Deployment", icon: Rocket, path: "deployment"},
+            {label: "Service Process", icon: Settings, path: "service-process"},
+        ]
+    }
 ];
 
 export default function Sidebar() {
@@ -73,28 +89,41 @@ export default function Sidebar() {
                     )}
                 </h1>
                 <nav className={styles["sidebar-nav"]} aria-label="Main navigation">
-                    <ul>
-                        {menuItems.map((item) => {
-                            const to = item.path ? `${basePath}/${item.path}` : basePath;
-                            const Icon = item.icon;
-                            return (
-                                <li key={item.label}>
-                                    <NavLink
-                                        to={to}
-                                        className={({ isActive }) => [
-                                            styles["sidebar-nav-item"],
-                                            isActive ? styles["active"] : ""
-                                        ].join(" ")}
-                                        end={item.path === ""}
-                                        style={{ textDecoration: 'none' }}
-                                    >
-                                        <Icon className={styles["sidebar-nav-icon"]} strokeWidth={1.5} />
-                                        <span className={styles["sidebar-nav-label"]}>{item.label}</span>
-                                    </NavLink>
-                                </li>
-                            );
-                        })}
-                    </ul>
+                    {menuGroups.map((group, groupIndex) => (
+                        <div key={groupIndex} className={styles["sidebar-group"]}>
+                            {group.hasSeparator && groupIndex > 0 && (
+                                <div className={styles["sidebar-separator"]}></div>
+                            )}
+                            <div className={styles["sidebar-group-title"]}>
+                                {group.title}
+                            </div>
+                            <ul>
+                                {group.items.map((item) => {
+                                    const to = item.path ? `${basePath}/${item.path}` : basePath;
+                                    const Icon = item.icon;
+                                    return (
+                                        <li key={item.label}>
+                                            <NavLink
+                                                to={to}
+                                                className={({ isActive }) => [
+                                                    styles["sidebar-nav-item"],
+                                                    isActive ? styles["active"] : ""
+                                                ].join(" ")}
+                                                end={item.path === ""}
+                                                style={{ textDecoration: 'none' }}
+                                            >
+                                                <Icon className={styles["sidebar-nav-icon"]} strokeWidth={1.5} />
+                                                <span className={styles["sidebar-nav-label"]}>{item.label}</span>
+                                            </NavLink>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                            {group.hasSeparator && groupIndex < menuGroups.length - 1 && (
+                                <div className={styles["sidebar-separator"]}></div>
+                            )}
+                        </div>
+                    ))}
                 </nav>
             </div>
         </aside>
