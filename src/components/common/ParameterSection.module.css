@@ -1,0 +1,186 @@
+/* Common Parameter Section Layout */
+.paramSectionWrap {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  align-items: start;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 이단구조일 때는 container 스타일 적용 */
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  min-height: 0;
+  flex: 1;
+}
+
+/* 코드 에디터가 표시될 때의 확장된 layout */
+.paramSectionWrapExtended {
+  display: grid;
+  grid-template-columns: 320px 1fr 1.5fr;
+  gap: 28px;
+  align-items: start;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  max-width: none !important;
+  margin: 0 !important;
+  width: 100% !important;
+  padding: 0 24px 40px 24px;
+  box-sizing: border-box;
+  min-height: 0;
+  flex: 1;
+}
+
+.paramSummaryBox {
+  width: 100%;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+  padding: 28px 28px;
+  margin-bottom: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.paramSummaryBox:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.paramCardWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 8px; /* hover 효과로 인한 상단 잘림 방지 */
+  padding-bottom: 8px; /* 하단 여백도 추가 */
+}
+
+.paramCard {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1.5px solid #d1d5db;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+  flex-shrink: 0;
+}
+
+.paramCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.paramCardEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  box-shadow: none !important;
+  height: 100%;
+  min-height: 400px;
+  transition: none;
+}
+
+.paramCardEmpty:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: none;
+}
+
+.emptyMessage {
+  color: #aaa;
+  font-size: 15px;
+  transition: none;
+}
+
+.paramCardEmpty:hover .emptyMessage {
+  color: #aaa;
+}
+
+/* Expert Mode Section */
+.expertModeSection {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.paramLabel {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  background: #f8fafc;
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.select:focus {
+  border-color: #4f8cff;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+.select:disabled {
+  background: #f1f5f9;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+}
+
+.errorMessage {
+  color: #dc2626;
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Code Editor Section */
+.rightSection {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 0;
+  flex: 1;
+  height: 100%; /* 전체 높이 사용 */
+}
+
+.codeEditorCard {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+  padding: 0;
+  margin-bottom: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+  height: 100%;
+  min-height: 800px; /* 최소 높이 증가 */
+  max-height: calc(100vh - 200px); /* 최대 높이 설정 */
+  overflow: hidden;
+}
+
+.codeEditorCard:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
