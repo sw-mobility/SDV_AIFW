@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchRawDatasets, uid } from '../../api/index.js';
+import { fetchRawDatasets, uid } from '../../api';
 
 export const useLabeling = () => {
   const [datasets, setDatasets] = useState([]);

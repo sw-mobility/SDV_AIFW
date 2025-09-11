@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import LabelingParameterSelector from './LabelingParameterSelector.jsx';
-import LabelingParameterEditor from './LabelingParameterEditor.jsx';
+import LabelingParameterSelector from './LabelingParameterSelector';
+import LabelingParameterEditor from './LabelingParameterEditor';
 import { LABELING_PARAM_GROUPS } from '../../../domain/labeling/labelingParameters.js';
 import styles from './LabelingParameterSection.module.css';
 

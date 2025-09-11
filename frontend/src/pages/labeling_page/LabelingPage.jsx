@@ -1,14 +1,14 @@
 import React, { useCallback } from 'react';
 import styles from './LabelingPage.module.css';
-import DatasetSelector from '../../components/features/training/DatasetSelector.jsx';
-import LabelingFormatSelector from '../../components/features/labeling/LabelingFormatSelector.jsx';
-import LabelingModelTypeSelector from '../../components/features/labeling/LabelingModelTypeSelector.jsx';
-import LabelingParameterSection from '../../components/features/labeling/LabelingParameterSection.jsx';
-import Button from '../../components/ui/atoms/Button.jsx';
-import ProgressBar from '../../components/ui/atoms/ProgressBar.jsx';
-import StatusBadge from '../../components/features/labeling/StatusBadge.jsx';
-import LabeledDatasetsList from '../../components/features/labeling/LabeledDatasetsList.jsx';
-import { useLabeling, useLabelingWorkspace } from '../../hooks/index.js';
+import DatasetSelector from '../../components/features/training/DatasetSelector';
+import LabelingFormatSelector from '../../components/features/labeling/LabelingFormatSelector';
+import LabelingModelTypeSelector from '../../components/features/labeling/LabelingModelTypeSelector';
+import LabelingParameterSection from '../../components/features/labeling/LabelingParameterSection';
+import Button from '../../components/ui/atoms/Button';
+import ProgressBar from '../../components/ui/atoms/ProgressBar';
+import StatusBadge from '../../components/features/labeling/StatusBadge';
+import LabeledDatasetsList from '../../components/features/labeling/LabeledDatasetsList';
+import { useLabeling, useLabelingWorkspace } from '../../hooks';
 
 const LabelingPage = () => {
   const {

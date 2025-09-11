@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { startYoloLabeling, DEFAULT_YOLO_PARAMS } from '../../api/index.js';
+import { startYoloLabeling, DEFAULT_YOLO_PARAMS } from '../../api';
 import { fetchLabeledDatasets } from '../../api/datasets.js';
 import { getProjectByName } from '../../api/projects.js';
 import { uid } from '../../api/uid.js';

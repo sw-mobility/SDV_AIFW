@@ -1,5 +1,5 @@
 import React from "react";
-import TrainingPage from "../pages/training_page/TrainingPage.jsx";
+import TrainingPage from "../pages/training_page/TrainingPage";
 
 export default {
     title: "Pages/TrainingPage",
