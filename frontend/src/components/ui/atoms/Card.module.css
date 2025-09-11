@@ -1,0 +1,87 @@
+.card {
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-lg);
+    min-height: 120px;
+    width: 280px;
+    height: auto;
+    position: relative;
+    transition: var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-lg);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.card:hover {
+    border-color: var(--color-border-focus);
+    transform: translateY(-1px); /* translateY 값을 줄여서 더 부드럽게 */
+    box-shadow: var(--shadow-md);
+    z-index: 1; /* hover된 카드가 다른 카드 위에 표시되도록 */
+    position: relative; /* z-index가 작동하려면 position이 필요 */
+}
+
+.card:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+}
+
+.cardGrid {
+    width: 100%;
+    display: grid;
+    gap: 1.5rem;
+    /* 기본적으로 4개씩 표시되도록 설정 */
+    grid-template-columns: repeat(4, 1fr);
+    padding: 4px 0; /* hover 효과를 위한 상하 패딩 추가 */
+}
+
+/* 1400px 이상: 4개씩 */
+@media (min-width: 1400px) {
+    .cardGrid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* 1200px ~ 1399px: 3개씩 */
+@media (max-width: 1399px) and (min-width: 1200px) {
+    .cardGrid {
+    grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* 900px ~ 1199px: 2개씩 */
+@media (max-width: 1199px) and (min-width: 900px) {
+    .cardGrid {
+    grid-template-columns: repeat(2, 1fr);
+}
+}
+
+/* 900px 미만: 1개씩 */
+@media (max-width: 899px) {
+    .cardGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 카드 자체의 반응형 조정 */
+@media (max-width: 1024px) {
+    .card {
+        min-height: 280px;
+        width: auto !important;
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        min-height: 240px;
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        min-height: 200px;
+        padding: var(--spacing-sm);
+    }
+}

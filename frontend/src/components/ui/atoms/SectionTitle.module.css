@@ -1,0 +1,24 @@
+.section-title {
+    color: var(--color-text-main);
+    margin-left: 160px;
+    margin-top: var(--spacing-xl);
+}
+.section-title-sm {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.section-title-md {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+}
+
+.section-title-lg {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+}
+
+.section-title-xl {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+}
