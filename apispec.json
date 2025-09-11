@@ -1,0 +1,3657 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FastAPI",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/datasets/raw/": {
+      "post": {
+        "tags": [
+          "Dataset Management",
+          "Raw Dataset"
+        ],
+        "summary": "Create",
+        "description": "Create a new raw dataset.",
+        "operationId": "create_datasets_raw__post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawDatasetCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Dataset Management",
+          "Raw Dataset"
+        ],
+        "summary": "Update",
+        "description": "Update an existing raw dataset.",
+        "operationId": "update_datasets_raw__put",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawDatasetUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Dataset Management",
+          "Raw Dataset"
+        ],
+        "summary": "List",
+        "description": "List all raw datasets for a given user.",
+        "operationId": "list_datasets_raw__get",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/raw/upload": {
+      "post": {
+        "tags": [
+          "Dataset Management",
+          "Raw Dataset"
+        ],
+        "summary": "Upload",
+        "operationId": "upload_datasets_raw_upload_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_datasets_raw_upload_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/raw/single": {
+      "get": {
+        "tags": [
+          "Dataset Management",
+          "Raw Dataset"
+        ],
+        "summary": "Get",
+        "description": "Get details of a specific raw dataset by its ID.",
+        "operationId": "get_datasets_raw_single_get",
+        "parameters": [
+          {
+            "name": "did",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Did"
+            }
+          },
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/labeled/": {
+      "post": {
+        "tags": [
+          "Dataset Management",
+          "Labeled Dataset"
+        ],
+        "summary": "Create",
+        "description": "Create a new labeled dataset.",
+        "operationId": "create_datasets_labeled__post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabeledDatasetCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Dataset Management",
+          "Labeled Dataset"
+        ],
+        "summary": "Update",
+        "description": "Update an existing labeled dataset.",
+        "operationId": "update_datasets_labeled__put",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabeledDatasetUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Dataset Management",
+          "Labeled Dataset"
+        ],
+        "summary": "List",
+        "description": "List all labeled datasets for a given user.",
+        "operationId": "list_datasets_labeled__get",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/labeled/upload": {
+      "post": {
+        "tags": [
+          "Dataset Management",
+          "Labeled Dataset"
+        ],
+        "summary": "Upload",
+        "operationId": "upload_datasets_labeled_upload_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_datasets_labeled_upload_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/labeled/single": {
+      "get": {
+        "tags": [
+          "Dataset Management",
+          "Labeled Dataset"
+        ],
+        "summary": "Get",
+        "description": "Get details of a specific labeled dataset by its ID.",
+        "operationId": "get_datasets_labeled_single_get",
+        "parameters": [
+          {
+            "name": "did",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Did"
+            }
+          },
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/": {
+      "delete": {
+        "tags": [
+          "Dataset Management",
+          "Common Functions"
+        ],
+        "summary": "Route Delete Dataset",
+        "operationId": "route_delete_dataset_datasets__delete",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetDelete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/data": {
+      "delete": {
+        "tags": [
+          "Dataset Management",
+          "Common Functions"
+        ],
+        "summary": "Route Delete Data",
+        "operationId": "route_delete_data_datasets_data_delete",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataDelete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/download-dataset": {
+      "post": {
+        "tags": [
+          "Dataset Management",
+          "Common Functions"
+        ],
+        "summary": "Route Download Dataset",
+        "operationId": "route_download_dataset_datasets_download_dataset_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetDownload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/download-data": {
+      "post": {
+        "tags": [
+          "Dataset Management",
+          "Common Functions"
+        ],
+        "summary": "Route Download Data",
+        "operationId": "route_download_data_datasets_download_data_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataDownload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/projects/create": {
+      "post": {
+        "tags": [
+          "Project Management",
+          "Project Management"
+        ],
+        "summary": "Create",
+        "description": "Create a new project.",
+        "operationId": "create_projects_projects_create_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectCreate"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/projects/update": {
+      "put": {
+        "tags": [
+          "Project Management",
+          "Project Management"
+        ],
+        "summary": "Update",
+        "description": "Update an existing project.",
+        "operationId": "update_projects_projects_update_put",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          },
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectInfo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/projects/": {
+      "get": {
+        "tags": [
+          "Project Management",
+          "Project Management"
+        ],
+        "summary": "List",
+        "description": "List all projects for a given user.",
+        "operationId": "list_projects_projects__get",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectInfo"
+                  },
+                  "title": "Response List Projects Projects  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project Management",
+          "Project Management"
+        ],
+        "summary": "Delete",
+        "description": "Delete a project by ID.",
+        "operationId": "delete_projects_projects__delete",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          },
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/training/yolo/detection": {
+      "post": {
+        "tags": [
+          "Training",
+          "Training"
+        ],
+        "summary": "Yolo Training",
+        "description": "Start YOLO training with the provided parameters.",
+        "operationId": "yolo_training_training_yolo_detection_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YoloDetTrainingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/training/yolo/result": {
+      "post": {
+        "tags": [
+          "Training",
+          "Training"
+        ],
+        "summary": "Yolo Training Result",
+        "description": "Handle the result of YOLO training.",
+        "operationId": "yolo_training_result_training_yolo_result_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YoloHandlingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validation/yolo/validate/detection": {
+      "post": {
+        "tags": [
+          "Validation",
+          "Validation"
+        ],
+        "summary": "Start Validation",
+        "operationId": "start_validation_validation_yolo_validate_detection_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YoloDetValidationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validation/yolo/{vid}": {
+      "get": {
+        "tags": [
+          "Validation",
+          "Validation"
+        ],
+        "summary": "Get Validation Info",
+        "description": "Get validation status and results",
+        "operationId": "get_validation_info_validation_yolo__vid__get",
+        "parameters": [
+          {
+            "name": "vid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validation/yolo/result": {
+      "post": {
+        "tags": [
+          "Validation",
+          "Validation"
+        ],
+        "summary": "Receive Result",
+        "description": "Receive validation completion callback and persist to Mongo/MinIO.",
+        "operationId": "receive_result_validation_yolo_result_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Result"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/optimizing/result": {
+      "post": {
+        "tags": [
+          "Optimizing"
+        ],
+        "summary": "Optimizing Result",
+        "operationId": "optimizing_result_optimizing_result_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptimizingResult"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/optimizing/pt_to_onnx_fp32": {
+      "post": {
+        "tags": [
+          "Optimizing"
+        ],
+        "summary": "Pt To Onnx Fp32 Route",
+        "operationId": "pt_to_onnx_fp32_route_optimizing_pt_to_onnx_fp32_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptimizingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/optimizing/pt_to_onnx_fp16": {
+      "post": {
+        "tags": [
+          "Optimizing"
+        ],
+        "summary": "Pt To Onnx Fp16 Route",
+        "operationId": "pt_to_onnx_fp16_route_optimizing_pt_to_onnx_fp16_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptimizingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/optimizing/prune_unstructured": {
+      "post": {
+        "tags": [
+          "Optimizing"
+        ],
+        "summary": "Prune Unstructured Route",
+        "operationId": "prune_unstructured_route_optimizing_prune_unstructured_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptimizingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/optimizing/prune_structured": {
+      "post": {
+        "tags": [
+          "Optimizing"
+        ],
+        "summary": "Prune Structured Route",
+        "operationId": "prune_structured_route_optimizing_prune_structured_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptimizingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/optimizing/check_model_stats": {
+      "post": {
+        "tags": [
+          "Optimizing"
+        ],
+        "summary": "Check Model Stats Route",
+        "operationId": "check_model_stats_route_optimizing_check_model_stats_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptimizingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/IDE/codebase": {
+      "get": {
+        "tags": [
+          "Code Editing",
+          "Code Editor"
+        ],
+        "summary": "Get Codebase",
+        "description": "Get codebase to edit.",
+        "operationId": "get_codebase_IDE_codebase_get",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Cid"
+            }
+          },
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/IDE/codebase/create": {
+      "post": {
+        "tags": [
+          "Code Editing",
+          "Code Editor"
+        ],
+        "summary": "Create Cb",
+        "description": "Create a snapshot of the current training state.",
+        "operationId": "create_cb_IDE_codebase_create_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_cb_IDE_codebase_create_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/IDE/codebase/update": {
+      "post": {
+        "tags": [
+          "Code Editing",
+          "Code Editor"
+        ],
+        "summary": "Update Cb",
+        "description": "Update a snapshot of the current training state.",
+        "operationId": "update_cb_IDE_codebase_update_post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_update_cb_IDE_codebase_update_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "post": {
+        "summary": "Init",
+        "operationId": "init__post",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "0001",
+              "title": "Uid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Action": {
+        "type": "string",
+        "enum": [
+          "prune_unstructured",
+          "prune_structured",
+          "pt_to_onnx",
+          "onnx_to_trt",
+          "onnx_to_trt_int8",
+          "check_model_stats"
+        ],
+        "title": "Action"
+      },
+      "Body_create_cb_IDE_codebase_create_post": {
+        "properties": {
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          },
+          "request": {
+            "$ref": "#/components/schemas/CodebaseCreateRequest"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "request"
+        ],
+        "title": "Body_create_cb_IDE_codebase_create_post"
+      },
+      "Body_update_cb_IDE_codebase_update_post": {
+        "properties": {
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          },
+          "request": {
+            "$ref": "#/components/schemas/CodebaseUpdateRequest"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "request"
+        ],
+        "title": "Body_update_cb_IDE_codebase_update_post"
+      },
+      "Body_upload_datasets_labeled_upload_post": {
+        "properties": {
+          "files": {
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "type": "array",
+            "title": "Files"
+          },
+          "did": {
+            "type": "string",
+            "title": "Did"
+          }
+        },
+        "type": "object",
+        "required": [
+          "files",
+          "did"
+        ],
+        "title": "Body_upload_datasets_labeled_upload_post"
+      },
+      "Body_upload_datasets_raw_upload_post": {
+        "properties": {
+          "files": {
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "type": "array",
+            "title": "Files"
+          },
+          "did": {
+            "type": "string",
+            "title": "Did"
+          }
+        },
+        "type": "object",
+        "required": [
+          "files",
+          "did"
+        ],
+        "title": "Body_upload_datasets_raw_upload_post"
+      },
+      "CheckModelStatsParams": {
+        "properties": {
+          "info": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizingInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "const": "check_model_stats",
+            "title": "Kind"
+          },
+          "input_path": {
+            "type": "string",
+            "title": "Input Path"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "input_path"
+        ],
+        "title": "CheckModelStatsParams"
+      },
+      "CodebaseCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "algorithm": {
+            "type": "string",
+            "title": "Algorithm"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage",
+            "description": "Stage of the training snapshot (e.g., 'Training', 'Validating', 'Optimizing')"
+          },
+          "task_type": {
+            "type": "string",
+            "title": "Task Type"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "algorithm",
+          "stage",
+          "task_type"
+        ],
+        "title": "CodebaseCreateRequest"
+      },
+      "CodebaseUpdateRequest": {
+        "properties": {
+          "cid": {
+            "type": "string",
+            "title": "Cid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "algorithm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Algorithm"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage",
+            "description": "Stage of the training snapshot (e.g., 'Training', 'Validating', 'Optimizing')"
+          },
+          "task_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Type"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cid",
+          "name",
+          "algorithm",
+          "stage",
+          "task_type"
+        ],
+        "title": "CodebaseUpdateRequest"
+      },
+      "DataDelete": {
+        "properties": {
+          "target_did": {
+            "type": "string",
+            "title": "Target Did"
+          },
+          "target_name_list": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Name List"
+          },
+          "target_path_list": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Path List"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_did",
+          "target_name_list",
+          "target_path_list"
+        ],
+        "title": "DataDelete"
+      },
+      "DataDownload": {
+        "properties": {
+          "target_path_list": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Path List"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_path_list"
+        ],
+        "title": "DataDownload"
+      },
+      "DatasetDelete": {
+        "properties": {
+          "target_did_list": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Did List"
+          },
+          "target_path_list": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Path List"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_did_list",
+          "target_path_list"
+        ],
+        "title": "DatasetDelete"
+      },
+      "DatasetDownload": {
+        "properties": {
+          "target_did": {
+            "type": "string",
+            "title": "Target Did"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_did"
+        ],
+        "title": "DatasetDownload"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LabeledDatasetCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "task_type": {
+            "type": "string",
+            "title": "Task Type"
+          },
+          "label_format": {
+            "type": "string",
+            "title": "Label Format"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "task_type",
+          "label_format"
+        ],
+        "title": "LabeledDatasetCreate"
+      },
+      "LabeledDatasetUpdate": {
+        "properties": {
+          "did": {
+            "type": "string",
+            "title": "Did"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          },
+          "task_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Type"
+          },
+          "label_format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label Format"
+          }
+        },
+        "type": "object",
+        "required": [
+          "did"
+        ],
+        "title": "LabeledDatasetUpdate"
+      },
+      "OnnxToTrtInt8Params": {
+        "properties": {
+          "info": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizingInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "const": "onnx_to_trt_int8",
+            "title": "Kind"
+          },
+          "input_path": {
+            "type": "string",
+            "title": "Input Path"
+          },
+          "output_path": {
+            "type": "string",
+            "title": "Output Path"
+          },
+          "calibrator": {
+            "type": "string",
+            "title": "Calibrator"
+          },
+          "device": {
+            "type": "string",
+            "enum": [
+              "gpu",
+              "dla",
+              "cpu"
+            ],
+            "title": "Device",
+            "default": "gpu"
+          },
+          "mixed_fp16": {
+            "type": "boolean",
+            "title": "Mixed Fp16",
+            "default": true
+          },
+          "sparse": {
+            "type": "boolean",
+            "title": "Sparse",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "input_path",
+          "output_path",
+          "calibrator"
+        ],
+        "title": "OnnxToTrtInt8Params"
+      },
+      "OnnxToTrtParams": {
+        "properties": {
+          "info": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizingInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "const": "onnx_to_trt",
+            "title": "Kind"
+          },
+          "input_path": {
+            "type": "string",
+            "title": "Input Path"
+          },
+          "output_path": {
+            "type": "string",
+            "title": "Output Path"
+          },
+          "device": {
+            "type": "string",
+            "enum": [
+              "gpu",
+              "dla",
+              "cpu"
+            ],
+            "title": "Device",
+            "default": "gpu"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "input_path",
+          "output_path"
+        ],
+        "title": "OnnxToTrtParams"
+      },
+      "OptimizingInfo": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid"
+          },
+          "pid": {
+            "type": "string",
+            "title": "Pid"
+          },
+          "oid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oid"
+          },
+          "action": {
+            "$ref": "#/components/schemas/Action"
+          },
+          "workdir": {
+            "type": "string",
+            "title": "Workdir"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "pid",
+          "action",
+          "workdir"
+        ],
+        "title": "OptimizingInfo"
+      },
+      "OptimizingRequest": {
+        "properties": {
+          "pid": {
+            "type": "string",
+            "title": "Pid"
+          },
+          "oid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oid"
+          },
+          "action": {
+            "$ref": "#/components/schemas/Action"
+          },
+          "parameters": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PruneUnstructuredParams"
+              },
+              {
+                "$ref": "#/components/schemas/PruneStructuredParams"
+              },
+              {
+                "$ref": "#/components/schemas/PtToOnnxParams"
+              },
+              {
+                "$ref": "#/components/schemas/OnnxToTrtParams"
+              },
+              {
+                "$ref": "#/components/schemas/OnnxToTrtInt8Params"
+              },
+              {
+                "$ref": "#/components/schemas/CheckModelStatsParams"
+              }
+            ],
+            "title": "Parameters",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "check_model_stats": "#/components/schemas/CheckModelStatsParams",
+                "onnx_to_trt": "#/components/schemas/OnnxToTrtParams",
+                "onnx_to_trt_int8": "#/components/schemas/OnnxToTrtInt8Params",
+                "prune_structured": "#/components/schemas/PruneStructuredParams",
+                "prune_unstructured": "#/components/schemas/PruneUnstructuredParams",
+                "pt_to_onnx": "#/components/schemas/PtToOnnxParams"
+              }
+            }
+          },
+          "info": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizingInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "pid",
+          "action",
+          "parameters"
+        ],
+        "title": "OptimizingRequest"
+      },
+      "OptimizingResult": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid"
+          },
+          "pid": {
+            "type": "string",
+            "title": "Pid"
+          },
+          "oid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oid"
+          },
+          "action": {
+            "$ref": "#/components/schemas/Action"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "artifacts_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifacts Path"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "info": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizingInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "pid",
+          "action",
+          "status"
+        ],
+        "title": "OptimizingResult"
+      },
+      "ProjectCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "ProjectCreate"
+      },
+      "ProjectInfo": {
+        "properties": {
+          "_id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "uid": {
+            "type": "string",
+            "title": "Uid"
+          },
+          "pid": {
+            "type": "string",
+            "title": "Pid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "last_trn_snap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Trn Snap"
+          },
+          "last_opt_snap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Opt Snap"
+          },
+          "last_val_snap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Val Snap"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "_id",
+          "uid",
+          "pid",
+          "name",
+          "status",
+          "created_at"
+        ],
+        "title": "ProjectInfo"
+      },
+      "ProjectUpdate": {
+        "properties": {
+          "pid": {
+            "type": "string",
+            "title": "Pid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pid"
+        ],
+        "title": "ProjectUpdate"
+      },
+      "PruneStructuredParams": {
+        "properties": {
+          "info": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizingInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "const": "prune_structured",
+            "title": "Kind"
+          },
+          "input_path": {
+            "type": "string",
+            "title": "Input Path"
+          },
+          "output_path": {
+            "type": "string",
+            "title": "Output Path"
+          },
+          "amount": {
+            "type": "number",
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Amount",
+            "default": 0.2
+          },
+          "pruning_type": {
+            "type": "string",
+            "const": "ln_structured",
+            "title": "Pruning Type",
+            "default": "ln_structured"
+          },
+          "dim": {
+            "type": "integer",
+            "title": "Dim",
+            "default": 0
+          },
+          "n": {
+            "type": "integer",
+            "title": "N",
+            "default": 2
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "input_path",
+          "output_path"
+        ],
+        "title": "PruneStructuredParams"
+      },
+      "PruneUnstructuredParams": {
+        "properties": {
+          "info": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizingInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "const": "prune_unstructured",
+            "title": "Kind"
+          },
+          "input_path": {
+            "type": "string",
+            "title": "Input Path"
+          },
+          "output_path": {
+            "type": "string",
+            "title": "Output Path"
+          },
+          "amount": {
+            "type": "number",
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Amount",
+            "default": 0.2
+          },
+          "pruning_type": {
+            "type": "string",
+            "const": "l1_unstructured",
+            "title": "Pruning Type",
+            "default": "l1_unstructured"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "input_path",
+          "output_path"
+        ],
+        "title": "PruneUnstructuredParams"
+      },
+      "PtToOnnxParams": {
+        "properties": {
+          "info": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizingInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "const": "pt_to_onnx",
+            "title": "Kind"
+          },
+          "input_path": {
+            "type": "string",
+            "title": "Input Path"
+          },
+          "output_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Path"
+          },
+          "input_size": {
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Input Size",
+            "default": [640, 640]
+          },
+          "batch_size": {
+            "type": "integer",
+            "title": "Batch Size",
+            "default": 1
+          },
+          "channels": {
+            "type": "integer",
+            "title": "Channels",
+            "default": 3
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "input_path"
+        ],
+        "title": "PtToOnnxParams"
+      },
+      "RawDatasetCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ],
+        "title": "RawDatasetCreate"
+      },
+      "RawDatasetUpdate": {
+        "properties": {
+          "did": {
+            "type": "string",
+            "title": "Did"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "did"
+        ],
+        "title": "RawDatasetUpdate"
+      },
+      "Status": {
+        "type": "string",
+        "enum": [
+          "started",
+          "completed",
+          "failed"
+        ],
+        "title": "Status"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "YoloDetTrainingParams": {
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "split_ratio": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Split Ratio"
+          },
+          "epochs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Epochs"
+          },
+          "batch": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch"
+          },
+          "imgsz": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imgsz"
+          },
+          "device": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device"
+          },
+          "save_period": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Save Period"
+          },
+          "workers": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workers"
+          },
+          "pretrained": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pretrained"
+          },
+          "optimizer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Optimizer"
+          },
+          "lr0": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lr0"
+          },
+          "lrf": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lrf"
+          },
+          "momentum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Momentum"
+          },
+          "weight_decay": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Decay"
+          },
+          "patience": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Patience"
+          },
+          "augment": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Augment"
+          },
+          "warmup_epochs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Warmup Epochs"
+          },
+          "warmup_momentum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Warmup Momentum"
+          },
+          "warmup_bias_lr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Warmup Bias Lr"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "cache": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cache"
+          },
+          "dropout": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dropout"
+          },
+          "label_smoothing": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label Smoothing"
+          },
+          "rect": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rect"
+          },
+          "resume": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resume"
+          },
+          "amp": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amp"
+          },
+          "single_cls": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Single Cls"
+          },
+          "cos_lr": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cos Lr"
+          },
+          "close_mosaic": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Close Mosaic"
+          },
+          "overlap_mask": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overlap Mask"
+          },
+          "mask_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mask Ratio"
+          }
+        },
+        "type": "object",
+        "title": "YoloDetTrainingParams"
+      },
+      "YoloDetTrainingRequest": {
+        "properties": {
+          "pid": {
+            "type": "string",
+            "title": "Pid"
+          },
+          "cid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cid"
+          },
+          "did": {
+            "type": "string",
+            "title": "Did"
+          },
+          "origin_tid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin Tid"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/YoloDetTrainingParams"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pid",
+          "did",
+          "parameters"
+        ],
+        "title": "YoloDetTrainingRequest"
+      },
+      "YoloDetValidationParams": {
+        "properties": {
+          "imgsz": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imgsz",
+            "default": 640
+          },
+          "batch": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch",
+            "default": 32
+          },
+          "device": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device",
+            "default": "cpu"
+          },
+          "workers": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workers",
+            "default": 8
+          },
+          "conf": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conf",
+            "default": 0.001
+          },
+          "iou": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iou",
+            "default": 0.6
+          },
+          "max_det": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Det",
+            "default": 300
+          },
+          "save_json": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Save Json",
+            "default": true
+          },
+          "save_txt": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Save Txt",
+            "default": true
+          },
+          "save_conf": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Save Conf",
+            "default": true
+          },
+          "plots": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plots",
+            "default": true
+          },
+          "verbose": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verbose",
+            "default": true
+          },
+          "half": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Half",
+            "default": false
+          },
+          "dnn": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dnn",
+            "default": false
+          },
+          "agnostic_nms": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agnostic Nms",
+            "default": false
+          },
+          "augment": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Augment",
+            "default": false
+          },
+          "rect": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rect",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "YoloDetValidationParams",
+        "description": "model은 best.pt로 고정"
+      },
+      "YoloDetValidationRequest": {
+        "properties": {
+          "pid": {
+            "type": "string",
+            "title": "Pid"
+          },
+          "tid": {
+            "type": "string",
+            "title": "Tid"
+          },
+          "cid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cid"
+          },
+          "did": {
+            "type": "string",
+            "title": "Did"
+          },
+          "task_type": {
+            "type": "string",
+            "title": "Task Type",
+            "description": "Task type for YOLO validation (detection/segmentation/pose/obb/classification)"
+          },
+          "parameters": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/YoloDetValidationParams"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "pid",
+          "tid",
+          "did",
+          "task_type",
+          "parameters"
+        ],
+        "title": "YoloDetValidationRequest"
+      },
+      "YoloHandlingRequest": {
+        "properties": {
+          "workdir": {
+            "type": "string",
+            "title": "Workdir"
+          },
+          "result": {
+            "$ref": "#/components/schemas/YoloTrainingResult"
+          }
+        },
+        "type": "object",
+        "required": [
+          "workdir",
+          "result"
+        ],
+        "title": "YoloHandlingRequest"
+      },
+      "YoloTrainingResult": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid"
+          },
+          "pid": {
+            "type": "string",
+            "title": "Pid"
+          },
+          "origin_tid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin Tid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "task_type": {
+            "type": "string",
+            "title": "Task Type"
+          },
+          "workdir": {
+            "type": "string",
+            "title": "Workdir"
+          },
+          "started_time": {
+            "type": "string",
+            "title": "Started Time"
+          },
+          "completed_time": {
+            "type": "string",
+            "title": "Completed Time"
+          },
+          "parameters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parameters"
+          },
+          "did": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Did"
+          },
+          "cid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cid"
+          },
+          "artifacts_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifacts Path"
+          },
+          "error_details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "pid",
+          "status",
+          "task_type",
+          "workdir",
+          "started_time",
+          "completed_time"
+        ],
+        "title": "YoloTrainingResult"
+      }
+    }
+  }
+}

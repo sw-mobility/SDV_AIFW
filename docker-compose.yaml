@@ -1,0 +1,199 @@
+services:
+  api-server:
+    build:
+      context: ./api
+    ports:
+      - "5002:5002"
+    depends_on:
+      - minio
+      - mongodb
+    volumes:
+      - api-volume:/app/workspace/api
+      - training-volume:/app/workspace/training
+      - frontend-volume:/app/workspace/frontend
+      - validation-volume:/app/workspace/validation
+      - labeler-volume:/app/workspace/labeling
+      - optimizing-volume:/app/workspace/optimizing
+    networks:
+      - testnet
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-server
+    volumes:
+      - frontend-volume:/app/workspace/frontend
+    networks:
+      - testnet
+
+  minio:
+    image: quay.io/minio/minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin123
+      - MINIO_CORE_BUCKET=keti-aifw
+    networks:
+      - testnet
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - testnet
+
+  training:
+    build:
+      context: ./training
+    shm_size: 8g
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: all
+#              capabilities: [gpu]
+#    environment:
+#      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "5003:5003"
+    volumes:
+      - training-volume:/app/workspace/training
+    depends_on:
+      - api-server
+      - mongodb
+      - minio
+    networks:
+      - testnet
+
+  validation:
+    build:
+      context: ./validation
+    shm_size: 8g
+    ports:
+      - "5004:5004"
+    volumes:
+      - validation-volume:/app/workspace/validation
+    depends_on:
+      - api-server
+      - mongodb
+      - minio
+    networks:
+      - testnet
+
+  optimizing:
+    build:
+      context: ./optimizing
+      dockerfile: Dockerfile
+    depends_on:
+      - api-server
+      - mongodb
+      - minio
+#    runtime: nvidia
+    environment:
+#      - NVIDIA_VISIBLE_DEVICES=all
+#      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - API_RESULT_URL=http://api-server:5002/optimizing/result
+      - API_WORKDIR=/workspace/shared/jobs
+    shm_size: 8g
+    working_dir: /workspace/optimizer
+    ports:
+      - "5005:5005"
+    volumes:
+      - optimizing-volume:/app/workspace/optimizing
+      - ./optimizing/int8_calib_images:/app/int8_calib_images:ro
+    networks:
+      - testnet
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/src/tensorrt/bin/trtexec --help >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  labeler:
+    build:
+      context: ./labeler
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: all
+#              capabilities: [gpu]
+#    environment:
+#      - NVIDIA_VISIBLE_DEVICES=all
+#      - CONFIDENCE_THRESHOLD=0.25
+    ports:
+      - "5006:5006"
+    volumes:
+      - labeler-volume:/app/workspace/labeling
+    depends_on:
+      - api-server
+      - mongodb
+      - minio
+    networks:
+      - testnet
+
+
+  # mongo-express:
+  #   image: mongo-express:latest
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+  #     - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+  #     - ME_CONFIG_MONGODB_SERVER=mongodb
+  #     - ME_CONFIG_BASICAUTH_USERNAME=keti      # 웹 로그인 아이디
+  #     - ME_CONFIG_BASICAUTH_PASSWORD=keti   # 웹 로그인 비번
+  #   depends_on:
+  #     - mongodb
+  #   networks:
+  #     - testnet
+
+volumes:
+  api-volume:
+  mongo-data:
+  minio-data:
+  frontend-volume:
+  training-volume:
+  labeler-volume:
+  validation-volume:
+  optimizing-volume:
+
+networks:
+  testnet:
+
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Training For ORIN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+  # training:
+  #   build:
+  #     context: ./training
+  #   shm_size: 8g
+  #   runtime: nvidia
+  #   ports:
+  #     - "5003:5003"
+  #   volumes:
+  #     - training-volume:/app/workspace/training
+  #   depends_on:
+  #     - api-server
+  #     - mongodb
+  #     - minio
+  #   networks:
+  #     - testnet
+

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers.yolo_router import yolo_router
+from routers import router
 
 app = FastAPI()
-app.include_router(yolo_router)
+app.include_router(router)

@@ -1,64 +1,94 @@
-"""FastAPI Main Application"""
-from contextlib import asynccontextmanager
-from datetime import datetime
-import json
+from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from core.minio import MinioStorageClient
+from core.mongodb import MongoDBClient
+from core.config import MONGODB_URL, MONGODB_DB_NAME, MONGODB_COLLECTIONS
+from routes.dataset import router as dataset_router
+from routes.project import router as project_router
+from routes.training import router as training_router
+from routes.validation import router as validation_router
+from routes.optimizing import router as optimizing_router
+from routes.labeling import router as labeling_router
+from routes.ide import router as ide_router
+import logging
+import asyncio
+from utils.auth import get_uid
 
-from fastapi import FastAPI
-from fastapi.encoders import jsonable_encoder
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-from config.settings import DateTimeEncoder
-from core.storage import storage_client
-from core.mongodb import MongoDB, initialize_db
-from routes import router as api_router
-from routes.global_delete import router as global_delete_router
-from routes.global_download import router as global_download_router
-from routes.training.result_upload import router as result_upload_router
-from routes.models import router as models_router
-from utils.logging import logger
+app = FastAPI()
+app.include_router(dataset_router)
+app.include_router(project_router)
+app.include_router(ide_router)
+app.include_router(labeling_router)
+app.include_router(training_router)
+app.include_router(validation_router)
+app.include_router(optimizing_router)
 
-# 서버 시작/종료 시 실행될 로직 정의
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan manager"""
-    logger.info("Starting server...")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+'''
+라우트를 통해 초기화하는 방식은 테스트용으로만 사용해야 함
+uid는 헤더에서 자동으로 읽히도록 변경해야 하며
+시스템의 모든 uid 관련 함수들도 똑같이 수정해야 함
+'''
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Starting up the application...")
+    logger.info("Waiting for DBs...")
+    await asyncio.sleep(5)  # Simulate some startup delay
+    logger.info("Initializing Default Assets...")
+    for i in range(5):
+        try:
+            await MinioStorageClient().init_core_bucket()
+            logger.info("MinIO core bucket initialized successfully.")
+        except Exception as e:
+            logger.error(f"MinIO initialization error (try {i+1}): {str(e)}")
+            await asyncio.sleep(5)
+
+        try:
+            await MinioStorageClient().core_default_assets_init()
+            logger.info("Default assets initialized successfully.")
+            break
+        except Exception as e:
+            logger.error(f"Default assets initialization error (try {i+1}): {str(e)}")
+            await asyncio.sleep(5)
+
+    else:
+        logger.error("MinIO initialization failed after 5 attempts.")
+
+@app.post("/")
+async def init(uid: str = Depends(get_uid)):
     try:
-        # MinIO 초기화
-        await storage_client.init_bucket()
-        logger.info("Storage initialized successfully")        # MongoDB 연결 및 전역 db 객체 초기화
-        await initialize_db()
-        logger.info("MongoDB connected successfully")
+        await MinioStorageClient().init_bucket(uid)
+        
     except Exception as e:
-        logger.error(f"Failed to initialize services: {str(e)}")
-        raise
+        logger.error(f"MinIO init error: {str(e)}")
+        return {"error": f"MinIO init error: {str(e)}", "uid": uid}
     
-    yield  # 서버 실행 중
+    try:
+        mongo_client = MongoDBClient(MONGODB_URL, MONGODB_DB_NAME)
+        await mongo_client.init_collections(MONGODB_COLLECTIONS)
+        existing = await mongo_client.db["users"].find_one({"uid": uid})
+
+        if not existing:
+            result = await mongo_client.db["users"].insert_one({"uid": uid})
+            logger.info(f"UID added: {result.inserted_id}")
+        else:
+            logger.info("UID already exists, skipping insert.")
+
+        return {"message": f"DB initialized"}
     
-    # 서버 종료 시 리소스 정리
-    logger.info("Shutting down server...")
-    await MongoDB.close_mongo_connection()
-    logger.info("MongoDB connection closed")
+    except Exception as e:
+        logger.error(f"MongoDB init error: {str(e)}")
+        return {"error": f"MongoDB init error: {str(e)}", "uid": uid}
 
-# FastAPI 애플리케이션 인스턴스 생성 (lifespan 적용)
-app = FastAPI(lifespan=lifespan)
-
-# 커스텀 JSON 인코더 설정
-def custom_json_serializer(obj):
-    """커스텀 JSON 직렬화 함수"""
-    if isinstance(obj, datetime):
-        return obj.isoformat()
-    return obj
-
-# 기본 JSON 인코더 설정
-json._default_encoder = DateTimeEncoder()
-
-# 라우터 등록
-app.include_router(api_router)
-app.include_router(global_delete_router)
-app.include_router(global_download_router)
-app.include_router(result_upload_router)
-app.include_router(models_router)
-
-# API 문서화 설정
-app.title = "Dataset Management API"
-app.description = "API for managing raw and labeled image datasets"
-app.version = "1.1.0"

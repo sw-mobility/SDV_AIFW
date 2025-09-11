@@ -1,20 +1,25 @@
-FROM ultralytics/ultralytics:latest-jetson-jetpack6
+# FROM ultralytics/ultralytics:latest-jetson-jetpack6
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FOR ORIN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-WORKDIR /app
+FROM python:3.10-slim
 
-COPY routers/ ./routers/
-COPY services/ ./services/
-COPY main.py ./
-COPY models/ ./models/
-COPY data/ /workspace/data/
-COPY launch /launch
-COPY requirements.txt ./
+WORKDIR /workspace7/labeling
+RUN apt-get update && apt-get install -y libgl1 libglib2.0-0
 
-RUN pip3 install --no-cache-dir -r requirements.txt \
-    && mkdir -p /export/training_dataset_output \
-    && chmod -R 777 /export \
-    && mkdir -p /export/labeler_output \
-    && mkdir -p /workspace/data/testing_images \
-    && chmod -R 777 /workspace
+# COPY packages/torch-2.3.0-cp310-cp310-linux_aarch64.whl ./
+# RUN pip install --no-cache-dir torch-2.3.0-cp310-cp310-linux_aarch64.whl
 
-ENTRYPOINT ["/launch"]
+# COPY packages/torchaudio-2.3.0+952ea74-cp310-cp310-linux_aarch64.whl ./
+# RUN pip install --no-cache-dir torchaudio-2.3.0+952ea74-cp310-cp310-linux_aarch64.whl
+
+# COPY packages/torchvision-0.18.0a0+6043bc2-cp310-cp310-linux_aarch64.whl ./
+# RUN pip install --no-cache-dir torchvision-0.18.0a0+6043bc2-cp310-cp310-linux_aarch64.whl
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5006
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5006"]

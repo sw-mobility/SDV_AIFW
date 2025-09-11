@@ -1,12 +1,12 @@
+torch
+torchvision
 fastapi
 uvicorn
 python-multipart
 numpy
-torch
 Pillow
 opencv-python
 tqdm
-torchvision
 pyyaml
 requests
 matplotlib
@@ -15,3 +15,6 @@ scipy
 pandas
 scikit-learn
 aiofiles
+httpx
+psutil
+polars
