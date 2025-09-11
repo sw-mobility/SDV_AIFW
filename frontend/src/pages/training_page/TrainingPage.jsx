@@ -9,7 +9,7 @@ import TrainingTypeSelector from '../../components/features/training/TrainingTyp
 import ModelSelector from '../../components/features/training/ModelSelector.jsx';
 import ParameterSection from '../../components/common/ParameterSection.jsx';
 import TrainingResultList from '../../components/features/training/TrainingResultList.jsx';
-import { useTrainingState } from '../../hooks';
+import { useTrainingState } from '../../hooks/index.js';
 import { TRAINING_TYPES } from '../../domain/training/trainingTypes.js';
 import { uid } from '../../api/uid.js';
 import styles from './TrainingPage.module.css';

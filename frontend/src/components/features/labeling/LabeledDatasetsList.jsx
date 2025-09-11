@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import DatasetDataPanel from '../dataset/DatasetDataPanel';
+import DatasetDataPanel from '../dataset/DatasetDataPanel.jsx';
 import { uid } from '../../../api/uid.js';
 
 /**

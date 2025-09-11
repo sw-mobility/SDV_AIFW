@@ -6,7 +6,7 @@ import styles from '../../components/layout/Layout.module.css';
 import pageStyles from './IndexPage.module.css';
 import ProjectsTab from './index_tab/ProjectsTab.jsx';
 import DatasetsTab from './index_tab/DatasetsTab.jsx';
-import { useIndexTabs } from '../../hooks';
+import { useIndexTabs } from '../../hooks/index.js';
 
 const IndexPage = () => {
     const { activeTab, tabs, handleTabChange } = useIndexTabs();

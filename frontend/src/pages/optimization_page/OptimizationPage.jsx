@@ -6,7 +6,7 @@ import OptimizationModelSelector from '../../components/features/optimization/Op
 import ParameterSection from '../../components/common/ParameterSection.jsx';
 import OptimizationExecution from '../../components/features/optimization/OptimizationExecution.jsx';
 import OptimizationHistoryList from '../../components/features/optimization/OptimizationHistoryList.jsx';
-import { useOptimizationState } from '../../hooks';
+import { useOptimizationState } from '../../hooks/index.js';
 import { uid } from '../../api/uid.js';
 
 const OptimizationPage = () => {

@@ -21,7 +21,7 @@ import Loading from '../../ui/atoms/Loading.jsx';
 import ErrorMessage from '../../ui/atoms/ErrorMessage.jsx';
 import EmptyState from '../../ui/atoms/EmptyState.jsx';
 import styles from './Dataset.module.css';
-import { useDatasets } from '../../../hooks';
+import { useDatasets } from '../../../hooks/index.js';
 import DatasetUploadModal from './DatasetUploadModal.jsx';
 import DatasetEditModal from './DatasetEditModal.jsx';
 import UploadFilesModal from './DatasetUploadFilesModal.jsx';

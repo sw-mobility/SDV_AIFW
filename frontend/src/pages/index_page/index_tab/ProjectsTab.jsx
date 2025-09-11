@@ -10,7 +10,7 @@ import EmptyState from '../../../components/ui/atoms/EmptyState.jsx';
 import ShowMoreGrid from '../../../components/ui/atoms/ShowMoreGrid.jsx';
 import CreateModal from '../../../components/ui/modals/CreateModal.jsx';
 import DeleteConfirmModal from '../../../components/ui/modals/DeleteConfirmModal.jsx';
-import { useProjects } from '../../../hooks';
+import { useProjects } from '../../../hooks/index.js';
 import { SkeletonCard } from '../../../components/ui/atoms/Skeleton.jsx';
 /**
  * ProjectsTab 컴포넌트

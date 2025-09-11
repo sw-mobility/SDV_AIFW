@@ -13,7 +13,7 @@ import DatasetDataPanel from '../../../components/features/dataset/DatasetDataPa
 import DatasetUploadFilesModal from '../../../components/features/dataset/DatasetUploadFilesModal.jsx';
 import DeleteConfirmModal from '../../../components/ui/modals/DeleteConfirmModal.jsx';
 import { Edit2, Upload as UploadIcon } from 'lucide-react';
-import { useDatasets } from '../../../hooks';
+import { useDatasets } from '../../../hooks/index.js';
 
 /**
  * DatasetsTab 컴포넌트

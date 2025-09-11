@@ -8,7 +8,7 @@ import ProgressBar from '../../components/ui/atoms/ProgressBar.jsx';
 import StatusBadge from '../../components/features/validation/StatusBadge.jsx';
 
 import ValidationHistoryList from '../../components/features/validation/ValidationHistoryList.jsx';
-import { useValidation } from '../../hooks';
+import { useValidation } from '../../hooks/index.js';
 import { uid } from '../../api/uid.js';
 
 const ValidationPage = () => {
