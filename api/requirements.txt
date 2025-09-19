@@ -1,0 +1,17 @@
+fastapi
+pydantic
+pydantic-settings
+uvicorn
+aioboto3
+python-multipart
+boto3
+botocore
+aiohttp
+motor
+pymongo
+aiofiles
+Pillow
+httpx
+requests
+PyYAML
+httpx

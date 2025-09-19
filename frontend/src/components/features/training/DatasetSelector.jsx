@@ -1,0 +1,55 @@
+import React from 'react';
+import Loading from '../../ui/atoms/Loading.jsx';
+import styles from './DatasetSelector.module.css';
+
+/**
+ *  훈련에 사용할 데이터셋 선택 컴포넌트
+ * 주요 기능: 훈련 데이터셋 선택
+ * @param datasets
+ * @param selectedDataset
+ * @param onDatasetChange
+ * @param datasetLoading
+ * @param datasetError
+ * @returns {Element}
+ * @constructor
+ */
+const DatasetSelector = ({ 
+  datasets, 
+  selectedDataset, 
+  onDatasetChange, 
+  datasetLoading, 
+  datasetError 
+}) => {
+  return (
+    <div className={styles.selectorBox}>
+      <label className={styles.paramLabel} style={{marginBottom: 4}}>Dataset</label>
+      {datasetLoading && <Loading />}
+      {datasetError && <span className={styles.inputErrorMsg}>{datasetError}</span>}
+      {!datasetLoading && !datasetError && (
+        <select
+          className={styles.select}
+          value={selectedDataset ? String(selectedDataset.did) : ''}
+          onChange={e => {
+            const ds = datasets.find(d => String(d.did) === e.target.value);
+            onDatasetChange(ds);
+          }}
+        >
+          <option value="">Select dataset</option>
+          {datasets.map(ds => (
+            <option key={ds.did} value={String(ds.did)}>
+              {ds.name}
+            </option>
+          ))}
+        </select>
+      )}
+      {selectedDataset && (
+        <div className={styles.datasetInfo}>
+          <div><b>Name:</b> {selectedDataset.name}</div>
+          <div><b>Type:</b> {selectedDataset.type}</div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DatasetSelector; 
