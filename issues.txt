@@ -77,3 +77,5 @@ training 성공 시의 request body (YOLO11 파라미터 기본값):
   "copy_paste": 0.0
   }
 }
+
+dd

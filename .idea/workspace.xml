@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="33d0ff4d-d3b3-4aa8-9e38-647c37f909ec" name="변경" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="30tueGBHsyzxAnOrN6BTz1WcNoS" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.ide_route.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "last_opened_file_path": "C:/Users/KETI/Downloads/Telegram Desktop/KETIAIFW_FULL_v1.0.3",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "configurable.group.editor",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_FULL_v0.2_update2 (2)\api\services" />
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_FULL_v0.2_update2 (2)\api\routes" />
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_FULL_v0.2_update2 (2)\api\models" />
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_FULL_v0.2_update2 (2)" />
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_Train_v0.3 (2)\frontend" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_FULL_v0.8\api\routes\ide" />
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_FULL_v0.5\api\services\project" />
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_FULL_v0.5\api\models\dataset" />
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_FULL_v0.5\api\services\training" />
+      <recent name="C:\Users\KETI\Downloads\Telegram Desktop\KETIAIFW_FULL_v0.5\api\core" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-PY-251.26927.74" />
+        <option value="bundled-python-sdk-657d8234b839-64d779b69b7a-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.26927.74" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="33d0ff4d-d3b3-4aa8-9e38-647c37f909ec" name="변경" comment="" />
+      <created>1754459283571</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1754459283571</updated>
+      <workItem from="1754459284620" duration="456000" />
+      <workItem from="1754459752014" duration="5000" />
+      <workItem from="1754463359204" duration="650000" />
+      <workItem from="1756453030126" duration="6603000" />
+      <workItem from="1756689198582" duration="12823000" />
+      <workItem from="1756790851812" duration="3945000" />
+      <workItem from="1756797550509" duration="1059000" />
+      <workItem from="1756801682523" duration="4377000" />
+      <workItem from="1756863842100" duration="4997000" />
+      <workItem from="1756873100085" duration="7764000" />
+      <workItem from="1756889541331" duration="331000" />
+      <workItem from="1756948340495" duration="357000" />
+      <workItem from="1756957853588" duration="5426000" />
+      <workItem from="1756966171162" duration="5684000" />
+      <workItem from="1757033235885" duration="20541000" />
+      <workItem from="1757293413918" duration="10054000" />
+      <workItem from="1757313003565" duration="3806000" />
+      <workItem from="1757380064158" duration="13588000" />
+      <workItem from="1757406080040" duration="1509000" />
+      <workItem from="1757470478714" duration="12288000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/KETIAIFW_FULL_v0_8$ide_route.coverage" NAME="ide_route 커버리지 결과" MODIFIED="1757052568637" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/api/routes/ide" />
+  </component>
+</project>
